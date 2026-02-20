@@ -22,6 +22,12 @@ app.use("*", async (c, next) => {
     return next();
   }
 
+  // Root domain → redirect to dashboard
+  const parts = host.split(".");
+  if (parts.length < 3) {
+    return c.redirect("https://app.oauth.page");
+  }
+
   // Proxy traffic — handle directly
   return proxy.fetch(c.req.raw, c.env, c.executionCtx);
 });

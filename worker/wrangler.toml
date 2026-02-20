@@ -23,3 +23,7 @@ id = "b651495a73a04699a0d14cef9af8df2d"
 [[routes]]
 pattern = "*.oauth.page"
 zone_name = "oauth.page"
+
+[[routes]]
+pattern = "oauth.page/*"
+zone_name = "oauth.page"

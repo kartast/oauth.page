@@ -12,7 +12,8 @@ proxy.all("*", async (c) => {
   // Extract subdomain: <slug>.oauth.page
   const parts = host.split(".");
   if (parts.length < 3) {
-    return c.text("Invalid request", 400);
+    // Root domain → redirect to dashboard
+    return c.redirect("https://app.oauth.page");
   }
   const slug = parts[0];
 
