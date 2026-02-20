@@ -1,0 +1,19 @@
+{
+  "name": "oauthpage",
+  "private": true,
+  "workspaces": [
+    "worker",
+    "dashboard"
+  ],
+  "scripts": {
+    "dev": "concurrently -n worker,dashboard -c blue,magenta \"npm run dev:worker\" \"npm run dev:dashboard\"",
+    "dev:worker": "npm run dev --workspace=worker",
+    "dev:dashboard": "npm run dev --workspace=dashboard",
+    "build": "npm run build --workspace=dashboard",
+    "setup": "./scripts/setup.sh",
+    "deploy": "./scripts/deploy.sh"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

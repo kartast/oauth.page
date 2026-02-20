@@ -1,0 +1,25 @@
+name = "oauth-page-worker"
+main = "src/index.ts"
+compatibility_date = "2024-06-20"
+
+[vars]
+APP_URL = "https://app.oauth.page"
+# Set these as secrets via `wrangler secret put`:
+# GITHUB_CLIENT_ID
+# GITHUB_CLIENT_SECRET
+# GOOGLE_CLIENT_ID
+# GOOGLE_CLIENT_SECRET
+# JWT_SECRET
+
+[[d1_databases]]
+binding = "DB"
+database_name = "oauth-page-db"
+database_id = "d3fe89b5-4259-45ea-b344-77d6c26cbe8a"
+
+[[kv_namespaces]]
+binding = "KV"
+id = "b651495a73a04699a0d14cef9af8df2d"
+
+[[routes]]
+pattern = "*.oauth.page"
+zone_name = "oauth.page"

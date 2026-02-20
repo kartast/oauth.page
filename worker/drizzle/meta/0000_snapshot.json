@@ -1,0 +1,131 @@
+{
+  "version": "5",
+  "dialect": "sqlite",
+  "id": "0000-init",
+  "prevId": "0000000000000",
+  "tables": {
+    "users": {
+      "name": "users",
+      "columns": {
+        "id": { "name": "id", "type": "text", "primaryKey": true, "notNull": true, "autoincrement": false },
+        "email": { "name": "email", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "name": { "name": "name", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "avatar_url": { "name": "avatar_url", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "github_id": { "name": "github_id", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "google_id": { "name": "google_id", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "created_at": { "name": "created_at", "type": "integer", "primaryKey": false, "notNull": true, "autoincrement": false }
+      },
+      "indexes": {
+        "users_email_unique": { "name": "users_email_unique", "columns": ["email"], "isUnique": true },
+        "idx_users_github_id": { "name": "idx_users_github_id", "columns": ["github_id"], "isUnique": false },
+        "idx_users_google_id": { "name": "idx_users_google_id", "columns": ["google_id"], "isUnique": false }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "sites": {
+      "name": "sites",
+      "columns": {
+        "id": { "name": "id", "type": "text", "primaryKey": true, "notNull": true, "autoincrement": false },
+        "owner_id": { "name": "owner_id", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "slug": { "name": "slug", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "origin_url": { "name": "origin_url", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "name": { "name": "name", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "created_at": { "name": "created_at", "type": "integer", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "settings": { "name": "settings", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false }
+      },
+      "indexes": {
+        "sites_slug_unique": { "name": "sites_slug_unique", "columns": ["slug"], "isUnique": true },
+        "idx_sites_owner_id": { "name": "idx_sites_owner_id", "columns": ["owner_id"], "isUnique": false }
+      },
+      "foreignKeys": {
+        "sites_owner_id_users_id_fk": {
+          "name": "sites_owner_id_users_id_fk",
+          "tableFrom": "sites",
+          "tableTo": "users",
+          "columnsFrom": ["owner_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "access_requests": {
+      "name": "access_requests",
+      "columns": {
+        "id": { "name": "id", "type": "text", "primaryKey": true, "notNull": true, "autoincrement": false },
+        "site_id": { "name": "site_id", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "email": { "name": "email", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "name": { "name": "name", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "message": { "name": "message", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "status": { "name": "status", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false, "default": "'pending'" },
+        "decided_by": { "name": "decided_by", "type": "text", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "decided_at": { "name": "decided_at", "type": "integer", "primaryKey": false, "notNull": false, "autoincrement": false },
+        "created_at": { "name": "created_at", "type": "integer", "primaryKey": false, "notNull": true, "autoincrement": false }
+      },
+      "indexes": {
+        "idx_access_requests_site_id": { "name": "idx_access_requests_site_id", "columns": ["site_id"], "isUnique": false },
+        "idx_access_requests_email": { "name": "idx_access_requests_email", "columns": ["email"], "isUnique": false }
+      },
+      "foreignKeys": {
+        "access_requests_site_id_sites_id_fk": {
+          "name": "access_requests_site_id_sites_id_fk",
+          "tableFrom": "access_requests",
+          "tableTo": "sites",
+          "columnsFrom": ["site_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "access_requests_decided_by_users_id_fk": {
+          "name": "access_requests_decided_by_users_id_fk",
+          "tableFrom": "access_requests",
+          "tableTo": "users",
+          "columnsFrom": ["decided_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "sessions": {
+      "name": "sessions",
+      "columns": {
+        "id": { "name": "id", "type": "text", "primaryKey": true, "notNull": true, "autoincrement": false },
+        "token": { "name": "token", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "site_id": { "name": "site_id", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "email": { "name": "email", "type": "text", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "expires_at": { "name": "expires_at", "type": "integer", "primaryKey": false, "notNull": true, "autoincrement": false },
+        "created_at": { "name": "created_at", "type": "integer", "primaryKey": false, "notNull": true, "autoincrement": false }
+      },
+      "indexes": {
+        "sessions_token_unique": { "name": "sessions_token_unique", "columns": ["token"], "isUnique": true },
+        "idx_sessions_site_id": { "name": "idx_sessions_site_id", "columns": ["site_id"], "isUnique": false }
+      },
+      "foreignKeys": {
+        "sessions_site_id_sites_id_fk": {
+          "name": "sessions_site_id_sites_id_fk",
+          "tableFrom": "sessions",
+          "tableTo": "sites",
+          "columnsFrom": ["site_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    }
+  },
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}

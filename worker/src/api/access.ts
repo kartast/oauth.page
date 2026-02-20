@@ -1,0 +1,205 @@
+import { Hono } from "hono";
+import { Env, OwnerSession } from "../types";
+import { createVisitorSession, revokeVisitorSessionsByEmail, getVisitorIdentity } from "../auth/session";
+
+const accessApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
+
+// POST /api/access/request — visitor submits access request (requires visitor OAuth identity)
+// This is mounted separately in the main router without auth middleware
+export const publicAccessApi = new Hono<{ Bindings: Env }>();
+
+publicAccessApi.post("/request", async (c) => {
+  const contentType = c.req.header("content-type") || "";
+  const cookies = c.req.header("cookie") || "";
+
+  // Get visitor identity from cookie
+  const visitorToken = parseCookie(cookies, "gk_visitor");
+  if (!visitorToken) {
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      const formData = await c.req.parseBody();
+      const slug = formData.slug as string;
+      return c.redirect(`https://${slug}.oauth.page?error=not_signed_in`);
+    }
+    return c.json({ error: "Not signed in. Please sign in with GitHub or Google first." }, 401);
+  }
+
+  const visitor = await getVisitorIdentity(c.env, visitorToken);
+  if (!visitor) {
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      const formData = await c.req.parseBody();
+      const slug = formData.slug as string;
+      return c.redirect(`https://${slug}.oauth.page?error=session_expired`);
+    }
+    return c.json({ error: "Visitor session expired. Please sign in again." }, 401);
+  }
+
+  let slug: string;
+  if (contentType.includes("application/x-www-form-urlencoded")) {
+    const formData = await c.req.parseBody();
+    slug = formData.slug as string;
+  } else {
+    const body = await c.req.json<{ slug: string }>();
+    slug = body.slug;
+  }
+
+  if (!slug) {
+    return c.json({ error: "Slug is required" }, 400);
+  }
+
+  // Look up site
+  const siteJson = await c.env.KV.get(`site:${slug}`);
+  if (!siteJson) {
+    return c.json({ error: "Site not found" }, 404);
+  }
+  const site = JSON.parse(siteJson);
+
+  // Check for existing pending request
+  const existing = await c.env.DB.prepare(
+    "SELECT id FROM access_requests WHERE site_id = ? AND email = ? AND status = 'pending'"
+  )
+    .bind(site.id, visitor.email)
+    .first();
+
+  if (existing) {
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      return c.redirect(`https://${slug}.oauth.page/`);
+    }
+    return c.json({ message: "Access request already pending" }, 200);
+  }
+
+  // Check if already has active session
+  const activeSession = await c.env.DB.prepare(
+    "SELECT id FROM sessions WHERE site_id = ? AND email = ? AND expires_at > ?"
+  )
+    .bind(site.id, visitor.email, Math.floor(Date.now() / 1000))
+    .first();
+
+  if (activeSession) {
+    if (contentType.includes("application/x-www-form-urlencoded")) {
+      return c.redirect(`https://${slug}.oauth.page/`);
+    }
+    return c.json({ message: "You already have access" }, 200);
+  }
+
+  const id = crypto.randomUUID();
+  const now = Math.floor(Date.now() / 1000);
+
+  await c.env.DB.prepare(
+    "INSERT INTO access_requests (id, site_id, email, name, message, status, avatar_url, provider, created_at) VALUES (?, ?, ?, ?, ?, 'pending', ?, ?, ?)"
+  )
+    .bind(id, site.id, visitor.email, visitor.name, null, visitor.avatar_url || null, visitor.provider, now)
+    .run();
+
+  if (contentType.includes("application/x-www-form-urlencoded")) {
+    return c.redirect(`https://${slug}.oauth.page/`);
+  }
+  return c.json({ message: "Access request submitted", id }, 201);
+});
+
+// GET /api/sites/:id/requests — list access requests
+accessApi.get("/:id/requests", async (c) => {
+  const owner = c.get("owner");
+  const siteId = c.req.param("id");
+
+  // Verify ownership
+  const site = await c.env.DB.prepare("SELECT id FROM sites WHERE id = ? AND owner_id = ?")
+    .bind(siteId, owner.user_id)
+    .first();
+  if (!site) return c.json({ error: "Site not found" }, 404);
+
+  const requests = await c.env.DB.prepare(
+    "SELECT * FROM access_requests WHERE site_id = ? ORDER BY created_at DESC"
+  )
+    .bind(siteId)
+    .all();
+
+  return c.json({ requests: requests.results });
+});
+
+// POST /api/sites/:id/requests/:rid/approve
+accessApi.post("/:id/requests/:rid/approve", async (c) => {
+  const owner = c.get("owner");
+  const siteId = c.req.param("id");
+  const requestId = c.req.param("rid");
+
+  // Verify ownership
+  const site = await c.env.DB.prepare("SELECT * FROM sites WHERE id = ? AND owner_id = ?")
+    .bind(siteId, owner.user_id)
+    .first();
+  if (!site) return c.json({ error: "Site not found" }, 404);
+
+  // Get the request
+  const request = await c.env.DB.prepare(
+    "SELECT * FROM access_requests WHERE id = ? AND site_id = ?"
+  )
+    .bind(requestId, siteId)
+    .first();
+  if (!request) return c.json({ error: "Request not found" }, 404);
+  if (request.status !== "pending") return c.json({ error: "Request already processed" }, 400);
+
+  const now = Math.floor(Date.now() / 1000);
+
+  // Update request status
+  await c.env.DB.prepare(
+    "UPDATE access_requests SET status = 'approved', decided_by = ?, decided_at = ? WHERE id = ?"
+  )
+    .bind(owner.user_id, now, requestId)
+    .run();
+
+  // Create visitor session in KV + D1 (visitor picks it up on next page load)
+  await createVisitorSession(c.env, siteId, request.email as string);
+
+  return c.json({ ok: true, message: "Request approved. Visitor will get access on next visit." });
+});
+
+// POST /api/sites/:id/requests/:rid/deny
+accessApi.post("/:id/requests/:rid/deny", async (c) => {
+  const owner = c.get("owner");
+  const siteId = c.req.param("id");
+  const requestId = c.req.param("rid");
+
+  const site = await c.env.DB.prepare("SELECT id FROM sites WHERE id = ? AND owner_id = ?")
+    .bind(siteId, owner.user_id)
+    .first();
+  if (!site) return c.json({ error: "Site not found" }, 404);
+
+  const request = await c.env.DB.prepare(
+    "SELECT * FROM access_requests WHERE id = ? AND site_id = ?"
+  )
+    .bind(requestId, siteId)
+    .first();
+  if (!request) return c.json({ error: "Request not found" }, 404);
+  if (request.status !== "pending") return c.json({ error: "Request already processed" }, 400);
+
+  const now = Math.floor(Date.now() / 1000);
+  await c.env.DB.prepare(
+    "UPDATE access_requests SET status = 'denied', decided_by = ?, decided_at = ? WHERE id = ?"
+  )
+    .bind(owner.user_id, now, requestId)
+    .run();
+
+  return c.json({ ok: true, message: "Request denied" });
+});
+
+// DELETE /api/sites/:id/access/:email — revoke access
+accessApi.delete("/:id/access/:email", async (c) => {
+  const owner = c.get("owner");
+  const siteId = c.req.param("id");
+  const email = decodeURIComponent(c.req.param("email"));
+
+  const site = await c.env.DB.prepare("SELECT id FROM sites WHERE id = ? AND owner_id = ?")
+    .bind(siteId, owner.user_id)
+    .first();
+  if (!site) return c.json({ error: "Site not found" }, 404);
+
+  await revokeVisitorSessionsByEmail(c.env, siteId, email);
+
+  return c.json({ ok: true, message: "Access revoked" });
+});
+
+function parseCookie(cookieHeader: string, name: string): string | null {
+  const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : null;
+}
+
+export default accessApi;
