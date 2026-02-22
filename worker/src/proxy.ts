@@ -29,6 +29,25 @@ proxy.all("*", async (c) => {
 
   const site: SiteConfig = JSON.parse(siteJson);
   const cookies = c.req.header("cookie") || "";
+  const debugInterstitial = url.searchParams.get("debug_interstitial") === "1";
+
+  const redirectWithoutDebug = () => {
+    const u = new URL(c.req.url);
+    u.searchParams.delete("debug_interstitial");
+    return u.toString();
+  };
+
+  const renderDebugInterstitial = (to: string, extraHeaders: Record<string, string> = {}) =>
+    new Response(
+      `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Debug Redirect</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:480px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.ok{font-size:28px;margin-bottom:8px}.muted{color:#a1a1aa}</style></head><body><div class="card"><div class="ok">✓</div><h2>Debug: Auth detected</h2><p class="muted">Redirecting to <code>${to}</code> in 2s…</p><p><a href="${to}" style="color:#a78bfa">Continue now</a></p></div><script>setTimeout(()=>location.href=${JSON.stringify(to)},2000)</script></body></html>`,
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          ...extraHeaders,
+        },
+      }
+    );
 
   // Helper: serve from R2 and track usage
   const serveAndTrack = async () => {
@@ -56,6 +75,7 @@ proxy.all("*", async (c) => {
     if (sessionJson) {
       const session: SessionData = JSON.parse(sessionJson);
       if (session.site_id === site.id && session.expires_at > Math.floor(Date.now() / 1000)) {
+        if (debugInterstitial) return renderDebugInterstitial(redirectWithoutDebug());
         return serveAndTrack();
       }
     }
@@ -66,6 +86,7 @@ proxy.all("*", async (c) => {
   if (ownerToken) {
     const owner = await verifyOwnerToken(c.env, ownerToken);
     if (owner && owner.user_id === site.owner_id) {
+      if (debugInterstitial) return renderDebugInterstitial(redirectWithoutDebug());
       return serveAndTrack();
     }
   }
@@ -87,6 +108,7 @@ proxy.all("*", async (c) => {
       .first();
 
     if (ownerByEmail) {
+      if (debugInterstitial) return renderDebugInterstitial(redirectWithoutDebug());
       return serveAndTrack();
     }
 
@@ -98,6 +120,11 @@ proxy.all("*", async (c) => {
 
     if (activeSession) {
       const domain = `${slug}.oauth.page`;
+      if (debugInterstitial) {
+        return renderDebugInterstitial(redirectWithoutDebug(), {
+          "Set-Cookie": setSessionCookie(activeSession.token as string, domain),
+        });
+      }
       const response = await serveAndTrack();
       const newResponse = new Response(response.body, response);
       newResponse.headers.append("Set-Cookie", setSessionCookie(activeSession.token as string, domain));
