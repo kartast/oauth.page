@@ -90,6 +90,9 @@ publicAccessApi.post("/request", async (c) => {
     .bind(id, site.id, visitor.email, visitor.name, null, visitor.avatar_url || null, visitor.provider, now)
     .run();
 
+  // Update storage_bytes estimate for the site
+  await updateStorageBytes(c.env.DB, site.id);
+
   if (contentType.includes("application/x-www-form-urlencoded")) {
     return c.redirect(`https://${slug}.oauth.page/`);
   }
@@ -149,6 +152,9 @@ accessApi.post("/:id/requests/:rid/approve", async (c) => {
   // Create visitor session in KV + D1 (visitor picks it up on next page load)
   await createVisitorSession(c.env, siteId, request.email as string);
 
+  // Update storage_bytes estimate
+  await updateStorageBytes(c.env.DB, siteId);
+
   return c.json({ ok: true, message: "Request approved. Visitor will get access on next visit." });
 });
 
@@ -194,12 +200,32 @@ accessApi.delete("/:id/access/:email", async (c) => {
 
   await revokeVisitorSessionsByEmail(c.env, siteId, email);
 
+  // Update storage_bytes estimate
+  await updateStorageBytes(c.env.DB, siteId);
+
   return c.json({ ok: true, message: "Access revoked" });
 });
 
 function parseCookie(cookieHeader: string, name: string): string | null {
   const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
   return match ? decodeURIComponent(match[1]) : null;
+}
+
+const AVG_ROW_BYTES = 200;
+
+async function updateStorageBytes(db: D1Database, siteId: string): Promise<void> {
+  const result = await db.prepare(
+    `SELECT 
+      (SELECT COUNT(*) FROM access_requests WHERE site_id = ?) +
+      (SELECT COUNT(*) FROM sessions WHERE site_id = ?) as row_count`
+  )
+    .bind(siteId, siteId)
+    .first<{ row_count: number }>();
+
+  const storageBytes = (result?.row_count ?? 0) * AVG_ROW_BYTES;
+  await db.prepare("UPDATE sites SET storage_bytes = ? WHERE id = ?")
+    .bind(storageBytes, siteId)
+    .run();
 }
 
 export default accessApi;

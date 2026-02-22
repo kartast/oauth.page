@@ -20,8 +20,12 @@ database_id = "d3fe89b5-4259-45ea-b344-77d6c26cbe8a"
 binding = "KV"
 id = "b651495a73a04699a0d14cef9af8df2d"
 
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "oauthpage-sites"
+
 [[routes]]
-pattern = "*.oauth.page"
+pattern = "*.oauth.page/*"
 zone_name = "oauth.page"
 
 [[routes]]

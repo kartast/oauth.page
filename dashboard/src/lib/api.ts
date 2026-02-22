@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.PROD ? "https://app.oauth.page" : "";
+const API_BASE = "";
 
 interface ApiOptions {
   method?: string;
@@ -60,10 +60,18 @@ export interface Site {
   id: string;
   slug: string;
   name: string;
-  origin_url: string;
   created_at: number;
   user_count?: number;
   pending_count?: number;
+  total_requests?: number;
+  total_bytes_out?: number;
+  storage_bytes?: number;
+}
+
+export interface SiteFile {
+  path: string;
+  size: number;
+  lastModified: string;
 }
 
 export interface AccessRequest {
@@ -91,7 +99,7 @@ export async function getSite(id: string) {
   }>(`/api/sites/${id}`);
 }
 
-export async function createSite(data: { name: string; origin_url: string; slug?: string }) {
+export async function createSite(data: { name: string; slug?: string }) {
   return api<{ site: Site }>("/api/sites", { method: "POST", body: data });
 }
 
@@ -109,4 +117,26 @@ export async function denyRequest(siteId: string, requestId: string) {
 
 export async function revokeAccess(siteId: string, email: string) {
   return api(`/api/sites/${siteId}/access/${encodeURIComponent(email)}`, { method: "DELETE" });
+}
+
+// Files
+export async function listFiles(siteId: string) {
+  return api<{ files: SiteFile[] }>(`/api/sites/${siteId}/files`);
+}
+
+export async function uploadFile(siteId: string, path: string, file: File): Promise<{ ok: boolean; path: string; size: number }> {
+  const response = await fetch(`/api/sites/${siteId}/files/${path}`, {
+    method: "PUT",
+    credentials: "include",
+    body: file,
+  });
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({ error: "Upload failed" }));
+    throw new Error((error as any).error || `HTTP ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function deleteFile(siteId: string, path: string) {
+  return api(`/api/sites/${siteId}/files/${path}`, { method: "DELETE" });
 }

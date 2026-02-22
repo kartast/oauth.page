@@ -22,17 +22,10 @@ sitesApi.get("/", async (c) => {
 // POST /api/sites — create a new site
 sitesApi.post("/", async (c) => {
   const owner = c.get("owner");
-  const body = await c.req.json<{ name: string; origin_url: string; slug?: string }>();
+  const body = await c.req.json<{ name: string; slug?: string }>();
 
-  if (!body.name || !body.origin_url) {
-    return c.json({ error: "Name and origin_url are required" }, 400);
-  }
-
-  // Validate origin URL
-  try {
-    new URL(body.origin_url);
-  } catch {
-    return c.json({ error: "Invalid origin URL" }, 400);
+  if (!body.name) {
+    return c.json({ error: "Name is required" }, 400);
   }
 
   // Generate slug from name or use provided
@@ -61,14 +54,14 @@ sitesApi.post("/", async (c) => {
   await c.env.DB.prepare(
     "INSERT INTO sites (id, owner_id, slug, origin_url, name, created_at) VALUES (?, ?, ?, ?, ?, ?)"
   )
-    .bind(id, owner.user_id, slug, body.origin_url, body.name, now)
+    .bind(id, owner.user_id, slug, "", body.name, now)
     .run();
 
   // Cache in KV for fast edge lookups
-  const siteConfig = { id, slug, origin_url: body.origin_url, name: body.name, owner_id: owner.user_id };
+  const siteConfig = { id, slug, name: body.name, owner_id: owner.user_id };
   await c.env.KV.put(`site:${slug}`, JSON.stringify(siteConfig));
 
-  return c.json({ site: { id, slug, origin_url: body.origin_url, name: body.name, created_at: now } }, 201);
+  return c.json({ site: { id, slug, name: body.name, created_at: now } }, 201);
 });
 
 // GET /api/sites/:id — get site details
@@ -125,6 +118,17 @@ sitesApi.delete("/:id", async (c) => {
 
   // Clean up KV
   await c.env.KV.delete(`site:${site.slug}`);
+
+  // Clean up R2 files
+  const prefix = `u_${owner.user_id}/s_${siteId}/`;
+  let cursor: string | undefined;
+  do {
+    const listed = await c.env.STORAGE.list({ prefix, limit: 1000, cursor });
+    if (listed.objects.length > 0) {
+      await c.env.STORAGE.delete(listed.objects.map((o) => o.key));
+    }
+    cursor = listed.truncated ? listed.cursor : undefined;
+  } while (cursor);
 
   // Delete sessions from KV
   const sessions = await c.env.DB.prepare("SELECT token FROM sessions WHERE site_id = ?")

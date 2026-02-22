@@ -1,6 +1,7 @@
 export interface Env {
   DB: D1Database;
   KV: KVNamespace;
+  STORAGE: R2Bucket;
   APP_URL: string;
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
@@ -12,7 +13,6 @@ export interface Env {
 export interface SiteConfig {
   id: string;
   slug: string;
-  origin_url: string;
   name: string;
   owner_id: string;
 }

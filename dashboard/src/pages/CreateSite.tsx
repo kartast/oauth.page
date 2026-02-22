@@ -6,7 +6,6 @@ import { createSite } from "../lib/api";
 export default function CreateSite() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
-  const [originUrl, setOriginUrl] = useState("");
   const [slug, setSlug] = useState("");
   const [autoSlug, setAutoSlug] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +27,6 @@ export default function CreateSite() {
     try {
       const result = await createSite({
         name,
-        origin_url: originUrl,
         slug: effectiveSlug || undefined,
       });
       navigate(`/sites/${result.site.id}`);
@@ -64,25 +62,10 @@ export default function CreateSite() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="My Private Docs"
+            placeholder="My Private Site"
             required
             className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-brand transition-colors"
           />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-zinc-400 mb-1.5">Origin URL</label>
-          <input
-            type="url"
-            value={originUrl}
-            onChange={(e) => setOriginUrl(e.target.value)}
-            placeholder="https://your-site.example.com"
-            required
-            className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-brand transition-colors"
-          />
-          <p className="text-xs text-zinc-600 mt-1">
-            The original website that will be proxied through OAuthPage
-          </p>
         </div>
 
         <div>
@@ -113,9 +96,13 @@ export default function CreateSite() {
           </div>
         </div>
 
+        <p className="text-xs text-zinc-600 bg-zinc-900/50 rounded-lg px-3 py-2">
+          You'll upload files after creating the site. Visitors will need to sign in with OAuth to access them.
+        </p>
+
         <button
           type="submit"
-          disabled={submitting || !name || !originUrl}
+          disabled={submitting || !name}
           className="w-full py-2.5 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:hover:bg-brand text-white text-sm font-medium rounded-lg transition-colors mt-2"
         >
           {submitting ? "Creating..." : "Create Site"}

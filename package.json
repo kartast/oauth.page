@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "worker",
-    "dashboard"
+    "dashboard",
+    "packages/cli"
   ],
   "scripts": {
     "dev": "concurrently -n worker,dashboard -c blue,magenta \"npm run dev:worker\" \"npm run dev:dashboard\"",

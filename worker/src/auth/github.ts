@@ -1,25 +1,54 @@
 import { Hono } from "hono";
 import { Env } from "../types";
-import { createOwnerToken, setOwnerCookie } from "./session";
+import { createOwnerToken, setOwnerCookie, createVisitorIdentity, setVisitorCookie } from "./session";
 
 const github = new Hono<{ Bindings: Env }>();
 
-// POST /api/auth/github — redirect to GitHub OAuth
+const CALLBACK_PATH = "/api/auth/github/callback";
+
+// POST /api/auth/github — owner login (dashboard calls this)
 github.post("/", (c) => {
+  const state = btoa(JSON.stringify({ type: "owner" }));
   const params = new URLSearchParams({
     client_id: c.env.GITHUB_CLIENT_ID,
-    redirect_uri: `${c.env.APP_URL}/api/auth/github/callback`,
+    redirect_uri: `${c.env.APP_URL}${CALLBACK_PATH}`,
     scope: "read:user user:email",
+    state,
   });
   return c.json({ url: `https://github.com/login/oauth/authorize?${params}` });
 });
 
-// GET /api/auth/github/callback — exchange code for token
+// GET /api/auth/github/callback — unified callback for both owner and visitor
 github.get("/callback", async (c) => {
   const code = c.req.query("code");
+  const stateParam = c.req.query("state") || "";
+
+  // Parse state to determine flow type
+  let flowType = "owner";
+  let siteSlug = "";
+  let cliCode = "";
+  try {
+    const parsed = JSON.parse(atob(stateParam));
+    flowType = parsed.type || "owner";
+    siteSlug = parsed.slug || "";
+    cliCode = parsed.code || "";
+  } catch {}
+
   if (!code) {
+    if (flowType === "visitor" && siteSlug) {
+      return c.redirect(`https://${siteSlug}.oauth.page?error=missing_code`);
+    }
+    if (flowType === "cli") {
+      return c.html(`<h1>OAuth failed</h1><p>Missing code. Return to terminal and run <code>oauthpage login</code> again.</p>`, 400);
+    }
     return c.redirect(`${c.env.APP_URL}/login?error=missing_code`);
   }
+
+  const errorRedirect = flowType === "visitor" && siteSlug
+    ? `https://${siteSlug}.oauth.page`
+    : flowType === "cli"
+      ? `${c.env.APP_URL}/api/cli/auth/callback?code=${encodeURIComponent(cliCode)}`
+      : `${c.env.APP_URL}/login`;
 
   try {
     // Exchange code for access token
@@ -33,12 +62,13 @@ github.get("/callback", async (c) => {
         client_id: c.env.GITHUB_CLIENT_ID,
         client_secret: c.env.GITHUB_CLIENT_SECRET,
         code,
+        redirect_uri: `${c.env.APP_URL}${CALLBACK_PATH}`,
       }),
     });
     const tokenData: any = await tokenRes.json();
 
     if (!tokenData.access_token) {
-      return c.redirect(`${c.env.APP_URL}/login?error=token_exchange_failed`);
+      return c.redirect(`${errorRedirect}?error=token_exchange_failed`);
     }
 
     // Get user info
@@ -65,10 +95,29 @@ github.get("/callback", async (c) => {
     }
 
     if (!email) {
-      return c.redirect(`${c.env.APP_URL}/login?error=no_email`);
+      return c.redirect(`${errorRedirect}?error=no_email`);
     }
 
-    // Upsert user in D1
+    // --- VISITOR FLOW ---
+    if (flowType === "visitor") {
+      const token = await createVisitorIdentity(c.env, {
+        email,
+        name: ghUser.name || ghUser.login,
+        avatar_url: ghUser.avatar_url || "",
+        provider: "github",
+      });
+
+      const redirectTo = siteSlug ? `https://${siteSlug}.oauth.page/` : `${c.env.APP_URL}`;
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: redirectTo,
+          "Set-Cookie": setVisitorCookie(token),
+        },
+      });
+    }
+
+    // --- OWNER FLOW ---
     const now = Math.floor(Date.now() / 1000);
     const existingUser = await c.env.DB.prepare(
       "SELECT * FROM users WHERE github_id = ? OR email = ?"
@@ -93,12 +142,38 @@ github.get("/callback", async (c) => {
         .run();
     }
 
-    // Create JWT
     const jwt = await createOwnerToken(c.env, {
       id: userId,
       email,
       name: ghUser.name || ghUser.login,
     });
+
+    // --- CLI FLOW ---
+    if (flowType === "cli" && cliCode) {
+      await c.env.KV.put(
+        `cli_auth:${cliCode}`,
+        JSON.stringify({
+          status: "complete",
+          token: jwt,
+          email,
+          name: ghUser.name || ghUser.login,
+        }),
+        { expirationTtl: 300 }
+      );
+
+      return c.html(`
+        <!DOCTYPE html>
+        <html><head><title>OAuthPage CLI</title>
+        <style>
+          body{font-family:system-ui,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0;background:#0a0a0a;color:#fff}
+          .card{text-align:center;padding:2rem}
+          .check{font-size:3rem;margin-bottom:1rem}
+          h1{font-size:1.5rem;margin-bottom:.5rem}
+          p{color:#888}
+        </style></head>
+        <body><div class="card"><div class="check">✓</div><h1>Authenticated!</h1><p>You can close this tab and return to your terminal.</p></div></body></html>
+      `);
+    }
 
     return new Response(null, {
       status: 302,
@@ -109,7 +184,7 @@ github.get("/callback", async (c) => {
     });
   } catch (err) {
     console.error("GitHub OAuth error:", err);
-    return c.redirect(`${c.env.APP_URL}/login?error=oauth_failed`);
+    return c.redirect(`${errorRedirect}?error=oauth_failed`);
   }
 });
 
