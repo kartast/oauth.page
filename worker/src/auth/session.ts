@@ -140,7 +140,7 @@ export function setOwnerCookie(token: string, maxAge: number = SESSION_TTL): str
 
 // --- Visitor identity (for the OAuth request flow, stored in KV) ---
 
-const VISITOR_TTL = 24 * 60 * 60; // 1 day
+const VISITOR_TTL = 30 * 24 * 60 * 60; // 30 days
 
 export async function createVisitorIdentity(
   env: Env,

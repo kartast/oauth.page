@@ -35,9 +35,9 @@ describe("Cookie Formatters", () => {
       expect(cookie).toContain("Path=/");
     });
 
-    it("has 1 day Max-Age", () => {
+    it("has 30 day Max-Age", () => {
       const cookie = setVisitorCookie("token");
-      expect(cookie).toContain("Max-Age=86400");
+      expect(cookie).toContain("Max-Age=2592000");
     });
   });
 
