@@ -74,6 +74,18 @@ export interface SiteFile {
   lastModified: string;
 }
 
+export interface OneTimeLink {
+  id: string;
+  path: string;
+  expires_at: number;
+  status: "active" | "consumed" | "revoked";
+  uses_count: number;
+  max_uses: number;
+  created_at: number;
+  consumed_at?: number | null;
+  url?: string;
+}
+
 export interface AccessRequest {
   id: string;
   site_id: string;
@@ -139,4 +151,27 @@ export async function uploadFile(siteId: string, path: string, file: File): Prom
 
 export async function deleteFile(siteId: string, path: string) {
   return api(`/api/sites/${siteId}/files/${path}`, { method: "DELETE" });
+}
+
+// Feature flags
+export async function getFlags() {
+  return api<{ beta: { one_time_links: boolean } }>("/api/flags");
+}
+
+// One-time links (BETA)
+export async function createOneTimeLink(siteId: string, data?: { path?: string; ttl_seconds?: number }) {
+  return api<{ beta: boolean; link: OneTimeLink & { url: string } }>(`/api/sites/${siteId}/links`, {
+    method: "POST",
+    body: data || {},
+  });
+}
+
+export async function listOneTimeLinks(siteId: string) {
+  return api<{ beta: boolean; links: OneTimeLink[] }>(`/api/sites/${siteId}/links`);
+}
+
+export async function revokeOneTimeLink(siteId: string, linkId: string) {
+  return api<{ ok: boolean; beta: boolean }>(`/api/sites/${siteId}/links/${linkId}/revoke`, {
+    method: "POST",
+  });
 }

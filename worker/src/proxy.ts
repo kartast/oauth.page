@@ -33,6 +33,8 @@ proxy.all("*", async (c) => {
   // One-time link consume flow (BETA): /_otl/<token>
   const otlMatch = url.pathname.match(/^\/_otl\/([a-f0-9]{32,})$/i);
   if (otlMatch) {
+    const enabled = String(c.env.BETA_ONE_TIME_LINKS || "false").toLowerCase() === "true";
+    if (!enabled) return c.text("Not found", 404);
     return handleOneTimeLink(c, site, slug, otlMatch[1], url);
   }
 

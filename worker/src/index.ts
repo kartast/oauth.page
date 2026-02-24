@@ -88,6 +88,12 @@ app.post("/api/auth/logout", (c) => {
   });
 });
 
+// Feature flags for dashboard/cli
+app.get("/api/flags", (c) => {
+  const oneTimeLinks = String(c.env.BETA_ONE_TIME_LINKS || "false").toLowerCase() === "true";
+  return c.json({ beta: { one_time_links: oneTimeLinks } });
+});
+
 // --- Auth middleware for protected API routes ---
 app.use("/api/sites/*", async (c, next) => {
   const cookies = c.req.header("cookie") || "";

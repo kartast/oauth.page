@@ -4,6 +4,10 @@ import { generateToken } from "../auth/session";
 
 const linksApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
 
+function linksEnabled(env: Env): boolean {
+  return String(env.BETA_ONE_TIME_LINKS || "false").toLowerCase() === "true";
+}
+
 const DEFAULT_TTL_SECONDS = 60 * 60; // 1 hour
 const MAX_TTL_SECONDS = 24 * 60 * 60; // 24 hours
 const MIN_TTL_SECONDS = 60; // 1 minute
@@ -24,6 +28,7 @@ function normalizePath(path: string | undefined): string {
 
 // POST /api/sites/:id/links (beta)
 linksApi.post("/:id/links", async (c) => {
+  if (!linksEnabled(c.env)) return c.json({ error: "One-time links beta is disabled" }, 404);
   const owner = c.get("owner");
   const siteId = c.req.param("id");
   const body = await c.req.json<{ path?: string; ttl_seconds?: number }>().catch(() => ({}));
@@ -67,6 +72,7 @@ linksApi.post("/:id/links", async (c) => {
 
 // GET /api/sites/:id/links
 linksApi.get("/:id/links", async (c) => {
+  if (!linksEnabled(c.env)) return c.json({ error: "One-time links beta is disabled" }, 404);
   const owner = c.get("owner");
   const siteId = c.req.param("id");
 
@@ -90,6 +96,7 @@ linksApi.get("/:id/links", async (c) => {
 
 // POST /api/sites/:id/links/:linkId/revoke
 linksApi.post("/:id/links/:linkId/revoke", async (c) => {
+  if (!linksEnabled(c.env)) return c.json({ error: "One-time links beta is disabled" }, 404);
   const owner = c.get("owner");
   const siteId = c.req.param("id");
   const linkId = c.req.param("linkId");

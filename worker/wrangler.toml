@@ -4,6 +4,7 @@ compatibility_date = "2024-06-20"
 
 [vars]
 APP_URL = "https://app.oauth.page"
+BETA_ONE_TIME_LINKS = "true" # easy launch toggle: set to "false"
 # Set these as secrets via `wrangler secret put`:
 # GITHUB_CLIENT_ID
 # GITHUB_CLIENT_SECRET

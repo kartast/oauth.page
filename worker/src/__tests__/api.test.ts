@@ -92,6 +92,15 @@ describe("API Endpoints", () => {
     expect(setCookie).toContain("Max-Age=0");
   });
 
+  it("GET /api/flags returns beta flag shape", async () => {
+    const req = new Request("https://app.oauth.page/api/flags");
+    const res = await app.fetch(req, env as any, ctx as any);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as any;
+    expect(body.beta).toBeDefined();
+    expect(body.beta.one_time_links).toBeDefined();
+  });
+
   it("Unknown API route returns 404", async () => {
     const req = new Request("https://app.oauth.page/api/nonexistent");
     const res = await app.fetch(req, env as any, ctx as any);
