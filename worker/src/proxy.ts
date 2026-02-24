@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { Env, SiteConfig, SessionData, VisitorIdentity } from "./types";
 import { renderGatePage } from "./gate";
-import { verifyOwnerToken, getVisitorIdentity, setSessionCookie } from "./auth/session";
+import { verifyOwnerToken, getVisitorIdentity, setSessionCookie, setOwnerCookie, setVisitorCookie } from "./auth/session";
 import { getMimeType, isHashed } from "./api/files";
 
 const proxy = new Hono<{ Bindings: Env }>();
@@ -75,8 +75,16 @@ proxy.all("*", async (c) => {
     if (sessionJson) {
       const session: SessionData = JSON.parse(sessionJson);
       if (session.site_id === site.id && session.expires_at > Math.floor(Date.now() / 1000)) {
-        if (debugInterstitial) return renderDebugInterstitial(redirectWithoutDebug());
-        return serveAndTrack();
+        const domain = `${slug}.oauth.page`;
+        if (debugInterstitial) {
+          return renderDebugInterstitial(redirectWithoutDebug(), {
+            "Set-Cookie": setSessionCookie(sessionToken, domain),
+          });
+        }
+        const response = await serveAndTrack();
+        const refreshed = new Response(response.body, response);
+        refreshed.headers.append("Set-Cookie", setSessionCookie(sessionToken, domain));
+        return refreshed;
       }
     }
   }
@@ -86,8 +94,15 @@ proxy.all("*", async (c) => {
   if (ownerToken) {
     const owner = await verifyOwnerToken(c.env, ownerToken);
     if (owner && owner.user_id === site.owner_id) {
-      if (debugInterstitial) return renderDebugInterstitial(redirectWithoutDebug());
-      return serveAndTrack();
+      if (debugInterstitial) {
+        return renderDebugInterstitial(redirectWithoutDebug(), {
+          "Set-Cookie": setOwnerCookie(ownerToken),
+        });
+      }
+      const response = await serveAndTrack();
+      const refreshed = new Response(response.body, response);
+      refreshed.headers.append("Set-Cookie", setOwnerCookie(ownerToken));
+      return refreshed;
     }
   }
 
@@ -108,8 +123,15 @@ proxy.all("*", async (c) => {
       .first();
 
     if (ownerByEmail) {
-      if (debugInterstitial) return renderDebugInterstitial(redirectWithoutDebug());
-      return serveAndTrack();
+      if (debugInterstitial) {
+        return renderDebugInterstitial(redirectWithoutDebug(), {
+          "Set-Cookie": setVisitorCookie(visitorToken as string),
+        });
+      }
+      const response = await serveAndTrack();
+      const refreshed = new Response(response.body, response);
+      refreshed.headers.append("Set-Cookie", setVisitorCookie(visitorToken as string));
+      return refreshed;
     }
 
     const activeSession = await c.env.DB.prepare(
@@ -121,13 +143,16 @@ proxy.all("*", async (c) => {
     if (activeSession) {
       const domain = `${slug}.oauth.page`;
       if (debugInterstitial) {
-        return renderDebugInterstitial(redirectWithoutDebug(), {
+        const interstitial = renderDebugInterstitial(redirectWithoutDebug(), {
           "Set-Cookie": setSessionCookie(activeSession.token as string, domain),
         });
+        interstitial.headers.append("Set-Cookie", setVisitorCookie(visitorToken as string));
+        return interstitial;
       }
       const response = await serveAndTrack();
       const newResponse = new Response(response.body, response);
       newResponse.headers.append("Set-Cookie", setSessionCookie(activeSession.token as string, domain));
+      newResponse.headers.append("Set-Cookie", setVisitorCookie(visitorToken as string));
       return newResponse;
     }
 
