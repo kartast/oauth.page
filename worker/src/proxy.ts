@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { Env, SiteConfig, SessionData, VisitorIdentity } from "./types";
 import { renderGatePage } from "./gate";
-import { verifyOwnerToken, getVisitorIdentity, setSessionCookie, setOwnerCookie, setVisitorCookie } from "./auth/session";
+import { verifyOwnerToken, getVisitorIdentity, setSessionCookie, setOwnerCookie, setVisitorCookie, createVisitorSession } from "./auth/session";
 import { getMimeType, isHashed } from "./api/files";
+import { sha256Hex } from "./api/links";
 
 const proxy = new Hono<{ Bindings: Env }>();
 
@@ -28,6 +29,13 @@ proxy.all("*", async (c) => {
   }
 
   const site: SiteConfig = JSON.parse(siteJson);
+
+  // One-time link consume flow (BETA): /_otl/<token>
+  const otlMatch = url.pathname.match(/^\/_otl\/([a-f0-9]{32,})$/i);
+  if (otlMatch) {
+    return handleOneTimeLink(c, site, slug, otlMatch[1], url);
+  }
+
   const cookies = c.req.header("cookie") || "";
   const debugInterstitial = url.searchParams.get("debug_interstitial") === "1";
 
@@ -201,6 +209,83 @@ async function serveFromR2(storage: R2Bucket, site: SiteConfig, pathname: string
       "ETag": object.httpEtag,
     },
   });
+}
+
+async function handleOneTimeLink(
+  c: any,
+  site: SiteConfig,
+  slug: string,
+  token: string,
+  url: URL
+): Promise<Response> {
+  const now = Math.floor(Date.now() / 1000);
+  const tokenHash = await sha256Hex(token);
+
+  const link = await c.env.DB.prepare(
+    `SELECT id, path, expires_at, status, max_uses, uses_count
+     FROM one_time_links
+     WHERE site_id = ? AND token_hash = ?
+     LIMIT 1`
+  )
+    .bind(site.id, tokenHash)
+    .first<any>();
+
+  if (!link) {
+    return c.html(renderOneTimeInfo("Invalid link", "This one-time link is invalid or has been removed."), 404);
+  }
+  if (link.status !== "active") {
+    return c.html(renderOneTimeInfo("Link unavailable", "This one-time link has already been used or revoked."), 410);
+  }
+  if (link.expires_at <= now) {
+    return c.html(renderOneTimeInfo("Link expired", "This one-time link has expired. Ask the owner for a new one."), 410);
+  }
+
+  // Anti-prefetch confirm step (BETA safety)
+  if (url.searchParams.get("confirm") !== "1") {
+    const confirmUrl = new URL(url.toString());
+    confirmUrl.searchParams.set("confirm", "1");
+    return c.html(renderOneTimeConfirm(confirmUrl.toString()), 200);
+  }
+
+  const ip = c.req.header("cf-connecting-ip") || "";
+  const ua = (c.req.header("user-agent") || "").slice(0, 500);
+
+  const result = await c.env.DB.prepare(
+    `UPDATE one_time_links
+       SET uses_count = uses_count + 1,
+           status = 'consumed',
+           consumed_at = ?,
+           consumed_ip = ?,
+           consumed_ua = ?
+     WHERE id = ? AND status = 'active' AND expires_at > ? AND uses_count < max_uses`
+  )
+    .bind(now, ip, ua, link.id, now)
+    .run();
+
+  const changed = (result as any)?.meta?.changes || 0;
+  if (!changed) {
+    return c.html(renderOneTimeInfo("Link unavailable", "This one-time link was just consumed or expired."), 410);
+  }
+
+  const minted = await createVisitorSession(c.env, site.id, `otl+${link.id}@guest.oauth.page`);
+  const targetPath = typeof link.path === "string" && link.path.startsWith("/") ? link.path : "/";
+  const redirectTo = `https://${slug}.oauth.page${targetPath}`;
+
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: redirectTo,
+      "Set-Cookie": setSessionCookie(minted.token, `${slug}.oauth.page`),
+    },
+  });
+}
+
+function renderOneTimeConfirm(confirmUrl: string): string {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>One-time link (BETA)</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}.btn{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#8b5cf6;color:#fff;text-decoration:none;font-weight:600}</style></head><body><div class="card"><h2>One-time access link (BETA)</h2><p class="muted">This link can be used only once. Click continue to enter the site.</p><a class="btn" href="${confirmUrl}">Continue</a></div></body></html>`;
+}
+
+function renderOneTimeInfo(title: string, message: string): string {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${title}</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}</style></head><body><div class="card"><h2>${title}</h2><p class="muted">${message}</p></div></body></html>`;
 }
 
 export function parseCookie(cookieHeader: string, name: string): string | null {

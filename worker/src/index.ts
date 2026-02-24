@@ -11,6 +11,7 @@ import sitesApi from "./api/sites";
 import filesApi from "./api/files";
 import accessApi, { publicAccessApi } from "./api/access";
 import cliAuth from "./api/cli-auth";
+import linksApi from "./api/links";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -114,6 +115,7 @@ app.use("/api/sites/*", async (c, next) => {
 app.route("/api/sites", sitesApi);
 app.route("/api/sites", filesApi);
 app.route("/api/sites", accessApi);
+app.route("/api/sites", linksApi);
 
 // Catch-all for unknown API routes
 app.all("/api/*", (c) => c.json({ error: "Not found" }, 404));

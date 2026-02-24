@@ -10,6 +10,7 @@ import { accessCommand } from "./commands/access.js";
 import { approveCommand } from "./commands/approve.js";
 import { denyCommand } from "./commands/deny.js";
 import { revokeCommand } from "./commands/revoke.js";
+import { linkCreateCommand, linkListCommand, linkRevokeCommand } from "./commands/link.js";
 
 const program = new Command();
 
@@ -87,5 +88,27 @@ program
   .description("Revoke access for a user")
   .option("--json", "Output as JSON")
   .action((slug, email, opts) => revokeCommand(slug, email, opts));
+
+const link = program.command("link").description("One-time access links (BETA)");
+
+link
+  .command("create <slug>")
+  .description("Create one-time access link (BETA)")
+  .option("--ttl <ttl>", "TTL, e.g. 30m, 1h, 1d", "1h")
+  .option("--path <path>", "Site path to open", "/")
+  .option("--json", "Output as JSON")
+  .action((slug, opts) => linkCreateCommand(slug, opts));
+
+link
+  .command("list <slug>")
+  .description("List one-time links (BETA)")
+  .option("--json", "Output as JSON")
+  .action((slug, opts) => linkListCommand(slug, opts));
+
+link
+  .command("revoke <slug> <linkId>")
+  .description("Revoke one-time link (BETA)")
+  .option("--json", "Output as JSON")
+  .action((slug, linkId, opts) => linkRevokeCommand(slug, linkId, opts));
 
 program.parse();
