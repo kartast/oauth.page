@@ -105,8 +105,8 @@ export function WorkflowAnimation() {
           <rect x="220" y="190" width="360" height="20" />
         </clipPath>
 
-        {/* Right: Terminal */}
-        <g transform="translate(520, 100)">
+        {/* Left: Terminal */}
+        <g transform="translate(40, 100)">
           {/* Terminal Window */}
           <rect width="240" height="200" rx="8" fill="url(#terminal-bg)" stroke="#3f3f46" strokeWidth="1.5" />
           <path d="M0 8 C0 3.58 3.58 0 8 0 L232 0 C236.42 0 240 3.58 240 8 L240 24 L0 24 L0 8 Z" fill="#27272a" />
@@ -160,8 +160,8 @@ export function WorkflowAnimation() {
           </g>
         </g>
 
-        {/* Left: Desktop Browser */}
-        <g className="float-app" transform="translate(40, 80)">
+        {/* Right: Desktop Browser */}
+        <g className="float-app" transform="translate(560, 80)">
           <rect width="200" height="140" rx="8" fill="url(#browser-bg)" stroke="#3f3f46" strokeWidth="1.5" />
           {/* Browser Header */}
           <path d="M0 8 C0 3.58 3.58 0 8 0 L192 0 C196.42 0 200 3.58 200 8 L200 24 L0 24 L0 8 Z" fill="#27272a" />
@@ -184,8 +184,8 @@ export function WorkflowAnimation() {
           <rect x="112" y="96" width="40" height="24" rx="4" fill="#27272a" />
         </g>
 
-        {/* Left: Mobile App Overlay */}
-        <g className="float-mobile" transform="translate(190, 160)">
+        {/* Right: Mobile App Overlay */}
+        <g className="float-mobile" transform="translate(710, 160)">
           <rect width="60" height="120" rx="8" fill="#18181b" stroke="#52525b" strokeWidth="2" />
           <rect x="20" y="4" width="20" height="4" rx="2" fill="#27272a" />
           
