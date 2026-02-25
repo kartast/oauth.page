@@ -111,7 +111,8 @@ export default function Home() {
         {/* Workflow */}
         <section id="workflow" className="rounded-2xl border border-zinc-800 bg-zinc-900/70 p-6 mb-10">
           <h2 className="text-lg font-medium text-zinc-100 mb-4">LLM publishing workflow</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+          <WorkflowSvg />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm mt-4">
             <Step n="1" title="Generate" text="Agent creates HTML report/site" />
             <Step n="2" title="Deploy" text="opage deploy pushes to private URL" />
             <Step n="3" title="Share securely" text="OAuth approvals or one-time links" />
@@ -177,6 +178,78 @@ function Trust({ icon, label, text }: { icon: React.ReactNode; label: string; te
         <div className="text-[11px] text-zinc-500">{text}</div>
       </div>
     </div>
+  );
+}
+
+function WorkflowSvg() {
+  return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-950/70 p-3 overflow-hidden">
+      <svg viewBox="0 0 900 220" className="w-full h-auto" role="img" aria-label="LLM publishing workflow animation">
+        <defs>
+          <linearGradient id="flow" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#8b5cf6" />
+            <stop offset="100%" stopColor="#ec4899" />
+          </linearGradient>
+          <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+
+        {/* rails */}
+        <path d="M150 70 C250 70, 250 70, 350 70" stroke="#3f3f46" strokeWidth="2" fill="none" />
+        <path d="M450 70 C560 70, 560 70, 680 70" stroke="#3f3f46" strokeWidth="2" fill="none" />
+        <path d="M680 70 C760 70, 760 130, 835 130" stroke="#3f3f46" strokeWidth="2" fill="none" />
+
+        {/* active rails */}
+        <path d="M150 70 C250 70, 250 70, 350 70" stroke="url(#flow)" strokeOpacity="0.55" strokeWidth="2" fill="none" />
+        <path d="M450 70 C560 70, 560 70, 680 70" stroke="url(#flow)" strokeOpacity="0.55" strokeWidth="2" fill="none" />
+
+        {/* nodes */}
+        <Node x={70} y={70} label="Agent" sub="LLM output" />
+        <Node x={250} y={70} label="Deploy" sub="opage" />
+        <Node x={420} y={70} label="Private URL" sub="oauth.page" />
+        <Node x={600} y={70} label="Access" sub="approve/revoke" />
+        <Node x={835} y={130} label="One-time" sub="review link" small />
+
+        {/* moving pulse */}
+        <g filter="url(#softGlow)">
+          <circle r="5" fill="#c4b5fd">
+            <animateMotion dur="3.4s" repeatCount="indefinite" rotate="auto">
+              <mpath href="#mainFlow" />
+            </animateMotion>
+          </circle>
+        </g>
+
+        {/* main path for motion */}
+        <path id="mainFlow" d="M70 70 C250 70, 250 70, 420 70 C560 70, 560 70, 600 70" fill="none" />
+
+        {/* branch pulse */}
+        <g filter="url(#softGlow)">
+          <circle r="4" fill="#f0abfc">
+            <animateMotion dur="2.8s" repeatCount="indefinite" begin="0.8s" rotate="auto">
+              <mpath href="#branchFlow" />
+            </animateMotion>
+          </circle>
+        </g>
+        <path id="branchFlow" d="M600 70 C760 70, 760 130, 835 130" fill="none" />
+      </svg>
+    </div>
+  );
+}
+
+function Node({ x, y, label, sub, small = false }: { x: number; y: number; label: string; sub: string; small?: boolean }) {
+  const w = small ? 130 : 150;
+  const h = small ? 48 : 54;
+  return (
+    <g transform={`translate(${x - w / 2}, ${y - h / 2})`}>
+      <rect width={w} height={h} rx="10" fill="#18181b" stroke="#3f3f46" />
+      <text x={12} y={small ? 20 : 21} fill="#f4f4f5" fontSize="12" fontWeight="600">{label}</text>
+      <text x={12} y={small ? 34 : 38} fill="#a1a1aa" fontSize="11">{sub}</text>
+    </g>
   );
 }
 
