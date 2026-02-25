@@ -138,19 +138,20 @@ export default function Home() {
                 </div>
               </div>
               <div className="p-6 overflow-auto">
-                <pre className="text-sm text-zinc-300 font-mono leading-relaxed">
-<span className="text-zinc-500">$</span> opage login
-<span className="text-emerald-400">✔</span> Authenticated successfully
+                <p className="text-xs text-zinc-500 mb-3">Each line is a separate command:</p>
+                <pre className="text-sm text-zinc-300 font-mono leading-relaxed whitespace-pre">
+{`$ opage login
+✔ Authenticated successfully
 
-<span className="text-zinc-500">$</span> opage add "My Site" --slug my-site
-<span className="text-emerald-400">✔</span> Site created
+$ opage add "My Site" --slug my-site
+✔ Site created
 
-<span className="text-zinc-500">$</span> opage deploy ./dist --site my-site
-<span className="text-brand-light">⠋</span> Uploading assets...
-<span className="text-emerald-400">✔</span> Deployed to <span className="underline decoration-zinc-700 underline-offset-4">my-site.oauth.page</span>
+$ opage deploy ./dist --site my-site
+⠋ Uploading assets...
+✔ Deployed to my-site.oauth.page
 
-<span className="text-zinc-500">$</span> opage link create my-site --ttl 1h
-<span className="text-blue-400">🔗</span> <span className="underline decoration-zinc-700 underline-offset-4">my-site.oauth.page/_otl/...</span>
+$ opage link create my-site --ttl 1h
+🔗 my-site.oauth.page/_otl/...`}
                 </pre>
               </div>
             </div>
