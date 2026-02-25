@@ -98,8 +98,7 @@ export default function Home() {
         {/* Workflow */}
         <section id="workflow" className="mb-12">
           <h2 className="text-lg font-medium mb-4">LLM publishing workflow</h2>
-          <WorkflowVisual />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Step n="01" title="Generate" text="Agent creates HTML reports, dashboards, or pages." />
             <Step n="02" title="Deploy" text="opage deploy publishes to a private oauth.page URL." />
             <Step n="03" title="Control access" text="Approve, revoke, or issue one-time review links." />
@@ -171,67 +170,6 @@ function TrustCard({ icon, label, text }: { icon: React.ReactNode; label: string
         <p className="text-[11px] text-zinc-500">{text}</p>
       </div>
     </div>
-  );
-}
-
-function WorkflowVisual() {
-  return (
-    <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-3 overflow-hidden">
-      <svg viewBox="0 0 960 180" className="w-full h-auto" role="img" aria-label="Animated workflow from generation to secure sharing">
-        <defs>
-          <linearGradient id="wfLine" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#71717a" />
-            <stop offset="100%" stopColor="#a78bfa" />
-          </linearGradient>
-          <filter id="wfGlow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="b" />
-            <feMerge>
-              <feMergeNode in="b" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-        </defs>
-
-        <path d="M130 82 H345" stroke="url(#wfLine)" strokeWidth="2" />
-        <path d="M445 82 H675" stroke="url(#wfLine)" strokeWidth="2" />
-        <path d="M775 82 C840 82, 840 120, 900 120" stroke="url(#wfLine)" strokeWidth="2" />
-
-        <Node x={60} y={58} title="Generate" sub="LLM output" />
-        <Node x={375} y={58} title="Deploy" sub="opage deploy" />
-        <Node x={705} y={58} title="Private URL" sub="oauth.page" />
-        <Node x={830} y={95} title="Review" sub="one-time link" small />
-
-        <g filter="url(#wfGlow)">
-          <circle r="4" fill="#c4b5fd">
-            <animateMotion dur="3.2s" repeatCount="indefinite" rotate="auto">
-              <mpath href="#wfMain" />
-            </animateMotion>
-          </circle>
-        </g>
-        <path id="wfMain" d="M130 82 H345 H675" fill="none" />
-
-        <g filter="url(#wfGlow)">
-          <circle r="3.5" fill="#f5d0fe">
-            <animateMotion dur="2.2s" repeatCount="indefinite" begin="0.9s" rotate="auto">
-              <mpath href="#wfBranch" />
-            </animateMotion>
-          </circle>
-        </g>
-        <path id="wfBranch" d="M775 82 C840 82, 840 120, 900 120" fill="none" />
-      </svg>
-    </div>
-  );
-}
-
-function Node({ x, y, title, sub, small = false }: { x: number; y: number; title: string; sub: string; small?: boolean }) {
-  const w = small ? 130 : 190;
-  const h = small ? 52 : 58;
-  return (
-    <g transform={`translate(${x},${y})`}>
-      <rect width={w} height={h} rx="10" fill="#141418" stroke="#3f3f46" />
-      <text x={12} y={22} fill="#f4f4f5" fontSize="12" fontWeight="600">{title}</text>
-      <text x={12} y={40} fill="#a1a1aa" fontSize="11">{sub}</text>
-    </g>
   );
 }
 
