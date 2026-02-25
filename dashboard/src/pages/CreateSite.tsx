@@ -97,7 +97,7 @@ export default function CreateSite() {
         </div>
 
         <p className="text-xs text-zinc-600 bg-zinc-900/50 rounded-lg px-3 py-2">
-          You'll upload files after creating the site. Visitors will need to sign in with OAuth to access them.
+          Free plan: max 10 active deployments. Each deployment supports up to 25 MB of uploaded files.
         </p>
 
         <button

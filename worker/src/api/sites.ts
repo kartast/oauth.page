@@ -28,6 +28,15 @@ sitesApi.post("/", async (c) => {
     return c.json({ error: "Name is required" }, 400);
   }
 
+  // Free plan limit: max 10 active deployments per owner
+  const countRow = await c.env.DB.prepare("SELECT COUNT(*) as c FROM sites WHERE owner_id = ?")
+    .bind(owner.user_id)
+    .first<{ c: number }>();
+  const activeCount = Number((countRow as any)?.c || 0);
+  if (activeCount >= 10) {
+    return c.json({ error: "Free plan limit reached: max 10 active deployments" }, 403);
+  }
+
   // Generate slug from name or use provided
   const slug = body.slug || body.name
     .toLowerCase()

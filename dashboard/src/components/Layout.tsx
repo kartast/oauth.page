@@ -26,6 +26,7 @@ export default function Layout() {
           </Link>
 
           <div className="flex items-center gap-3">
+            <Link to="/docs" className="text-sm text-zinc-400 hover:text-zinc-200">Docs</Link>
             <Link
               to="/sites/new"
               className="flex items-center gap-1.5 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white text-sm font-medium rounded-lg transition-colors"

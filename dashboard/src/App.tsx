@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, createContext, useContext } from "react";
 import { getMe } from "./lib/api";
 import Layout from "./components/Layout";
+import Home from "./pages/Home";
+import Docs from "./pages/Docs";
 import Login from "./pages/Login";
 import Sites from "./pages/Sites";
 import SiteDetail from "./pages/SiteDetail";
@@ -59,13 +61,15 @@ export default function App() {
   return (
     <AuthContext.Provider value={{ user, loading, refresh }}>
       <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/docs" element={<Docs />} />
         <Route path="/login" element={user ? <Navigate to="/sites" /> : <Login />} />
         <Route element={user ? <Layout /> : <Navigate to="/login" />}>
           <Route path="/sites" element={<Sites />} />
           <Route path="/sites/new" element={<CreateSite />} />
           <Route path="/sites/:id" element={<SiteDetail />} />
         </Route>
-        <Route path="*" element={<Navigate to={user ? "/sites" : "/login"} />} />
+        <Route path="*" element={<Navigate to={user ? "/sites" : "/"} />} />
       </Routes>
     </AuthContext.Provider>
   );

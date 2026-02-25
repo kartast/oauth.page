@@ -64,7 +64,7 @@ export default function Login() {
         </div>
 
         <p className="text-center text-xs text-zinc-600 mt-6">
-          By signing in, you agree to our Terms of Service
+          Free plan: 25 MB per deployment · 10 active deployments · <a href="/docs" className="text-violet-300 hover:text-violet-200">Docs</a>
         </p>
       </div>
     </div>

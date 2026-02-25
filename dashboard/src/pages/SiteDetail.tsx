@@ -228,7 +228,7 @@ export default function SiteDetail() {
 
   const pendingCount = requests.filter((r) => r.status === "pending").length;
   const storageUsed = site.storage_bytes ?? 0;
-  const storageLimit = 50 * 1024 * 1024;
+  const storageLimit = 25 * 1024 * 1024;
   const storagePct = Math.min(100, Math.round((storageUsed / storageLimit) * 100));
 
   return (
@@ -304,7 +304,7 @@ export default function SiteDetail() {
             <div className="text-xs text-zinc-500 mb-1">Storage</div>
             <div className="text-lg font-semibold text-zinc-100">
               {formatBytes(storageUsed)}
-              <span className="text-xs text-zinc-600 font-normal"> / 50 MB</span>
+              <span className="text-xs text-zinc-600 font-normal"> / 25 MB</span>
             </div>
             <div className="mt-2 h-1.5 bg-zinc-700 rounded-full overflow-hidden">
               <div
@@ -403,7 +403,7 @@ export default function SiteDetail() {
             </label>
           </div>
           <p className="text-xs text-zinc-500 mb-4">
-            Max 25 MB per file · Max 50 MB per site · Blocked: .exe .sh .bat .cmd .ps1 .msi .dll
+            Max 25 MB per file · Max 25 MB per deployment · Blocked: .exe .sh .bat .cmd .ps1 .msi .dll
           </p>
 
           {oneTimeEnabled && (
@@ -473,7 +473,7 @@ export default function SiteDetail() {
             <div className="text-center py-12 text-zinc-600">
               <Upload size={32} className="mx-auto mb-3 opacity-50" />
               <p className="text-sm">No files yet. Upload your site files to get started.</p>
-              <p className="text-xs mt-1">HTML, CSS, JS, images — up to 50 MB total.</p>
+              <p className="text-xs mt-1">HTML, CSS, JS, images — up to 25 MB total.</p>
             </div>
           ) : (
             <div className="divide-y divide-zinc-800">

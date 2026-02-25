@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
 
-const MAX_SITE_STORAGE = 52428800; // 50MB
-const MAX_FILE_SIZE = 26214400; // 25MB
+const MAX_SITE_STORAGE = 26214400; // 25MB per deployment
+const MAX_FILE_SIZE = 26214400; // 25MB per file
 const BLOCKED_EXTENSIONS = new Set([".exe", ".sh", ".bat", ".cmd", ".ps1", ".msi", ".dll"]);
 
 const MIME_TYPES: Record<string, string> = {
@@ -110,7 +110,7 @@ filesApi.put("/:id/files/*", async (c) => {
   // Check quota
   const currentStorage = (site.storage_bytes as number) || 0;
   if (currentStorage + body.byteLength > MAX_SITE_STORAGE) {
-    return c.json({ error: "Storage quota exceeded (max 50MB per site)" }, 413);
+    return c.json({ error: "Storage quota exceeded (max 25MB per deployment)" }, 413);
   }
 
   const key = r2Key(owner.user_id, siteId, filePath);
@@ -195,7 +195,7 @@ filesApi.post("/:id/deploy", async (c) => {
   }
 
   if (totalSize > MAX_SITE_STORAGE) {
-    return c.json({ error: "Total size exceeds 50MB quota" }, 413);
+    return c.json({ error: "Total size exceeds 25MB deployment limit" }, 413);
   }
 
   // Upload all files
