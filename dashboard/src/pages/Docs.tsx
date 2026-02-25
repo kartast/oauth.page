@@ -10,7 +10,7 @@ export default function Docs() {
         </Link>
 
         <h1 className="text-3xl font-semibold text-zinc-100 mb-2">OAuthPage Docs</h1>
-        <p className="text-zinc-400 mb-8">Quick launch guide, limits, and troubleshooting.</p>
+        <p className="text-zinc-400 mb-8">Secure publishing for LLM-generated sites — quick launch guide, limits, and troubleshooting.</p>
 
         <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-4">
           <h2 className="text-lg font-medium text-zinc-100 mb-3">Share privately in 60 seconds</h2>

@@ -21,10 +21,10 @@ export default function Home() {
             <Shield size={12} /> OAuthPage
           </div>
           <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight text-zinc-100">
-            Private pages for any website
+            Publish LLM output as private sites, instantly
           </h1>
           <p className="text-zinc-400 mt-4 max-w-2xl mx-auto">
-            Upload static files, protect access with OAuth, and share safely with approve/revoke controls.
+            Your agents generate pages, reports, and dashboards. OAuthPage deploys them behind OAuth with access controls and one-time reviewer links.
           </p>
           <div className="flex items-center justify-center gap-3 mt-8">
             <Link to="/login" className="px-5 py-2.5 rounded-lg bg-brand hover:bg-brand-hover text-white text-sm font-medium">
@@ -35,33 +35,33 @@ export default function Home() {
             </Link>
           </div>
           <div className="mt-3">
-            <a href="#cli" className="text-xs text-violet-300 hover:text-violet-200">See CLI quickstart</a>
+            <a href="#workflow" className="text-xs text-violet-300 hover:text-violet-200">See LLM workflow</a>
           </div>
         </section>
 
         {/* Trust strip */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-10">
-          <Trust label="Edge delivery" text="Cloudflare network" icon={<Cloud size={14} />} />
+          <Trust label="Built for agents" text="LLM artifacts & reports" icon={<Cloud size={14} />} />
           <Trust label="OAuth by default" text="GitHub + Google" icon={<Lock size={14} />} />
-          <Trust label="Access control" text="Approve, deny, revoke" icon={<Users size={14} />} />
+          <Trust label="Reviewer-safe sharing" text="Approve, revoke, one-time links" icon={<Users size={14} />} />
         </section>
 
         {/* Feature cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-10">
-          <Feature icon={<Lock size={16} />} title="OAuth gate" text="GitHub + Google login" />
-          <Feature icon={<Link2 size={16} />} title="One-time links (beta)" text="Share once without login" />
+          <Feature icon={<Lock size={16} />} title="Built for agent artifacts" text="HTML reports, dashboards, generated apps" />
+          <Feature icon={<Link2 size={16} />} title="Secure reviewer links (beta)" text="One-time access without account creation" />
           <Feature icon={<Gauge size={16} />} title="Usage dashboard" text="Requests, bandwidth, storage" />
-          <Feature icon={<CheckCircle2 size={16} />} title="Access control" text="Approve, deny, revoke" />
+          <Feature icon={<CheckCircle2 size={16} />} title="Owner controls" text="Approve, deny, revoke instantly" />
         </section>
 
         {/* Workflow + pricing */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
+        <section id="workflow" className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
           <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-            <h2 className="text-lg font-medium text-zinc-100 mb-3">How it works</h2>
+            <h2 className="text-lg font-medium text-zinc-100 mb-3">LLM publishing workflow</h2>
             <ol className="space-y-2 text-sm text-zinc-300">
-              <li>1. Create a deployment at <span className="text-zinc-100">&lt;slug&gt;.oauth.page</span></li>
-              <li>2. Upload your static files (HTML/CSS/JS/assets)</li>
-              <li>3. Share privately with OAuth approvals or one-time links</li>
+              <li>1. Agent generates output (HTML report, dashboard, site)</li>
+              <li>2. Publish with <code className="text-zinc-100">opage deploy</code> to <span className="text-zinc-100">&lt;slug&gt;.oauth.page</span></li>
+              <li>3. Share privately with OAuth approvals or one-time reviewer links</li>
             </ol>
             <div className="mt-4">
               <Link to="/docs" className="inline-flex items-center gap-1 text-sm text-violet-300 hover:text-violet-200">
@@ -99,7 +99,7 @@ opage link create my-site --ttl 1h`}</pre>
         {/* FAQ */}
         <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-10">
           <h2 className="text-lg font-medium text-zinc-100 mb-4">FAQ</h2>
-          <Faq q="How long do sessions last?" a="Owner and visitor sessions use 30-day cookies, refreshed on active usage." />
+          <Faq q="Is this built for LLM-generated output?" a="Yes. OAuthPage is optimized for publishing AI-generated HTML artifacts securely." />
           <Faq q="Do one-time links require login?" a="No. One-time links are beta access links and can be consumed once." />
           <Faq q="What are current limits?" a="Free plan supports up to 25 MB per deployment and 10 active deployments." />
           <Faq q="Can I revoke access later?" a="Yes. You can approve, deny, and revoke from the dashboard at any time." />
