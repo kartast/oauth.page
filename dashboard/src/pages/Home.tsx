@@ -142,15 +142,15 @@ export default function Home() {
 <span className="text-zinc-500">$</span> opage login
 <span className="text-emerald-400">✔</span> Authenticated successfully
 
-<span className="text-zinc-500">$</span> opage add "Financial Report" --slug q4-report
+<span className="text-zinc-500">$</span> opage add "My Site" --slug my-site
 <span className="text-emerald-400">✔</span> Site created
 
-<span className="text-zinc-500">$</span> opage deploy ./build --site q4-report
+<span className="text-zinc-500">$</span> opage deploy ./dist --site my-site
 <span className="text-brand-light">⠋</span> Uploading assets...
-<span className="text-emerald-400">✔</span> Deployed to <span className="underline decoration-zinc-700 underline-offset-4">q4-report.oauth.page</span>
+<span className="text-emerald-400">✔</span> Deployed to <span className="underline decoration-zinc-700 underline-offset-4">my-site.oauth.page</span>
 
-<span className="text-zinc-500">$</span> opage link create q4-report --ttl 24h
-<span className="text-blue-400">🔗</span> <span className="underline decoration-zinc-700 underline-offset-4">oauth.page/x/abc123xyz</span>
+<span className="text-zinc-500">$</span> opage link create my-site --ttl 1h
+<span className="text-blue-400">🔗</span> <span className="underline decoration-zinc-700 underline-offset-4">my-site.oauth.page/_otl/...</span>
                 </pre>
               </div>
             </div>

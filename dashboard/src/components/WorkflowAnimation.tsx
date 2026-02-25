@@ -122,13 +122,13 @@ export function WorkflowAnimation() {
             <text x="16" y="70" fill="#10b981" className="terminal-text-1">✔ Authenticated</text>
 
             <text x="16" y="100" fill="#a1a1aa">$</text>
-            <text x="30" y="100" className="terminal-text-2">opage deploy ./dist</text>
+            <text x="30" y="100" className="terminal-text-2">opage deploy ./dist --site my-site</text>
             <text x="16" y="120" fill="#8b5cf6" className="terminal-text-2">⠋ Uploading files...</text>
-            <text x="16" y="140" fill="#10b981" className="terminal-text-2">✔ Deployed to oauth.page</text>
+            <text x="16" y="140" fill="#10b981" className="terminal-text-2">✔ Deployed to my-site.oauth.page</text>
 
             <text x="16" y="170" fill="#a1a1aa">$</text>
-            <text x="30" y="170" className="terminal-text-3">opage link create</text>
-            <text x="16" y="190" fill="#60a5fa" className="terminal-text-3">🔗 oauth.page/x/123</text>
+            <text x="30" y="170" className="terminal-text-3">opage link create my-site --ttl 1h</text>
+            <text x="16" y="190" fill="#60a5fa" className="terminal-text-3">🔗 my-site.oauth.page/_otl/...</text>
           </g>
         </g>
 
@@ -161,44 +161,48 @@ export function WorkflowAnimation() {
         </g>
 
         {/* Right: Desktop Browser */}
-        <g className="float-app" transform="translate(560, 80)">
-          <rect width="200" height="140" rx="8" fill="url(#browser-bg)" stroke="#3f3f46" strokeWidth="1.5" />
-          {/* Browser Header */}
-          <path d="M0 8 C0 3.58 3.58 0 8 0 L192 0 C196.42 0 200 3.58 200 8 L200 24 L0 24 L0 8 Z" fill="#27272a" />
-          <circle cx="12" cy="12" r="3" fill="#52525b" />
-          <circle cx="22" cy="12" r="3" fill="#52525b" />
-          <circle cx="32" cy="12" r="3" fill="#52525b" />
-          
-          <rect x="50" y="6" width="100" height="12" rx="4" fill="#18181b" />
-          <path d="M56 12 A2 2 0 1 1 60 12 A2 2 0 1 1 56 12 Z" fill="#10b981" />
-          <text x="64" y="15" fill="#a1a1aa" fontSize="8" fontFamily="sans-serif">🔒 my-site.oauth.page</text>
+        <g transform="translate(560, 80)">
+          <g className="float-app">
+            <rect width="200" height="140" rx="8" fill="url(#browser-bg)" stroke="#3f3f46" strokeWidth="1.5" />
+            {/* Browser Header */}
+            <path d="M0 8 C0 3.58 3.58 0 8 0 L192 0 C196.42 0 200 3.58 200 8 L200 24 L0 24 L0 8 Z" fill="#27272a" />
+            <circle cx="12" cy="12" r="3" fill="#52525b" />
+            <circle cx="22" cy="12" r="3" fill="#52525b" />
+            <circle cx="32" cy="12" r="3" fill="#52525b" />
+            
+            <rect x="50" y="6" width="100" height="12" rx="4" fill="#18181b" />
+            <path d="M56 12 A2 2 0 1 1 60 12 A2 2 0 1 1 56 12 Z" fill="#10b981" />
+            <text x="64" y="15" fill="#a1a1aa" fontSize="8" fontFamily="sans-serif">🔒 my-site.oauth.page</text>
 
-          {/* Browser Content */}
-          <rect x="16" y="40" width="80" height="8" rx="2" fill="#3f3f46" />
-          <rect x="16" y="56" width="140" height="4" rx="2" fill="#27272a" />
-          <rect x="16" y="66" width="120" height="4" rx="2" fill="#27272a" />
-          <rect x="16" y="76" width="160" height="4" rx="2" fill="#27272a" />
-          
-          <rect x="16" y="96" width="40" height="24" rx="4" fill="#8b5cf6" fillOpacity="0.2" stroke="#8b5cf6" strokeWidth="1" />
-          <rect x="64" y="96" width="40" height="24" rx="4" fill="#27272a" />
-          <rect x="112" y="96" width="40" height="24" rx="4" fill="#27272a" />
+            {/* Browser Content */}
+            <rect x="16" y="40" width="80" height="8" rx="2" fill="#3f3f46" />
+            <rect x="16" y="56" width="140" height="4" rx="2" fill="#27272a" />
+            <rect x="16" y="66" width="120" height="4" rx="2" fill="#27272a" />
+            <rect x="16" y="76" width="160" height="4" rx="2" fill="#27272a" />
+            
+            <rect x="16" y="96" width="40" height="24" rx="4" fill="#8b5cf6" fillOpacity="0.2" stroke="#8b5cf6" strokeWidth="1" />
+            <rect x="64" y="96" width="40" height="24" rx="4" fill="#27272a" />
+            <rect x="112" y="96" width="40" height="24" rx="4" fill="#27272a" />
+          </g>
         </g>
 
         {/* Right: Mobile App Overlay */}
-        <g className="float-mobile" transform="translate(710, 160)">
-          <rect width="60" height="120" rx="8" fill="#18181b" stroke="#52525b" strokeWidth="2" />
-          <rect x="20" y="4" width="20" height="4" rx="2" fill="#27272a" />
-          
-          {/* Mobile Content */}
-          <circle cx="30" cy="30" r="12" fill="#8b5cf6" fillOpacity="0.2" stroke="#8b5cf6" strokeWidth="1" />
-          <path d="M26 30 L29 33 L35 27" stroke="#8b5cf6" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-          
-          <rect x="10" y="55" width="40" height="3" rx="1.5" fill="#3f3f46" />
-          <rect x="10" y="65" width="30" height="3" rx="1.5" fill="#27272a" />
-          <rect x="10" y="75" width="35" height="3" rx="1.5" fill="#27272a" />
-          
-          <rect x="10" y="90" width="40" height="15" rx="4" fill="#8b5cf6" />
-          <text x="30" y="100" fill="#fff" fontSize="5" textAnchor="middle" fontFamily="sans-serif">Access Granted</text>
+        <g transform="translate(710, 160)">
+          <g className="float-mobile">
+            <rect width="60" height="120" rx="8" fill="#18181b" stroke="#52525b" strokeWidth="2" />
+            <rect x="20" y="4" width="20" height="4" rx="2" fill="#27272a" />
+            
+            {/* Mobile Content */}
+            <circle cx="30" cy="30" r="12" fill="#8b5cf6" fillOpacity="0.2" stroke="#8b5cf6" strokeWidth="1" />
+            <path d="M26 30 L29 33 L35 27" stroke="#8b5cf6" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            
+            <rect x="10" y="55" width="40" height="3" rx="1.5" fill="#3f3f46" />
+            <rect x="10" y="65" width="30" height="3" rx="1.5" fill="#27272a" />
+            <rect x="10" y="75" width="35" height="3" rx="1.5" fill="#27272a" />
+            
+            <rect x="10" y="90" width="40" height="15" rx="4" fill="#8b5cf6" />
+            <text x="30" y="100" fill="#fff" fontSize="5" textAnchor="middle" fontFamily="sans-serif">Access Granted</text>
+          </g>
         </g>
 
       </svg>
