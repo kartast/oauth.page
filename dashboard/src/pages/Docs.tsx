@@ -43,6 +43,21 @@ export default function Docs() {
           </ul>
         </section>
 
+        <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-4" id="status">
+          <h2 className="text-lg font-medium text-zinc-100 mb-3">Status</h2>
+          <p className="text-sm text-zinc-300">Status page is coming soon. For now, monitor <code className="text-zinc-100">/health</code> endpoints.</p>
+        </section>
+
+        <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-4" id="privacy">
+          <h2 className="text-lg font-medium text-zinc-100 mb-3">Privacy</h2>
+          <p className="text-sm text-zinc-300">We use OAuth for authentication and let owners control access. Full policy page coming soon.</p>
+        </section>
+
+        <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 mb-4" id="terms">
+          <h2 className="text-lg font-medium text-zinc-100 mb-3">Terms</h2>
+          <p className="text-sm text-zinc-300">MVP service terms are being finalized. Contact support for pilot usage terms.</p>
+        </section>
+
         <section className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
           <h2 className="text-lg font-medium text-zinc-100 mb-3">CLI</h2>
           <pre className="text-xs text-zinc-300 bg-zinc-950 border border-zinc-800 rounded-lg p-3 overflow-auto">{`opage login
