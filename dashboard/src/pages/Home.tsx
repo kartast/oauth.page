@@ -58,19 +58,23 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-light opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
               </span>
-              Secure LLM Publishing
+              Private site hosting
             </div>
 
-            <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-tight font-semibold mb-8 text-zinc-100">
-              Publish AI sites with{" "}
+            <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-tight font-semibold mb-6 text-zinc-100">
+              Upload a site.{" "}
               <span className="block mt-2 bg-gradient-to-br from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent pb-2">
-                built-in access control
+                Pick who can see it.
               </span>
             </h1>
 
-            <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed mb-10">
-              Deploy LLM reports, dashboards, and microsites to private URLs.
-              Control every viewer with OAuth approvals, revokes, and one-time links.
+            <p className="text-lg sm:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed mb-3">
+              Like Google Docs sharing, but for entire websites.
+            </p>
+
+            <p className="text-base text-zinc-500 max-w-xl mx-auto leading-relaxed mb-10">
+              Visitors sign in with GitHub or Google. You approve or deny.
+              Reports, dashboards, client work — private by default.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
@@ -117,18 +121,18 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <TrustCard 
             icon={<Cloud size={20} className="text-blue-400" />} 
-            label="Edge infrastructure" 
-            text="Deployed globally on Cloudflare runtime with R2 storage for millisecond latency." 
+            label="Fast everywhere" 
+            text="Your sites load instantly from 300+ edge locations worldwide. No server to manage." 
           />
           <TrustCard 
             icon={<Lock size={20} className="text-brand-light" />} 
-            label="OAuth by default" 
-            text="Every site is secured behind GitHub or Google authentication instantly." 
+            label="Private by default" 
+            text="Every page is locked until you approve someone. Visitors sign in with GitHub or Google." 
           />
           <TrustCard 
             icon={<Shield size={20} className="text-emerald-400" />} 
-            label="Owner controls" 
-            text="Manage access explicitly. Approve, revoke, or issue self-destructing links." 
+            label="You decide who sees what" 
+            text="Approve, revoke, or send a self-destructing link. Full control, no guesswork." 
           />
           </div>
         </section>
@@ -137,24 +141,24 @@ export default function Home() {
         <section id="workflow" className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center mb-24 lg:mb-32">
           <div className="space-y-8 pr-0 lg:pr-12">
             <div>
-              <h2 className="text-3xl font-semibold mb-4 text-zinc-100">Built for modern AI workflows</h2>
+              <h2 className="text-3xl font-semibold mb-4 text-zinc-100">Three commands. Done.</h2>
               <p className="text-zinc-400 text-lg leading-relaxed">
-                Stop exposing sensitive AI-generated content on public links or wrestling with complex auth setups.
+                No config files. No auth setup. No infrastructure to manage.
               </p>
             </div>
             
             <ul className="space-y-6">
               <FeatureItem 
-                title="Publish in minutes" 
-                desc="Push LLM-generated artifacts to private URLs directly from your terminal."
+                title="Upload anything" 
+                desc="HTML, React apps, reports, dashboards — if a browser can open it, OAuthPage can host it."
               />
               <FeatureItem 
-                title="Seamless Sharing" 
-                desc="Share with clients and teammates securely without exposing raw outputs publicly."
+                title="Share the link" 
+                desc="Send your URL to a client or teammate. They sign in, you approve — that's it."
               />
               <FeatureItem 
-                title="Granular Control" 
-                desc="Keep absolute control over your intellectual property with explicit access decisions."
+                title="Stay in control" 
+                desc="Revoke access anytime. Send one-time links that expire after a single use."
               />
             </ul>
           </div>
@@ -197,8 +201,8 @@ $ opage link create my-site --ttl 1h
           <div className="rounded-3xl border border-zinc-800 bg-zinc-900/30 p-8 sm:p-12 relative overflow-hidden backdrop-blur-sm">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
             
-            <h2 className="text-2xl font-semibold mb-2 text-zinc-100">Start with our MVP Tier</h2>
-            <p className="text-zinc-400 mb-8">Everything you need to secure your AI artifacts today.</p>
+            <h2 className="text-2xl font-semibold mb-2 text-zinc-100">Free while in beta</h2>
+            <p className="text-zinc-400 mb-8">No credit card. No trial. Just start building.</p>
             
             <div className="flex justify-center items-baseline gap-2 mb-8">
               <span className="text-5xl font-bold text-zinc-100">$0</span>
