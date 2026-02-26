@@ -1,211 +1,196 @@
 export function WorkflowAnimation() {
   return (
-    <div className="relative w-full aspect-[21/9] sm:aspect-[21/10] md:aspect-[21/8] bg-zinc-950/50 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl flex items-center justify-center p-4">
+    <div className="relative w-full bg-zinc-950/50 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl">
       <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-zinc-900/50 pointer-events-none" />
-      
-      <svg className="w-full h-full max-h-[400px]" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+      {/* Desktop: horizontal 3-panel flow */}
+      <div className="hidden md:flex items-center justify-center gap-4 lg:gap-6 p-6 lg:p-10">
+        <Panel1Terminal />
+        <FlowArrow />
+        <Panel2Shield />
+        <FlowArrow />
+        <Panel3Output />
+      </div>
+
+      {/* Mobile: vertical 3-panel flow */}
+      <div className="flex md:hidden flex-col items-center gap-4 p-5">
+        <Panel1Terminal />
+        <FlowArrowDown />
+        <Panel2Shield />
+        <FlowArrowDown />
+        <Panel3Output />
+      </div>
+
+      {/* Labels */}
+      <div className="hidden md:flex justify-center gap-4 lg:gap-6 pb-6 px-6 lg:px-10">
+        <StepLabel step="1" text="Deploy from CLI" className="w-[240px]" />
+        <div className="w-8 lg:w-12" />
+        <StepLabel step="2" text="OAuth gate" className="w-[160px]" />
+        <div className="w-8 lg:w-12" />
+        <StepLabel step="3" text="Private access" className="w-[240px]" />
+      </div>
+    </div>
+  );
+}
+
+/* ─── Step label ─── */
+function StepLabel({ step, text, className }: { step: string; text: string; className?: string }) {
+  return (
+    <div className={`text-center ${className || ""}`}>
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500">
+        <span className="w-4 h-4 rounded-full bg-brand/20 text-brand-light flex items-center justify-center text-[10px] font-bold">{step}</span>
+        {text}
+      </span>
+    </div>
+  );
+}
+
+/* ─── Flow arrows ─── */
+function FlowArrow() {
+  return (
+    <div className="flex-shrink-0 w-8 lg:w-12 flex items-center justify-center">
+      <svg width="40" height="20" viewBox="0 0 40 20" fill="none" className="w-full">
         <defs>
-          <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0" />
-            <stop offset="50%" stopColor="#8b5cf6" stopOpacity="1" />
-            <stop offset="100%" stopColor="#a78bfa" stopOpacity="0" />
+          <linearGradient id="arrow-grad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#3f3f46" />
+            <stop offset="100%" stopColor="#8b5cf6" />
           </linearGradient>
-
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-
-          <filter id="heavy-glow">
-            <feGaussianBlur stdDeviation="10" result="coloredBlur"/>
-            <feMerge>
-              <feMergeNode in="coloredBlur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-
-          <linearGradient id="terminal-bg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#18181b" />
-            <stop offset="100%" stopColor="#09090b" />
-          </linearGradient>
-
-          <linearGradient id="browser-bg" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#27272a" />
-            <stop offset="100%" stopColor="#18181b" />
-          </linearGradient>
-
-          <style>
-            {`
-              @keyframes dash {
-                to { stroke-dashoffset: -40; }
-              }
-              @keyframes type1 {
-                0%, 10% { opacity: 0; }
-                11%, 100% { opacity: 1; }
-              }
-              @keyframes type2 {
-                0%, 30% { opacity: 0; }
-                31%, 100% { opacity: 1; }
-              }
-              @keyframes type3 {
-                0%, 50% { opacity: 0; }
-                51%, 100% { opacity: 1; }
-              }
-              @keyframes pulseLock {
-                0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.5)); }
-                50% { transform: scale(1.05); filter: drop-shadow(0 0 16px rgba(167, 139, 250, 0.8)); }
-              }
-              @keyframes beamMove {
-                0% { transform: translateX(-100%); }
-                100% { transform: translateX(100%); }
-              }
-              @keyframes floatApp {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(-5px); }
-              }
-              @keyframes floatMobile {
-                0%, 100% { transform: translateY(0px); }
-                50% { transform: translateY(5px); }
-              }
-              @keyframes secureGlow {
-                0%, 100% { opacity: 0.3; }
-                50% { opacity: 0.8; }
-              }
-              .beam-line { stroke-dasharray: 10, 10; animation: dash 2s linear infinite; }
-              .terminal-text-1 { animation: type1 8s infinite; }
-              .terminal-text-2 { animation: type2 8s infinite; }
-              .terminal-text-3 { animation: type3 8s infinite; }
-              .lock-group { animation: pulseLock 3s ease-in-out infinite; transform-origin: 400px 200px; }
-              .beam-animated { animation: beamMove 3s linear infinite; }
-              .float-app { animation: floatApp 6s ease-in-out infinite; }
-              .float-mobile { animation: floatMobile 7s ease-in-out infinite; }
-              .secure-shield { animation: secureGlow 4s ease-in-out infinite; }
-            `}
-          </style>
         </defs>
-
-        {/* Background Grids */}
-        <g stroke="#27272a" strokeWidth="1" opacity="0.4">
-          <path d="M0,50 L800,50 M0,150 L800,150 M0,250 L800,250 M0,350 L800,350" />
-          <path d="M100,0 L100,400 M300,0 L300,400 M500,0 L500,400 M700,0 L700,400" />
-        </g>
-
-        {/* Connection Paths */}
-        <path d="M220 200 L580 200" stroke="#3f3f46" strokeWidth="2" />
-        <path d="M220 200 L580 200" stroke="#8b5cf6" strokeWidth="2" className="beam-line" filter="url(#glow)" />
-        
-        {/* Animated Beam */}
-        <g clipPath="url(#beam-clip)">
-          <rect x="220" y="198" width="100" height="4" fill="url(#beam)" className="beam-animated" />
-        </g>
-        <clipPath id="beam-clip">
-          <rect x="220" y="190" width="360" height="20" />
-        </clipPath>
-
-        {/* Left: Terminal */}
-        <g transform="translate(40, 100)">
-          {/* Terminal Window */}
-          <rect width="240" height="200" rx="8" fill="url(#terminal-bg)" stroke="#3f3f46" strokeWidth="1.5" />
-          <path d="M0 8 C0 3.58 3.58 0 8 0 L232 0 C236.42 0 240 3.58 240 8 L240 24 L0 24 L0 8 Z" fill="#27272a" />
-          <circle cx="16" cy="12" r="4" fill="#ef4444" />
-          <circle cx="32" cy="12" r="4" fill="#eab308" />
-          <circle cx="48" cy="12" r="4" fill="#22c55e" />
-          <text x="120" y="16" fill="#a1a1aa" fontSize="10" textAnchor="middle" fontFamily="monospace">~/project</text>
-
-          {/* Terminal Text */}
-          <g fontFamily="monospace" fontSize="12" fill="#e4e4e7">
-            <text x="16" y="50" fill="#a1a1aa">$</text>
-            <text x="30" y="50" className="terminal-text-1">opage login</text>
-            <text x="16" y="70" fill="#10b981" className="terminal-text-1">✔ Authenticated</text>
-
-            <text x="16" y="100" fill="#a1a1aa">$</text>
-            <text x="30" y="100" className="terminal-text-2">opage deploy ./dist --site my-site</text>
-            <text x="16" y="120" fill="#8b5cf6" className="terminal-text-2">⠋ Uploading files...</text>
-            <text x="16" y="140" fill="#10b981" className="terminal-text-2">✔ Deployed to my-site.oauth.page</text>
-
-            <text x="16" y="170" fill="#a1a1aa">$</text>
-            <text x="30" y="170" className="terminal-text-3">opage link create my-site --ttl 1h</text>
-            <text x="16" y="190" fill="#60a5fa" className="terminal-text-3">🔗 my-site.oauth.page/_otl/...</text>
-          </g>
-        </g>
-
-        {/* Center: Gatekeep / Security */}
-        <g className="lock-group" transform="translate(0, 0)">
-          <circle cx="400" cy="200" r="50" fill="#09090b" stroke="#3f3f46" strokeWidth="2" />
-          <circle cx="400" cy="200" r="45" fill="#18181b" />
-          
-          {/* Glowing Shield Ring */}
-          <circle cx="400" cy="200" r="50" fill="none" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="15, 10" className="secure-shield" filter="url(#heavy-glow)" />
-          
-          {/* Shield Icon */}
-          <path d="M400 170 C400 170 415 175 420 185 C425 195 420 215 400 230 C380 215 375 195 380 185 C385 175 400 170 400 170 Z" fill="#27272a" stroke="#8b5cf6" strokeWidth="2" filter="url(#glow)" />
-          
-          {/* Checkmark inside shield */}
-          <path d="M392 200 L398 206 L410 190" stroke="#10b981" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          
-          {/* Auth Providers floating small */}
-          <g transform="translate(350, 140) scale(0.6)">
-            <rect width="24" height="24" rx="4" fill="#ffffff" />
-            <path d="M12 11 V13 H15.5 C15.2 14.5 13.9 15.6 12 15.6 C9.8 15.6 8 13.8 8 11.6 C8 9.4 9.8 7.6 12 7.6 C13 7.6 13.9 8 14.6 8.6 L16 7.2 C15 6.2 13.6 5.6 12 5.6 C8.7 5.6 6 8.3 6 11.6 C6 14.9 8.7 17.6 12 17.6 C15.3 17.6 17.5 15.3 17.5 12 V11 H12 Z" fill="#000" />
-          </g>
-          <g transform="translate(426, 140) scale(0.6)">
-            <rect width="24" height="24" rx="12" fill="#ffffff" />
-            <path d="M12 5.5 C13.5 5.5 14.9 6.1 16 7.1 L18.1 5 C16.5 3.5 14.4 2.5 12 2.5 C7.5 2.5 3.7 5.6 2.4 9.8 L5.1 11.9 C5.8 8.2 9.1 5.5 12 5.5 Z" fill="#ea4335" />
-            <path d="M2.4 9.8 C2.1 11 1.9 12.2 1.9 13.5 C1.9 14.8 2.1 16 2.4 17.2 L5.1 15.1 C4.9 14.6 4.9 14 4.9 13.5 C4.9 13 4.9 12.4 5.1 11.9 L2.4 9.8 Z" fill="#fbbc05" />
-            <path d="M12 21.5 C14.4 21.5 16.6 20.6 18.2 19 L15.6 17 C14.6 17.7 13.4 18.2 12 18.2 C9.1 18.2 5.8 15.5 5.1 11.8 L2.4 13.9 C3.7 18.1 7.5 21.5 12 21.5 Z" fill="#34a853" />
-            <path d="M21.5 13.5 C21.5 12.5 21.3 11.6 21 10.7 H12 V13.9 H17.5 C17.3 15.2 16.6 16.3 15.6 17 L18.2 19 C19.8 17.5 21.5 15.7 21.5 13.5 Z" fill="#4285f4" />
-          </g>
-        </g>
-
-        {/* Right: Desktop Browser */}
-        <g transform="translate(560, 80)">
-          <g className="float-app">
-            <rect width="200" height="140" rx="8" fill="url(#browser-bg)" stroke="#3f3f46" strokeWidth="1.5" />
-            {/* Browser Header */}
-            <path d="M0 8 C0 3.58 3.58 0 8 0 L192 0 C196.42 0 200 3.58 200 8 L200 24 L0 24 L0 8 Z" fill="#27272a" />
-            <circle cx="12" cy="12" r="3" fill="#52525b" />
-            <circle cx="22" cy="12" r="3" fill="#52525b" />
-            <circle cx="32" cy="12" r="3" fill="#52525b" />
-            
-            <rect x="50" y="6" width="100" height="12" rx="4" fill="#18181b" />
-            <path d="M56 12 A2 2 0 1 1 60 12 A2 2 0 1 1 56 12 Z" fill="#10b981" />
-            <text x="64" y="15" fill="#a1a1aa" fontSize="8" fontFamily="sans-serif">🔒 my-site.oauth.page</text>
-
-            {/* Browser Content */}
-            <rect x="16" y="40" width="80" height="8" rx="2" fill="#3f3f46" />
-            <rect x="16" y="56" width="140" height="4" rx="2" fill="#27272a" />
-            <rect x="16" y="66" width="120" height="4" rx="2" fill="#27272a" />
-            <rect x="16" y="76" width="160" height="4" rx="2" fill="#27272a" />
-            
-            <rect x="16" y="96" width="40" height="24" rx="4" fill="#8b5cf6" fillOpacity="0.2" stroke="#8b5cf6" strokeWidth="1" />
-            <rect x="64" y="96" width="40" height="24" rx="4" fill="#27272a" />
-            <rect x="112" y="96" width="40" height="24" rx="4" fill="#27272a" />
-          </g>
-        </g>
-
-        {/* Right: Mobile App Overlay */}
-        <g transform="translate(710, 160)">
-          <g className="float-mobile">
-            <rect width="60" height="120" rx="8" fill="#18181b" stroke="#52525b" strokeWidth="2" />
-            <rect x="20" y="4" width="20" height="4" rx="2" fill="#27272a" />
-            
-            {/* Mobile Content */}
-            <circle cx="30" cy="30" r="12" fill="#8b5cf6" fillOpacity="0.2" stroke="#8b5cf6" strokeWidth="1" />
-            <path d="M26 30 L29 33 L35 27" stroke="#8b5cf6" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-            
-            <rect x="10" y="55" width="40" height="3" rx="1.5" fill="#3f3f46" />
-            <rect x="10" y="65" width="30" height="3" rx="1.5" fill="#27272a" />
-            <rect x="10" y="75" width="35" height="3" rx="1.5" fill="#27272a" />
-            
-            <rect x="10" y="90" width="40" height="15" rx="4" fill="#8b5cf6" />
-            <text x="30" y="100" fill="#fff" fontSize="5" textAnchor="middle" fontFamily="sans-serif">Access Granted</text>
-          </g>
-        </g>
-
+        <line x1="0" y1="10" x2="32" y2="10" stroke="url(#arrow-grad)" strokeWidth="2" strokeDasharray="4,3" />
+        <path d="M30 5 L38 10 L30 15" stroke="#8b5cf6" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
+    </div>
+  );
+}
+
+function FlowArrowDown() {
+  return (
+    <div className="flex-shrink-0 h-6 flex flex-col items-center justify-center">
+      <svg width="20" height="24" viewBox="0 0 20 24" fill="none">
+        <line x1="10" y1="0" x2="10" y2="16" stroke="#8b5cf6" strokeWidth="2" strokeDasharray="4,3" />
+        <path d="M5 14 L10 22 L15 14" stroke="#8b5cf6" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
+}
+
+/* ─── Panel 1: Terminal ─── */
+function Panel1Terminal() {
+  return (
+    <div className="w-full md:w-[240px] flex-shrink-0 rounded-xl border border-zinc-800 bg-zinc-900/80 overflow-hidden">
+      {/* Title bar */}
+      <div className="flex items-center gap-2 px-3 py-2 border-b border-zinc-800/80 bg-zinc-900">
+        <div className="flex gap-1.5">
+          <div className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/70" />
+          <div className="w-2.5 h-2.5 rounded-full bg-green-500/70" />
+        </div>
+        <span className="text-[11px] text-zinc-500 font-mono ml-1">~/project</span>
+      </div>
+      {/* Terminal content */}
+      <div className="p-3 font-mono text-[11px] leading-[1.6] text-zinc-300 space-y-2.5">
+        <div>
+          <div><span className="text-zinc-500">$</span> opage deploy ./dist</div>
+          <div className="text-emerald-400">✔ Deployed</div>
+        </div>
+        <div>
+          <div><span className="text-zinc-500">$</span> opage link create</div>
+          <div className="text-blue-400">🔗 slug.oauth.page/_otl/...</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Panel 2: Shield ─── */
+function Panel2Shield() {
+  return (
+    <div className="flex-shrink-0 w-[120px] md:w-[160px] h-[120px] md:h-[140px] rounded-xl border border-zinc-800 bg-zinc-900/60 flex flex-col items-center justify-center gap-3 relative overflow-hidden">
+      {/* Pulsing ring */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-20 h-20 rounded-full border-2 border-brand/20 animate-ping opacity-20" />
+      </div>
+      {/* Shield */}
+      <div className="relative">
+        <svg width="48" height="56" viewBox="0 0 48 56" fill="none">
+          <path
+            d="M24 2 C24 2 42 10 42 24 C42 38 34 50 24 54 C14 50 6 38 6 24 C6 10 24 2 24 2Z"
+            fill="#18181b"
+            stroke="#8b5cf6"
+            strokeWidth="2"
+          />
+          <path
+            d="M17 28 L22 33 L32 21"
+            stroke="#10b981"
+            strokeWidth="3"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </div>
+      {/* Provider badges */}
+      <div className="flex gap-2">
+        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" fill="#333"/></svg>
+        </div>
+        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center">
+          <svg width="14" height="14" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32l3.57 2.77c2.08-1.92 3.27-4.74 3.27-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        </div>
+      </div>
+      {/* Label on mobile */}
+      <span className="md:hidden text-[10px] text-zinc-500 font-medium">OAuth Gate</span>
+    </div>
+  );
+}
+
+/* ─── Panel 3: Browser + Mobile ─── */
+function Panel3Output() {
+  return (
+    <div className="w-full md:w-[240px] flex-shrink-0 flex gap-3 items-end">
+      {/* Desktop browser */}
+      <div className="flex-1 rounded-xl border border-zinc-800 bg-zinc-900/80 overflow-hidden">
+        <div className="flex items-center gap-1.5 px-3 py-2 border-b border-zinc-800/80 bg-zinc-900">
+          <div className="flex gap-1">
+            <div className="w-2 h-2 rounded-full bg-zinc-600" />
+            <div className="w-2 h-2 rounded-full bg-zinc-600" />
+            <div className="w-2 h-2 rounded-full bg-zinc-600" />
+          </div>
+          <div className="flex-1 mx-2 h-4 rounded bg-zinc-800 flex items-center px-2">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 mr-1" />
+            <span className="text-[8px] text-zinc-500 font-mono truncate">my-site.oauth.page</span>
+          </div>
+        </div>
+        <div className="p-3 space-y-2">
+          <div className="h-2 w-16 bg-zinc-700 rounded" />
+          <div className="h-1.5 w-full bg-zinc-800 rounded" />
+          <div className="h-1.5 w-4/5 bg-zinc-800 rounded" />
+          <div className="h-1.5 w-full bg-zinc-800 rounded" />
+          <div className="flex gap-2 mt-3">
+            <div className="h-5 w-12 rounded bg-brand/30 border border-brand/40" />
+            <div className="h-5 w-12 rounded bg-zinc-800" />
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile phone */}
+      <div className="w-14 flex-shrink-0 rounded-xl border-2 border-zinc-700 bg-zinc-900 overflow-hidden">
+        <div className="flex justify-center py-1">
+          <div className="w-6 h-1 rounded bg-zinc-700" />
+        </div>
+        <div className="px-2 pb-2 space-y-1.5">
+          <div className="w-6 h-6 mx-auto rounded-full bg-brand/20 border border-brand/40 flex items-center justify-center">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none">
+              <path d="M4 8 L7 11 L12 5" stroke="#8b5cf6" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div className="h-1 w-full bg-zinc-800 rounded" />
+          <div className="h-1 w-3/4 bg-zinc-800 rounded" />
+          <div className="h-3 w-full rounded bg-brand text-center">
+            <span className="text-[5px] text-white leading-[12px]">Access Granted</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
