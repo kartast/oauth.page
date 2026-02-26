@@ -126,6 +126,21 @@ app.route("/api/sites", linksApi);
 // Catch-all for unknown API routes
 app.all("/api/*", (c) => c.json({ error: "Not found" }, 404));
 
+// Public stats (for landing page social proof)
+app.get("/api/stats", async (c) => {
+  // Cache in KV for 5 minutes to avoid hammering D1
+  const cached = await c.env.KV.get("public:stats");
+  if (cached) return c.json(JSON.parse(cached));
+
+  const row = await c.env.DB.prepare(
+    "SELECT COUNT(*) as sites, COALESCE(SUM(total_requests), 0) as deploys FROM sites"
+  ).first<{ sites: number; deploys: number }>();
+
+  const stats = { sites: row?.sites ?? 0, deploys: row?.deploys ?? 0 };
+  await c.env.KV.put("public:stats", JSON.stringify(stats), { expirationTtl: 300 });
+  return c.json(stats);
+});
+
 // Health check
 app.get("/health", (c) => c.json({ status: "ok", timestamp: Date.now() }));
 

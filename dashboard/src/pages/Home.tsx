@@ -1,8 +1,18 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Cloud, Lock, Shield, Terminal } from "lucide-react";
+import { ArrowRight, Check, Cloud, Lock, Shield, Terminal, Users, Globe, Zap } from "lucide-react";
 import { WorkflowAnimation } from "../components/WorkflowAnimation";
 
 export default function Home() {
+  const [stats, setStats] = useState<{ sites: number; deploys: number } | null>(null);
+
+  useEffect(() => {
+    fetch("/api/stats")
+      .then((r) => r.ok ? r.json() : null)
+      .then((d) => d && setStats(d))
+      .catch(() => {});
+  }, []);
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 relative overflow-hidden font-sans selection:bg-violet-500/30">
       {/* Background ambient lighting */}
@@ -23,13 +33,19 @@ export default function Home() {
 
           <div className="flex items-center gap-6 text-sm font-medium">
             <Link to="/docs" className="text-zinc-400 hover:text-zinc-200 transition-colors">
-              Documentation
+              Docs
             </Link>
             <Link
               to="/login"
-              className="px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 hover:border-zinc-600 hover:bg-zinc-800/80 text-zinc-100 transition-all shadow-sm"
+              className="text-zinc-400 hover:text-zinc-200 transition-colors"
             >
               Sign in
+            </Link>
+            <Link
+              to="/login"
+              className="px-4 py-2 rounded-lg bg-zinc-100 text-zinc-950 font-semibold hover:bg-white transition-all shadow-sm"
+            >
+              Get started free
             </Link>
           </div>
         </header>
@@ -48,7 +64,7 @@ export default function Home() {
             <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-tight font-semibold mb-8 text-zinc-100">
               Publish AI sites with{" "}
               <span className="block mt-2 bg-gradient-to-br from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent pb-2">
-                startup-grade security
+                built-in access control
               </span>
             </h1>
 
@@ -57,21 +73,36 @@ export default function Home() {
               Control every viewer with OAuth approvals, revokes, and one-time links.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
               <Link
                 to="/login"
                 className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-100 text-zinc-950 text-base font-semibold hover:bg-white hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               >
-                Start building free
+                Get started free
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <a
                 href="#workflow"
                 className="px-6 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-base font-medium hover:bg-zinc-800 hover:text-zinc-100 transition-all"
               >
-                Explore workflow
+                See how it works
               </a>
             </div>
+
+            {/* Social proof / stats strip */}
+            {stats && (stats.sites > 0 || stats.deploys > 0) && (
+              <div className="inline-flex items-center gap-6 px-5 py-2.5 rounded-full border border-zinc-800 bg-zinc-900/40 text-sm text-zinc-400">
+                <span className="flex items-center gap-2">
+                  <Globe size={14} className="text-brand-light" />
+                  <strong className="text-zinc-200">{stats.sites}</strong> sites deployed
+                </span>
+                <span className="w-px h-4 bg-zinc-700" />
+                <span className="flex items-center gap-2">
+                  <Zap size={14} className="text-emerald-400" />
+                  <strong className="text-zinc-200">{stats.deploys.toLocaleString()}</strong> deployments
+                </span>
+              </div>
+            )}
           </div>
         </section>
 
@@ -81,7 +112,9 @@ export default function Home() {
         </section>
 
         {/* Value Proposition Grid */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24 lg:mb-32 max-w-6xl mx-auto">
+        <section className="mb-24 lg:mb-32 max-w-6xl mx-auto">
+          <p className="text-center text-sm font-medium text-zinc-500 uppercase tracking-wider mb-8">Why OAuthPage</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <TrustCard 
             icon={<Cloud size={20} className="text-blue-400" />} 
             label="Edge infrastructure" 
@@ -97,6 +130,7 @@ export default function Home() {
             label="Owner controls" 
             text="Manage access explicitly. Approve, revoke, or issue self-destructing links." 
           />
+          </div>
         </section>
 
         {/* Two-column feature showcase */}
@@ -180,9 +214,10 @@ $ opage link create my-site --ttl 1h
 
             <Link
               to="/login"
-              className="inline-block w-full sm:w-auto px-8 py-3.5 rounded-xl bg-zinc-100 text-zinc-900 text-sm font-semibold hover:bg-white transition-colors"
+              className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 rounded-xl bg-zinc-100 text-zinc-950 text-base font-semibold hover:bg-white hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]"
             >
-              Create free account
+              Get started free
+              <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
             <p className="text-xs text-zinc-500 mt-6">Paid plans for teams coming after beta.</p>
           </div>
