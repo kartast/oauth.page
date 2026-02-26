@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Check, Cloud, Lock, Shield, Terminal, Users, Globe, Zap } from "lucide-react";
+import { ArrowRight, Bot, Check, Cloud, Code2, Lock, Shield, Terminal, Users, Globe, Zap } from "lucide-react";
 import { WorkflowAnimation } from "../components/WorkflowAnimation";
 
 export default function Home() {
@@ -58,7 +58,7 @@ export default function Home() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-light opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
               </span>
-              Private site hosting
+              Private hosting for AI outputs
             </div>
 
             <h1 className="text-5xl sm:text-6xl md:text-7xl tracking-tight font-semibold mb-6 text-zinc-100">
@@ -73,8 +73,8 @@ export default function Home() {
             </p>
 
             <p className="text-base text-zinc-500 max-w-xl mx-auto leading-relaxed mb-10">
-              Visitors sign in with GitHub or Google. You approve or deny.
-              Reports, dashboards, client work — private by default.
+              Your AI agent builds a site. OAuthPage hosts it privately.
+              Visitors sign in with GitHub or Google — you approve or deny.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
@@ -134,6 +134,68 @@ export default function Home() {
             label="You decide who sees what" 
             text="Approve, revoke, or send a self-destructing link. Full control, no guesswork." 
           />
+          </div>
+        </section>
+
+        {/* Built for AI agents section */}
+        <section className="mb-24 lg:mb-32 max-w-5xl mx-auto">
+          <div className="rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/5 via-zinc-900/50 to-zinc-950 p-8 sm:p-10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand/10 blur-[100px] rounded-full" />
+            
+            <div className="relative">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/30 flex items-center justify-center">
+                  <Bot size={20} className="text-brand-light" />
+                </div>
+                <h2 className="text-2xl font-semibold text-zinc-100">Built for AI workflows</h2>
+              </div>
+              
+              <p className="text-zinc-400 text-lg leading-relaxed max-w-3xl mb-8">
+                AI agents generate reports, dashboards, and full websites — but sharing them securely is still a pain.
+                OAuthPage gives your agents a <strong className="text-zinc-200">publish endpoint</strong> with access control built in.
+              </p>
+
+              <div className="grid sm:grid-cols-3 gap-6 mb-8">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-zinc-200">
+                    <Code2 size={16} className="text-brand-light" />
+                    Any coding agent
+                  </div>
+                  <p className="text-sm text-zinc-500">Claude Code, Codex, Cursor, Devin — any agent that builds HTML can deploy here.</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-zinc-200">
+                    <Terminal size={16} className="text-emerald-400" />
+                    CLI-first
+                  </div>
+                  <p className="text-sm text-zinc-500">One command to deploy. JSON output for piping. Built for scripts and automation.</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-zinc-200">
+                    <Shield size={16} className="text-amber-400" />
+                    Private by default
+                  </div>
+                  <p className="text-sm text-zinc-500">No more public Vercel links for sensitive AI outputs. Every page is gated.</p>
+                </div>
+              </div>
+
+              {/* OpenClaw callout */}
+              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="flex items-center gap-3 flex-shrink-0">
+                  <span className="text-2xl">🐾</span>
+                  <div>
+                    <p className="text-sm font-semibold text-zinc-200">Works with OpenClaw</p>
+                    <p className="text-xs text-zinc-500">AI assistant framework</p>
+                  </div>
+                </div>
+                <div className="sm:border-l sm:border-zinc-700 sm:pl-4 flex-1">
+                  <p className="text-sm text-zinc-400">
+                    OpenClaw agents use <code className="text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">opage deploy</code> to 
+                    publish artifacts, reports, and dashboards directly — then share secure links in chat. No manual steps.
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
