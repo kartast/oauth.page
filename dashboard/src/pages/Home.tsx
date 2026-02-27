@@ -72,7 +72,7 @@ export default function Home() {
               Like Google Docs sharing, but for entire websites.
             </p>
 
-            <p className="text-base text-zinc-500 max-w-xl mx-auto leading-relaxed mb-10">
+            <p className="text-base text-slate-400 max-w-xl mx-auto leading-relaxed mb-10">
               Your AI agent builds a site. OAuthPage hosts it privately.
               Visitors sign in with GitHub or Google — you approve or deny.
             </p>
@@ -111,7 +111,12 @@ export default function Home() {
         </section>
 
         {/* SVG Animation Hero Banner */}
-        <section className="mb-24 lg:mb-32 max-w-5xl mx-auto">
+        <section className="mb-24 lg:mb-32 max-w-5xl mx-auto relative">
+          {/* Radial gradient + grid behind the hero graphic */}
+          <div className="absolute inset-0 -m-8 pointer-events-none">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.08)_0%,transparent_70%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(63,63,70,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(63,63,70,0.12)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
+          </div>
           <WorkflowAnimation />
         </section>
 
@@ -227,7 +232,7 @@ export default function Home() {
 
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-tr from-brand/10 to-transparent rounded-2xl blur-2xl" />
-            <div className="relative rounded-2xl border border-zinc-800 bg-zinc-900/60 p-1 shadow-2xl backdrop-blur-sm">
+            <div className="relative rounded-2xl border border-zinc-700/60 bg-zinc-900/60 p-1 shadow-2xl backdrop-blur-sm">
               <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800/80 bg-zinc-900/80 rounded-t-xl">
                 <Terminal size={16} className="text-zinc-400" />
                 <span className="text-sm font-medium text-zinc-300">Terminal</span>
@@ -290,7 +295,7 @@ $ opage link create my-site --ttl 1h
         </section>
 
         {/* Footer */}
-        <footer className="pt-8 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-zinc-500">
+        <footer className="pt-8 border-t border-zinc-700/50 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-zinc-500">
           <div className="flex items-center gap-2 text-zinc-400">
             <Shield size={16} />
             <span className="font-medium">OAuthPage</span>
@@ -313,9 +318,10 @@ $ opage link create my-site --ttl 1h
 
 function TrustCard({ icon, label, text }: { icon: React.ReactNode; label: string; text: string }) {
   return (
-    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-6 hover:bg-zinc-900/50 transition-colors">
-      <div className="w-12 h-12 rounded-xl bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center mb-5 shadow-inner">
-        {icon}
+    <div className="rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-8 hover:bg-zinc-900/50 transition-colors">
+      <div className="relative w-12 h-12 rounded-xl bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center mb-5 shadow-inner">
+        <div className="absolute inset-0 rounded-xl bg-current opacity-[0.07] blur-lg" />
+        <div className="relative">{icon}</div>
       </div>
       <h3 className="text-lg font-semibold text-zinc-100 mb-2">{label}</h3>
       <p className="text-sm text-zinc-400 leading-relaxed">{text}</p>

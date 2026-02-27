@@ -1,6 +1,6 @@
 export function WorkflowAnimation() {
   return (
-    <div className="relative w-full aspect-[21/9] sm:aspect-[21/10] md:aspect-[21/8] bg-zinc-950/50 rounded-2xl border border-zinc-800 overflow-hidden shadow-2xl flex items-center justify-center p-4">
+    <div className="relative w-full aspect-[21/9] sm:aspect-[21/10] md:aspect-[21/8] bg-zinc-950/50 rounded-2xl border border-zinc-700/60 overflow-hidden shadow-2xl flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-transparent to-zinc-900/50 pointer-events-none" />
       
       <svg className="w-full h-full max-h-[400px]" viewBox="0 0 800 400" fill="none" xmlns="http://www.w3.org/2000/svg">
