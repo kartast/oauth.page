@@ -156,32 +156,18 @@ const MIME_TYPES: Record<string, string> = {
 };
 
 async function serveDashboard(c: any, pathname: string): Promise<Response> {
-  // Try exact asset match
-  const ext = pathname.substring(pathname.lastIndexOf("."));
-  const assetKey = `asset:${pathname}`;
-  const asset = await c.env.KV.get(assetKey, "text");
+  const url = new URL(c.req.url);
+  // Proxy request to the Cloudflare Pages deployment
+  const pagesUrl = new URL(pathname, "https://oauth-page-dashboard.pages.dev");
+  pagesUrl.search = url.search;
+  
+  const req = new Request(pagesUrl.toString(), {
+    method: c.req.method,
+    headers: c.req.raw.headers,
+    body: c.req.raw.body,
+  });
 
-  if (asset) {
-    const contentType = MIME_TYPES[ext] || "application/octet-stream";
-    const headers: Record<string, string> = {
-      "Content-Type": contentType,
-    };
-    // Cache JS/CSS for 1 year (hashed filenames)
-    if (ext === ".js" || ext === ".css") {
-      headers["Cache-Control"] = "public, max-age=31536000, immutable";
-    }
-    return new Response(asset, { headers });
-  }
-
-  // SPA fallback → serve index.html
-  const indexHtml = await c.env.KV.get("asset:/index.html", "text");
-  if (indexHtml) {
-    return new Response(indexHtml, {
-      headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" },
-    });
-  }
-
-  return new Response("Dashboard not found", { status: 404 });
+  return fetch(req);
 }
 
 // Dashboard and landing page catch-all

@@ -173,11 +173,11 @@ export default function Docs() {
               <span className="hidden sm:inline text-sm">Back</span>
             </Link>
             <div className="h-5 w-px bg-zinc-800" />
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center">
-                <Shield size={14} className="text-brand-light" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center shadow-inner">
+                <Shield size={16} className="text-brand-light" />
               </div>
-              <span className="font-semibold text-sm text-zinc-200">OAuthPage Docs</span>
+              <span className="font-bold text-sm text-zinc-200 tracking-tight whitespace-nowrap">OAuthPage Docs</span>
             </div>
           </div>
           <button
