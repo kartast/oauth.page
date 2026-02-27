@@ -20,6 +20,7 @@
 
 ## Backlog
 
+- [ ] **Bring Google OAuth live** — set wrangler secrets (`GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`), add localhost + prod redirect URIs in Google Console, publish consent screen, smoke test owner + visitor login flows
 - [ ] Site thumbnails on site cards (Vercel-style preview)
 - [ ] Deploy history timeline (timestamp, file count, actor)
 - [ ] Drag-drop upload zone with per-file status rows

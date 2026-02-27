@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
 import { createVisitorSession, revokeVisitorSessionsByEmail, getVisitorIdentity } from "../auth/session";
+import { sendEmail, newAccessRequestEmail, accessApprovedEmail, accessDeniedEmail } from "../email";
 
 const accessApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
 
@@ -93,6 +94,30 @@ publicAccessApi.post("/request", async (c) => {
   // Update storage_bytes estimate for the site
   await updateStorageBytes(c.env.DB, site.id);
 
+  // Notify site owner of new request (fire-and-forget)
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const owner = await c.env.DB.prepare(
+          "SELECT email, name FROM users WHERE id = ?"
+        ).bind(site.owner_id).first<{ email: string; name: string }>();
+        if (owner) {
+          const email = newAccessRequestEmail(
+            owner.name || "there",
+            visitor.name,
+            visitor.email,
+            site.name || slug,
+            `${c.env.APP_URL}/sites/${site.id}`
+          );
+          email.to = owner.email;
+          await sendEmail(c.env, email);
+        }
+      } catch (err) {
+        console.error("Failed to send new-request email:", err);
+      }
+    })()
+  );
+
   if (contentType.includes("application/x-www-form-urlencoded")) {
     return c.redirect(`https://${slug}.oauth.page/`);
   }
@@ -155,6 +180,24 @@ accessApi.post("/:id/requests/:rid/approve", async (c) => {
   // Update storage_bytes estimate
   await updateStorageBytes(c.env.DB, siteId);
 
+  // Notify visitor of approval (fire-and-forget)
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const siteSlug = site.slug as string;
+        const email = accessApprovedEmail(
+          (request.name as string) || "there",
+          (site.name as string) || siteSlug,
+          `https://${siteSlug}.oauth.page`
+        );
+        email.to = request.email as string;
+        await sendEmail(c.env, email);
+      } catch (err) {
+        console.error("Failed to send approval email:", err);
+      }
+    })()
+  );
+
   return c.json({ ok: true, message: "Request approved. Visitor will get access on next visit." });
 });
 
@@ -183,6 +226,24 @@ accessApi.post("/:id/requests/:rid/deny", async (c) => {
   )
     .bind(owner.user_id, now, requestId)
     .run();
+
+  // Notify visitor of denial (fire-and-forget)
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const siteRow = await c.env.DB.prepare("SELECT name, slug FROM sites WHERE id = ?")
+          .bind(siteId).first<{ name: string; slug: string }>();
+        const email = accessDeniedEmail(
+          (request.name as string) || "there",
+          siteRow?.name || siteRow?.slug || "the site"
+        );
+        email.to = request.email as string;
+        await sendEmail(c.env, email);
+      } catch (err) {
+        console.error("Failed to send denial email:", err);
+      }
+    })()
+  );
 
   return c.json({ ok: true, message: "Request denied" });
 });

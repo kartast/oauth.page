@@ -9,6 +9,7 @@ export interface Env {
   GOOGLE_CLIENT_ID: string;
   GOOGLE_CLIENT_SECRET: string;
   JWT_SECRET: string;
+  RESEND_API_KEY?: string;
 }
 
 export interface SiteConfig {
