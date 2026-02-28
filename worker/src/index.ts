@@ -85,7 +85,7 @@ app.post("/api/auth/logout", (c) => {
     headers: {
       "Content-Type": "application/json",
       "Set-Cookie":
-        "gk_owner=; Path=/; Domain=.oauth.page; HttpOnly; Secure; SameSite=Lax; Max-Age=0",
+        `gk_owner=; Path=/;${c.env.APP_URL.includes("workers.dev") ? "" : " Domain=.oauth.page;"} HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
     },
   });
 });
