@@ -128,6 +128,36 @@ describe("Proxy Logic", () => {
     expect(res.status).toBe(200);
     expect(text).toContain("owner page");
   });
+
+  it('Screenshot bypass token allows access without consuming token', async () => {
+    const siteId = 'site-123';
+    const token = 'test-ss-token';
+
+    env.KV.get.mockImplementation(async (key: string) => {
+      if (key === 'site:test-site') {
+        return JSON.stringify({ id: siteId, slug: 'test-site', name: 'Test', owner_id: 'owner1' });
+      }
+      if (key === 'ss:' + token) {
+        return siteId;
+      }
+      return null;
+    });
+
+    env.STORAGE.get.mockResolvedValue({
+      body: '<html>test</html>',
+      httpEtag: '"etag1"',
+    });
+
+    const req = new Request('https://test-site.oauth.page/', {
+      headers: { 'X-GK-Screenshot': token },
+    });
+    const res = await app.fetch(req, env as any, ctx as any);
+    expect(res.status).toBe(200);
+
+    // Token should NOT be deleted (we let TTL expire naturally)
+    const deleteCalls = env.KV.delete.mock.calls.filter((c: any) => c[0] === 'ss:' + token);
+    expect(deleteCalls.length).toBe(0);
+  });
 });
 
 describe("parseCookie", () => {

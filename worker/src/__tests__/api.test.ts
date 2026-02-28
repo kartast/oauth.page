@@ -108,4 +108,32 @@ describe("API Endpoints", () => {
     const body = await res.json() as any;
     expect(body.error).toBe("Not found");
   });
+  it('GET /api/auth/me returns user:null (not redirect) for unauthenticated requests', async () => {
+    // This verifies the auth check endpoint returns 401 gracefully
+    // and does NOT cause infinite redirect loops on the client
+    const req = new Request('https://app.oauth.page/api/auth/me');
+    const res = await app.fetch(req, env as any, ctx as any);
+    expect(res.status).toBe(401);
+    const body = await res.json() as any;
+    expect(body.user).toBeNull();
+    // Crucially: no redirect header
+    expect(res.headers.get('location')).toBeNull();
+  });
+
+  it('GET /api/sites/requests returns 401 when not authenticated', async () => {
+    const req = new Request('https://app.oauth.page/api/sites/requests');
+    const res = await app.fetch(req, env as any, ctx as any);
+    expect(res.status).toBe(401);
+  });
+
+  it('GET /api/stats returns cached or fresh stats', async () => {
+    env.KV.get.mockResolvedValue(JSON.stringify({ sites: 5, deploys: 100 }));
+    const req = new Request('https://app.oauth.page/api/stats');
+    const res = await app.fetch(req, env as any, ctx as any);
+    expect(res.status).toBe(200);
+    const body = await res.json() as any;
+    expect(body.sites).toBe(5);
+    expect(body.deploys).toBe(100);
+  });
+
 });

@@ -125,8 +125,6 @@ app.route("/api/sites", accessApi);
 app.route("/api/sites", linksApi);
 app.route("/api/sites", screenshotsApi);
 
-// Catch-all for unknown API routes
-app.all("/api/*", (c) => c.json({ error: "Not found" }, 404));
 
 // Public stats (for landing page social proof)
 app.get("/api/stats", async (c) => {
@@ -142,6 +140,9 @@ app.get("/api/stats", async (c) => {
   await c.env.KV.put("public:stats", JSON.stringify(stats), { expirationTtl: 300 });
   return c.json(stats);
 });
+// Catch-all for unknown API routes
+app.all("/api/*", (c) => c.json({ error: "Not found" }, 404));
+
 
 // Health check
 app.get("/health", (c) => c.json({ status: "ok", timestamp: Date.now() }));
