@@ -134,8 +134,9 @@ export function setSessionCookie(token: string, domain: string, maxAge: number =
   return `gk_session=${token}; Path=/; Domain=${domain}; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
 }
 
-export function setOwnerCookie(token: string, maxAge: number = SESSION_TTL): string {
-  return `gk_owner=${token}; Path=/; Domain=.oauth.page; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
+export function setOwnerCookie(token: string, maxAge: number = SESSION_TTL, domain?: string): string {
+  const domainAttr = domain?.includes("workers.dev") ? "" : " Domain=.oauth.page;";
+  return `gk_owner=${token}; Path=/;${domainAttr} HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAge}`;
 }
 
 // --- Visitor identity (for the OAuth request flow, stored in KV) ---

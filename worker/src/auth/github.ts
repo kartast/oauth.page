@@ -67,6 +67,7 @@ github.get("/callback", async (c) => {
     });
     const tokenData: any = await tokenRes.json();
 
+    console.error("[GITHUB_AUTH]", JSON.stringify(tokenData));
     if (!tokenData.access_token) {
       return c.redirect(`${errorRedirect}?error=token_exchange_failed`);
     }
@@ -182,7 +183,7 @@ github.get("/callback", async (c) => {
       status: 302,
       headers: {
         Location: `${c.env.APP_URL}/sites`,
-        "Set-Cookie": setOwnerCookie(jwt),
+        "Set-Cookie": setOwnerCookie(jwt, undefined, new URL(c.req.url).hostname),
       },
     });
   } catch (err) {
