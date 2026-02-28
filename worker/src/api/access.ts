@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
 import { createVisitorSession, revokeVisitorSessionsByEmail, getVisitorIdentity } from "../auth/session";
 import { sendEmail, newAccessRequestEmail, accessApprovedEmail, accessDeniedEmail } from "../email";
+import { getLimits, shouldResetMonthly, limitError } from "../limits";
 
 const accessApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
 
@@ -94,7 +95,7 @@ publicAccessApi.post("/request", async (c) => {
   // Update storage_bytes estimate for the site
   await updateStorageBytes(c.env.DB, site.id);
 
-  // Notify site owner of new request (fire-and-forget)
+  // Notify site owner of new request (fire-and-forget, respects email limit)
   c.executionCtx.waitUntil(
     (async () => {
       try {
@@ -102,15 +103,18 @@ publicAccessApi.post("/request", async (c) => {
           "SELECT email, name FROM users WHERE id = ?"
         ).bind(site.owner_id).first<{ email: string; name: string }>();
         if (owner) {
-          const email = newAccessRequestEmail(
-            owner.name || "there",
-            visitor.name,
-            visitor.email,
-            site.name || slug,
-            `${c.env.APP_URL}/sites/${site.id}`
-          );
-          email.to = owner.email;
-          await sendEmail(c.env, email);
+          const canSend = await checkAndIncrementEmailLimit(c.env, site.owner_id);
+          if (canSend) {
+            const email = newAccessRequestEmail(
+              owner.name || "there",
+              visitor.name,
+              visitor.email,
+              site.name || slug,
+              `${c.env.APP_URL}/sites/${site.id}`
+            );
+            email.to = owner.email;
+            await sendEmail(c.env, email);
+          }
         }
       } catch (err) {
         console.error("Failed to send new-request email:", err);
@@ -180,18 +184,21 @@ accessApi.post("/:id/requests/:rid/approve", async (c) => {
   // Update storage_bytes estimate
   await updateStorageBytes(c.env.DB, siteId);
 
-  // Notify visitor of approval (fire-and-forget)
+  // Notify visitor of approval (fire-and-forget, respects email limit)
   c.executionCtx.waitUntil(
     (async () => {
       try {
-        const siteSlug = site.slug as string;
-        const email = accessApprovedEmail(
-          (request.name as string) || "there",
-          (site.name as string) || siteSlug,
-          `https://${siteSlug}.oauth.page`
-        );
-        email.to = request.email as string;
-        await sendEmail(c.env, email);
+        const canSend = await checkAndIncrementEmailLimit(c.env, owner.user_id);
+        if (canSend) {
+          const siteSlug = site.slug as string;
+          const email = accessApprovedEmail(
+            (request.name as string) || "there",
+            (site.name as string) || siteSlug,
+            `https://${siteSlug}.oauth.page`
+          );
+          email.to = request.email as string;
+          await sendEmail(c.env, email);
+        }
       } catch (err) {
         console.error("Failed to send approval email:", err);
       }
@@ -227,18 +234,21 @@ accessApi.post("/:id/requests/:rid/deny", async (c) => {
     .bind(owner.user_id, now, requestId)
     .run();
 
-  // Notify visitor of denial (fire-and-forget)
+  // Notify visitor of denial (fire-and-forget, respects email limit)
   c.executionCtx.waitUntil(
     (async () => {
       try {
-        const siteRow = await c.env.DB.prepare("SELECT name, slug FROM sites WHERE id = ?")
-          .bind(siteId).first<{ name: string; slug: string }>();
-        const email = accessDeniedEmail(
-          (request.name as string) || "there",
-          siteRow?.name || siteRow?.slug || "the site"
-        );
-        email.to = request.email as string;
-        await sendEmail(c.env, email);
+        const canSend = await checkAndIncrementEmailLimit(c.env, owner.user_id);
+        if (canSend) {
+          const siteRow = await c.env.DB.prepare("SELECT name, slug FROM sites WHERE id = ?")
+            .bind(siteId).first<{ name: string; slug: string }>();
+          const email = accessDeniedEmail(
+            (request.name as string) || "there",
+            siteRow?.name || siteRow?.slug || "the site"
+          );
+          email.to = request.email as string;
+          await sendEmail(c.env, email);
+        }
       } catch (err) {
         console.error("Failed to send denial email:", err);
       }
@@ -287,6 +297,36 @@ async function updateStorageBytes(db: D1Database, siteId: string): Promise<void>
   await db.prepare("UPDATE sites SET storage_bytes = ? WHERE id = ?")
     .bind(storageBytes, siteId)
     .run();
+}
+
+/**
+ * Check if the owner can send another email. If yes, increment counter and return true.
+ * Performs lazy monthly reset.
+ */
+async function checkAndIncrementEmailLimit(env: Env, ownerId: string): Promise<boolean> {
+  const { limits, user } = await getLimits(env, ownerId);
+  if (limits.emailsPerMonth === -1) return true; // unlimited
+
+  const now = Math.floor(Date.now() / 1000);
+  let currentEmails = user.emails_this_month;
+
+  if (shouldResetMonthly(user.deploys_reset_at)) {
+    currentEmails = 0;
+    await env.DB.prepare(
+      "UPDATE users SET emails_this_month = 0, deploys_this_month = 0, deploys_reset_at = ? WHERE id = ?"
+    )
+      .bind(now, ownerId)
+      .run();
+  }
+
+  if (currentEmails >= limits.emailsPerMonth) return false;
+
+  await env.DB.prepare(
+    "UPDATE users SET emails_this_month = emails_this_month + 1 WHERE id = ?"
+  )
+    .bind(ownerId)
+    .run();
+  return true;
 }
 
 export default accessApi;

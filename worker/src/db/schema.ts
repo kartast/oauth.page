@@ -8,6 +8,10 @@ export const users = sqliteTable("users", {
   github_id: text("github_id"),
   google_id: text("google_id"),
   created_at: integer("created_at").notNull(),
+  plan: text("plan").default("free"),
+  deploys_this_month: integer("deploys_this_month").default(0),
+  deploys_reset_at: integer("deploys_reset_at"),
+  emails_this_month: integer("emails_this_month").default(0),
 });
 
 export const sites = sqliteTable("sites", {
@@ -22,6 +26,8 @@ export const sites = sqliteTable("sites", {
   settings: text("settings", { mode: "json" }),
   thumbnail_status: text("thumbnail_status"),
   thumbnail_at: integer("thumbnail_at"),
+  views_this_month: integer("views_this_month").default(0),
+  views_reset_at: integer("views_reset_at"),
 });
 
 export const accessRequests = sqliteTable("access_requests", {

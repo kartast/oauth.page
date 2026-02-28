@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
 import { generateToken } from "../auth/session";
+import { getLimits, limitError } from "../limits";
 
 const linksApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
 
@@ -37,6 +38,22 @@ linksApi.post("/:id/links", async (c) => {
     .bind(siteId, owner.user_id)
     .first<{ id: string; slug: string; owner_id: string }>();
   if (!site) return c.json({ error: "Site not found" }, 404);
+
+  // Check one-time link limit (count active links across all owner's sites)
+  const { limits } = await getLimits(c.env, owner.user_id);
+  if (limits.oneTimeLinks !== -1) {
+    const activeCount = await c.env.DB.prepare(
+      `SELECT COUNT(*) as c FROM one_time_links otl
+       JOIN sites s ON otl.site_id = s.id
+       WHERE s.owner_id = ? AND otl.status = 'active' AND otl.expires_at > ?`
+    )
+      .bind(owner.user_id, Math.floor(Date.now() / 1000))
+      .first<{ c: number }>();
+    const current = Number(activeCount?.c || 0);
+    if (current >= limits.oneTimeLinks) {
+      return c.json(limitError("oneTimeLinks", current, limits.oneTimeLinks), 403);
+    }
+  }
 
   const ttl = Math.max(MIN_TTL_SECONDS, Math.min(MAX_TTL_SECONDS, body.ttl_seconds || DEFAULT_TTL_SECONDS));
   const path = normalizePath(body.path);

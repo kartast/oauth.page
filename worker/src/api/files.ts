@@ -1,8 +1,9 @@
 import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
 import { captureScreenshot } from "./screenshots";
+import { getLimits, shouldResetMonthly, limitError, PLAN_LIMITS } from "../limits";
 
-const MAX_SITE_STORAGE = 26214400; // 25MB per deployment
+const MAX_SITE_STORAGE = 26214400; // 25MB per deployment (legacy, now per-plan)
 const MAX_FILE_SIZE = 26214400; // 25MB per file
 const BLOCKED_EXTENSIONS = new Set([".exe", ".sh", ".bat", ".cmd", ".ps1", ".msi", ".dll"]);
 
@@ -108,10 +109,13 @@ filesApi.put("/:id/files/*", async (c) => {
     return c.json({ error: "File too large (max 25MB)" }, 413);
   }
 
-  // Check quota
+  // Check plan storage quota
+  const { limits } = await getLimits(c.env, owner.user_id);
+  const maxStorage = limits.storageMb * 1024 * 1024;
   const currentStorage = (site.storage_bytes as number) || 0;
-  if (currentStorage + body.byteLength > MAX_SITE_STORAGE) {
-    return c.json({ error: "Storage quota exceeded (max 25MB per deployment)" }, 413);
+  if (currentStorage + body.byteLength > maxStorage) {
+    const currentMb = Math.round(currentStorage / 1024 / 1024 * 10) / 10;
+    return c.json(limitError("storageMb", currentMb, limits.storageMb), 403);
   }
 
   const key = r2Key(owner.user_id, siteId, filePath);
@@ -203,8 +207,27 @@ filesApi.post("/:id/deploy", async (c) => {
     decoded.push({ path: filePath, data: binary.buffer });
   }
 
-  if (totalSize > MAX_SITE_STORAGE) {
-    return c.json({ error: "Total size exceeds 25MB deployment limit" }, 413);
+  // Check plan storage quota
+  const { limits, user } = await getLimits(c.env, owner.user_id);
+  const maxStorage = limits.storageMb * 1024 * 1024;
+  if (totalSize > maxStorage) {
+    const totalMb = Math.round(totalSize / 1024 / 1024 * 10) / 10;
+    return c.json(limitError("storageMb", totalMb, limits.storageMb), 403);
+  }
+
+  // Check deploy limit with lazy monthly reset
+  const now = Math.floor(Date.now() / 1000);
+  let currentDeploys = user.deploys_this_month;
+  if (shouldResetMonthly(user.deploys_reset_at)) {
+    currentDeploys = 0;
+    await c.env.DB.prepare(
+      "UPDATE users SET deploys_this_month = 0, deploys_reset_at = ? WHERE id = ?"
+    )
+      .bind(now, owner.user_id)
+      .run();
+  }
+  if (currentDeploys >= limits.deploysPerMonth) {
+    return c.json(limitError("deploysPerMonth", currentDeploys, limits.deploysPerMonth), 403);
   }
 
   // Upload all files
@@ -216,6 +239,13 @@ filesApi.post("/:id/deploy", async (c) => {
     });
   }
 
+  // Increment deploy counter
+  await c.env.DB.prepare(
+    "UPDATE users SET deploys_this_month = deploys_this_month + 1, deploys_reset_at = COALESCE(deploys_reset_at, ?) WHERE id = ?"
+  )
+    .bind(now, owner.user_id)
+    .run();
+
   // Recalculate storage
   const storageBytes = await calculateStorage(c.env.STORAGE, owner.user_id, siteId);
   await c.env.DB.prepare("UPDATE sites SET storage_bytes = ? WHERE id = ?")
@@ -223,8 +253,10 @@ filesApi.post("/:id/deploy", async (c) => {
     .run();
 
   // Auto-trigger screenshot (debounce: skip if captured within last 60s)
+  // Free plan: only on first deploy (thumbnail_status IS NULL)
   const thumbAt = (site.thumbnail_at as number) || 0;
-  if (Math.floor(Date.now() / 1000) - thumbAt > 60) {
+  const canScreenshot = limits.screenshotOnEveryDeploy || !(site.thumbnail_status);
+  if (canScreenshot && Math.floor(Date.now() / 1000) - thumbAt > 60) {
     c.executionCtx.waitUntil(
       captureScreenshot(c.env, siteId, site.slug as string, owner.user_id)
     );

@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import puppeteer from "@cloudflare/puppeteer";
 import { Env, OwnerSession } from "../types";
+import { getLimits, limitError } from "../limits";
 
 const screenshotsApi = new Hono<{
   Bindings: Env;
@@ -21,6 +22,12 @@ screenshotsApi.post("/:id/screenshot", async (c) => {
     .first();
 
   if (!site) return c.json({ error: "Site not found" }, 404);
+
+  // Free plan: only allow screenshot if thumbnail_status IS NULL (first time)
+  const { limits } = await getLimits(c.env, owner.user_id);
+  if (!limits.screenshotOnEveryDeploy && site.thumbnail_status !== null) {
+    return c.json(limitError("screenshots", 1, 1), 403);
+  }
 
   // Mark as pending
   await c.env.DB.prepare(

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
+import { getLimits, limitError } from "../limits";
 
 const sitesApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
 
@@ -28,13 +29,14 @@ sitesApi.post("/", async (c) => {
     return c.json({ error: "Name is required" }, 400);
   }
 
-  // Free plan limit: max 10 active deployments per owner
+  // Plan-based site limit
+  const { limits } = await getLimits(c.env, owner.user_id);
   const countRow = await c.env.DB.prepare("SELECT COUNT(*) as c FROM sites WHERE owner_id = ?")
     .bind(owner.user_id)
     .first<{ c: number }>();
   const activeCount = Number((countRow as any)?.c || 0);
-  if (activeCount >= 10) {
-    return c.json({ error: "Free plan limit reached: max 10 active deployments" }, 403);
+  if (activeCount >= limits.sites) {
+    return c.json(limitError("sites", activeCount, limits.sites), 403);
   }
 
   // Generate slug from name or use provided

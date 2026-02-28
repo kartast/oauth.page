@@ -4,6 +4,7 @@ import { renderGatePage } from "./gate";
 import { verifyOwnerToken, getVisitorIdentity, setSessionCookie, setOwnerCookie, setVisitorCookie, createVisitorSession } from "./auth/session";
 import { getMimeType, isHashed } from "./api/files";
 import { sha256Hex } from "./api/links";
+import { PLAN_LIMITS, shouldResetMonthly } from "./limits";
 
 const proxy = new Hono<{ Bindings: Env }>();
 
@@ -69,8 +70,68 @@ proxy.all("*", async (c) => {
       }
     );
 
+  // Helper: check view limit and serve from R2
+  const checkViewLimit = async (): Promise<Response | null> => {
+    // Look up owner plan
+    const ownerRow = await c.env.DB.prepare(
+      "SELECT plan FROM users WHERE id = ?"
+    )
+      .bind(site.owner_id)
+      .first<{ plan: string }>();
+    const plan = ownerRow?.plan || "free";
+    const limits = PLAN_LIMITS[plan] || PLAN_LIMITS.free;
+
+    // Get site view counters
+    const siteRow = await c.env.DB.prepare(
+      "SELECT views_this_month, views_reset_at FROM sites WHERE id = ?"
+    )
+      .bind(site.id)
+      .first<{ views_this_month: number; views_reset_at: number | null }>();
+
+    let views = siteRow?.views_this_month ?? 0;
+    const now = Math.floor(Date.now() / 1000);
+
+    // Lazy monthly reset
+    if (shouldResetMonthly(siteRow?.views_reset_at ?? null)) {
+      views = 0;
+      await c.env.DB.prepare(
+        "UPDATE sites SET views_this_month = 0, views_reset_at = ? WHERE id = ?"
+      )
+        .bind(now, site.id)
+        .run();
+    }
+
+    if (views >= limits.viewsPerSite) {
+      return new Response(renderViewsExceeded(site.name), {
+        status: 429,
+        headers: { "Content-Type": "text/html; charset=utf-8" },
+      });
+    }
+
+    // Batch writes: use KV counter, only flush to DB every 10th view
+    const kvKey = `views:${site.id}`;
+    const kvCount = parseInt(await c.env.KV.get(kvKey) || "0", 10);
+    const newCount = kvCount + 1;
+    if (newCount >= 10) {
+      await c.env.DB.prepare(
+        "UPDATE sites SET views_this_month = views_this_month + ? WHERE id = ?"
+      )
+        .bind(newCount, site.id)
+        .run();
+      await c.env.KV.delete(kvKey);
+    } else {
+      await c.env.KV.put(kvKey, String(newCount), { expirationTtl: 86400 });
+    }
+
+    return null;
+  };
+
   // Helper: serve from R2 and track usage
   const serveAndTrack = async () => {
+    // Check view limit before serving
+    const viewBlock = await checkViewLimit();
+    if (viewBlock) return viewBlock;
+
     const resp = await serveFromR2(c.env.STORAGE, site, url.pathname);
     const body = await resp.arrayBuffer();
     const bytesOut = body.byteLength;
@@ -298,6 +359,10 @@ function renderOneTimeConfirm(confirmUrl: string): string {
 
 function renderOneTimeInfo(title: string, message: string): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${title}</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}</style></head><body><div class="card"><h2>${title}</h2><p class="muted">${message}</p></div></body></html>`;
+}
+
+function renderViewsExceeded(siteName: string): string {
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Views Exceeded</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}.btn{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#8b5cf6;color:#fff;text-decoration:none;font-weight:600}</style></head><body><div class="card"><h2>${siteName}</h2><p class="muted">This site has exceeded its monthly view limit. The site owner can upgrade to restore access.</p><a class="btn" href="https://oauth.page/pricing">Learn more</a></div></body></html>`;
 }
 
 export function parseCookie(cookieHeader: string, name: string): string | null {
