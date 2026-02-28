@@ -35,7 +35,7 @@ proxy.all("*", async (c) => {
   if (screenshotToken) {
     const expectedSiteId = await c.env.KV.get(`ss:${screenshotToken}`);
     if (expectedSiteId === site.id) {
-      await c.env.KV.delete(`ss:${screenshotToken}`);
+      // Let token expire naturally (60s TTL) so subresource requests also bypass gate
       return serveFromR2(c.env.STORAGE, site, url.pathname);
     }
   }
