@@ -61,24 +61,24 @@ export default function SiteCard({ site }: SiteCardProps) {
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-zinc-500 mt-4">
-          <span className="flex items-center gap-1">
-            <Users size={12} />
-            {site.user_count ?? 0} users
-          </span>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-zinc-500 mt-4">
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            <Users size={12} className="shrink-0" />
+            <span className="truncate">{site.user_count ?? 0} users</span>
+          </div>
           {(site.pending_count ?? 0) > 0 && (
-            <span className="flex items-center gap-1 text-amber-400">
-              <Clock size={12} />
-              {site.pending_count} pending
-            </span>
+            <div className="flex items-center gap-1.5 text-amber-400 whitespace-nowrap">
+              <Clock size={12} className="shrink-0" />
+              <span className="truncate">{site.pending_count} pending</span>
+            </div>
           )}
-          <span className="flex items-center gap-1">
-            <Activity size={12} />
-            {(site.total_requests ?? 0).toLocaleString()} req
-          </span>
-          <span className="text-zinc-600">
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            <Activity size={12} className="shrink-0" />
+            <span className="truncate">{(site.total_requests ?? 0).toLocaleString()} req</span>
+          </div>
+          <div className="text-zinc-600 whitespace-nowrap truncate">
             {formatBytes(site.total_bytes_out ?? 0)}
-          </span>
+          </div>
         </div>
       </div>
     </Link>
