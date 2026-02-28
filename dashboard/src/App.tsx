@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, createContext, useContext } from "react";
+import * as Sentry from "@sentry/react";
 import { getMe } from "./lib/api";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -35,11 +36,22 @@ export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const { logger } = Sentry;
+
   const refresh = async () => {
     try {
+      logger.info("Auth refresh: fetching /api/auth/me");
       const data = await getMe();
       setUser(data.user);
-    } catch {
+      if (data.user) {
+        Sentry.setUser({ id: data.user.id, email: data.user.email });
+        logger.info(logger.fmt`Auth: logged in as ${data.user.email}`);
+      } else {
+        logger.info("Auth: no active session");
+      }
+    } catch (err) {
+      logger.error(logger.fmt`Auth refresh failed: ${String(err)}`);
+      Sentry.captureException(err);
       setUser(null);
     } finally {
       setLoading(false);
@@ -52,8 +64,9 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4">
         <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+        <p className="text-xs text-zinc-500 font-mono">Loading auth...</p>
       </div>
     );
   }

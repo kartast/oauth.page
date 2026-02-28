@@ -1,4 +1,7 @@
+import * as Sentry from "@sentry/react";
+
 const API_BASE = "";
+const { logger } = Sentry;
 
 interface ApiOptions {
   method?: string;
@@ -9,27 +12,37 @@ interface ApiOptions {
 export async function api<T = unknown>(path: string, options: ApiOptions = {}): Promise<T> {
   const { method = "GET", body, token } = options;
 
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
+  return Sentry.startSpan(
+    { op: "http.client", name: `${method} ${path}` },
+    async () => {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
 
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  }
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
 
-  const response = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers,
-    credentials: "include",
-    body: body ? JSON.stringify(body) : undefined,
-  });
+      logger.info(logger.fmt`API ${method} ${path}`);
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: "Request failed" }));
-    throw new Error((error as any).error || `HTTP ${response.status}`);
-  }
+      const response = await fetch(`${API_BASE}${path}`, {
+        method,
+        headers,
+        credentials: "include",
+        body: body ? JSON.stringify(body) : undefined,
+      });
 
-  return response.json() as Promise<T>;
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({ error: "Request failed" }));
+        const msg = (error as any).error || `HTTP ${response.status}`;
+        logger.error(logger.fmt`API error ${method} ${path}: ${msg}`, { status: response.status });
+        Sentry.captureException(new Error(msg), { tags: { api_path: path, method } });
+        throw new Error(msg);
+      }
+
+      return response.json() as Promise<T>;
+    },
+  );
 }
 
 export async function apiDelete(path: string): Promise<void> {
