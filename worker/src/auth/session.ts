@@ -163,6 +163,7 @@ export async function getVisitorIdentity(
   return JSON.parse(json) as VisitorIdentity;
 }
 
-export function setVisitorCookie(token: string): string {
-  return `gk_visitor=${token}; Path=/; Domain=.oauth.page; HttpOnly; Secure; SameSite=Lax; Max-Age=${VISITOR_TTL}`;
+export function setVisitorCookie(token: string, appUrl?: string): string {
+  const domainAttr = appUrl?.includes("workers.dev") ? "" : " Domain=.oauth.page;";
+  return `gk_visitor=${token}; Path=/;${domainAttr} HttpOnly; Secure; SameSite=Lax; Max-Age=${VISITOR_TTL}`;
 }

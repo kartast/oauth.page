@@ -41,7 +41,7 @@ app.use("*", async (c, next) => {
 app.use(
   "/api/*",
   cors({
-    origin: (origin) => origin.endsWith(".workers.dev") || origin.endsWith("oauth.page") || origin === "http://localhost:5173" ? origin : "https://app.oauth.page",
+    origin: (origin) => origin.endsWith(".karta.workers.dev") || origin.endsWith("oauth.page") || origin === "http://localhost:5173" ? origin : "https://app.oauth.page",
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],

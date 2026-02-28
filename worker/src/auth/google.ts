@@ -90,7 +90,7 @@ google.get("/callback", async (c) => {
           status: 200,
           headers: {
             "Content-Type": "text/html; charset=utf-8",
-            "Set-Cookie": setVisitorCookie(token),
+            "Set-Cookie": setVisitorCookie(token, c.env.APP_URL),
           },
         }
       );
