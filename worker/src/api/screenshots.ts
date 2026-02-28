@@ -80,32 +80,47 @@ screenshotsApi.get("/:id/thumbnail", async (c) => {
 /**
  * Capture a screenshot of the site using CF Browser Rendering
  */
+const SLOW_THRESHOLD_MS = 25000; // warn if screenshot takes >25s
+
 export async function captureScreenshot(
   env: Env,
   siteId: string,
   slug: string,
   ownerId: string
 ): Promise<void> {
+  const t0 = Date.now();
+  const timings: Record<string, number> = {};
   let browser;
   try {
     const token = crypto.randomUUID();
     await env.KV.put(`ss:${token}`, siteId, { expirationTtl: 60 });
 
+    timings.tokenMs = Date.now() - t0;
+
+    const tLaunch = Date.now();
     browser = await puppeteer.launch(env.BROWSER);
+    timings.launchMs = Date.now() - tLaunch;
+
     const page = await browser.newPage();
     await page.setViewport({ width: 1280, height: 800 });
     await page.setExtraHTTPHeaders({ "X-GK-Screenshot": token });
 
     const siteUrl = `https://${slug}.oauth.page/`;
+    const tNav = Date.now();
     await page.goto(siteUrl, { waitUntil: "networkidle0", timeout: 30000 });
+    timings.navigationMs = Date.now() - tNav;
 
+    const tSnap = Date.now();
     const png = await page.screenshot({ type: "png" });
+    timings.screenshotMs = Date.now() - tSnap;
 
     // Store in R2
     const key = `u_${ownerId}/s_${siteId}/.gk/thumbnail.png`;
+    const tStore = Date.now();
     await env.STORAGE.put(key, png, {
       httpMetadata: { contentType: "image/png" },
     });
+    timings.storeMs = Date.now() - tStore;
 
     // Update DB — success
     const now = Math.floor(Date.now() / 1000);
@@ -114,9 +129,28 @@ export async function captureScreenshot(
     )
       .bind(now, siteId)
       .run();
+
+    const totalMs = Date.now() - t0;
+    timings.totalMs = totalMs;
+
+    const logData = { event: "screenshot_ok", slug, siteId, ...timings, pngKB: Math.round(png.byteLength / 1024) };
+
+    if (totalMs > SLOW_THRESHOLD_MS) {
+      console.warn("[SLOW_SCREENSHOT]", JSON.stringify(logData));
+    } else {
+      console.log("[SCREENSHOT]", JSON.stringify(logData));
+    }
   } catch (err) {
-    console.error("Screenshot capture failed:", err);
-    // Mark as failed — queue will retry up to 3 times automatically
+    const totalMs = Date.now() - t0;
+    console.error("[SCREENSHOT_FAIL]", JSON.stringify({
+      event: "screenshot_fail",
+      slug,
+      siteId,
+      totalMs,
+      ...timings,
+      error: err instanceof Error ? err.message : String(err),
+    }));
+
     await env.DB.prepare(
       "UPDATE sites SET thumbnail_status = 'failed' WHERE id = ?"
     )
