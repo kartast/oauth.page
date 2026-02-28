@@ -18,8 +18,6 @@ import {
 import {
   getSite,
   deleteSite,
-  approveRequest,
-  denyRequest,
   revokeAccess,
   listFiles,
   uploadFile,
@@ -30,7 +28,6 @@ import {
   revokeOneTimeLink,
   triggerScreenshot,
   type Site,
-  type AccessRequest,
   type SiteFile,
   type OneTimeLink,
 } from "../lib/api";
@@ -51,11 +48,10 @@ export default function SiteDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [site, setSite] = useState<Site | null>(null);
   const [approvedUsers, setApprovedUsers] = useState<{ email: string }[]>([]);
-  const [requests, setRequests] = useState<AccessRequest[]>([]);
   const [files, setFiles] = useState<SiteFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"files" | "approved" | "pending">("files");
+  const [activeTab, setActiveTab] = useState<"files" | "approved">("files");
   const [deleting, setDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -74,7 +70,6 @@ export default function SiteDetail() {
       const data = await getSite(id!);
       setSite(data.site);
       setApprovedUsers(data.approved_users);
-      setRequests(data.requests);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -114,16 +109,6 @@ export default function SiteDetail() {
     fetchFiles();
     fetchOneTimeLinks();
   }, [id]);
-
-  const handleApprove = async (requestId: string) => {
-    await approveRequest(id!, requestId);
-    await fetchSite();
-  };
-
-  const handleDeny = async (requestId: string) => {
-    await denyRequest(id!, requestId);
-    await fetchSite();
-  };
 
   const handleRevoke = async (email: string) => {
     if (!confirm(`Revoke access for ${email}?`)) return;
@@ -263,7 +248,6 @@ export default function SiteDetail() {
 
   if (!site) return null;
 
-  const pendingCount = requests.filter((r) => r.status === "pending").length;
   const storageUsed = site.storage_bytes ?? 0;
   const storageLimit = 25 * 1024 * 1024;
   const storagePct = Math.min(100, Math.round((storageUsed / storageLimit) * 100));
@@ -403,21 +387,6 @@ export default function SiteDetail() {
         >
           Approved ({approvedUsers.length})
         </button>
-        <button
-          onClick={() => setActiveTab("pending")}
-          className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors relative ${
-            activeTab === "pending"
-              ? "bg-zinc-800 text-zinc-100"
-              : "text-zinc-500 hover:text-zinc-300"
-          }`}
-        >
-          Pending
-          {pendingCount > 0 && (
-            <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-xs bg-amber-600 text-white rounded-full">
-              {pendingCount}
-            </span>
-          )}
-        </button>
       </div>
 
       {/* Files tab */}
@@ -556,15 +525,10 @@ export default function SiteDetail() {
       )}
 
       {/* Access tabs */}
-      {(activeTab === "approved" || activeTab === "pending") && (
+      {activeTab === "approved" && (
         <AccessList
           approvedUsers={approvedUsers}
-          requests={requests}
-          onApprove={handleApprove}
-          onDeny={handleDeny}
           onRevoke={handleRevoke}
-          activeTab={activeTab === "approved" ? "approved" : "pending"}
-          onTabChange={(tab) => setActiveTab(tab)}
         />
       )}
 

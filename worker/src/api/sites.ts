@@ -73,6 +73,23 @@ sitesApi.post("/", async (c) => {
   return c.json({ site: { id, slug, name: body.name, created_at: now } }, 201);
 });
 
+// GET /api/sites/requests — list all pending requests for all owner's sites
+sitesApi.get("/requests", async (c) => {
+  const owner = c.get("owner");
+
+  const requests = await c.env.DB.prepare(
+    `SELECT ar.*, s.name as site_name, s.slug as site_slug
+     FROM access_requests ar
+     JOIN sites s ON ar.site_id = s.id
+     WHERE s.owner_id = ? AND ar.status = 'pending'
+     ORDER BY ar.created_at DESC`
+  )
+    .bind(owner.user_id)
+    .all();
+
+  return c.json({ requests: requests.results });
+});
+
 // GET /api/sites/:id — get site details
 sitesApi.get("/:id", async (c) => {
   const owner = c.get("owner");

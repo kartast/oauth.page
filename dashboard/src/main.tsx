@@ -14,6 +14,32 @@ Sentry.init({
     Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error"] }),
   ],
   tracesSampleRate: 1.0,
+  ignoreErrors: [
+    // Browser extensions
+    "runtime.sendMessage",
+    "Extension context invalidated",
+    // Sentry internals
+    "updateFrom",
+  ],
+  denyUrls: [
+    // Browser extensions
+    /extensions\//i,
+    /^chrome:\/\//i,
+    /^chrome-extension:\/\//i,
+    /^moz-extension:\/\//i,
+  ],
+});
+
+// Auto-reload on chunk load failures (stale JS after deploy)
+window.addEventListener("error", (e) => {
+  if (
+    e.message?.includes("Failed to fetch dynamically imported module") ||
+    e.message?.includes("Load failed") ||
+    e.message?.includes("Loading chunk") ||
+    e.message?.includes("Loading CSS chunk")
+  ) {
+    window.location.reload();
+  }
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

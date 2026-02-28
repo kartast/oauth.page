@@ -33,6 +33,11 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
       });
 
       if (!response.ok) {
+        // 401 = session expired → redirect to login
+        if (response.status === 401) {
+          window.location.href = '/';
+          return new Promise(() => {}) as never;
+        }
         const error = await response.json().catch(() => ({ error: "Request failed" }));
         const msg = (error as any).error || `HTTP ${response.status}`;
         logger.error(logger.fmt`API error ${method} ${path}: ${msg}`, { status: response.status });
@@ -112,6 +117,15 @@ export interface AccessRequest {
   status: string;
   decided_at: number | null;
   created_at: number;
+}
+
+export interface GlobalAccessRequest extends AccessRequest {
+  site_name: string;
+  site_slug: string;
+}
+
+export async function getGlobalRequests() {
+  return api<{ requests: GlobalAccessRequest[] }>('/api/sites/requests');
 }
 
 export async function getSites() {
