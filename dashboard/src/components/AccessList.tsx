@@ -70,17 +70,17 @@ export default function AccessList({
             approvedUsers.map((user) => (
               <div
                 key={user.email}
-                className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3"
+                className="flex items-center justify-between gap-2 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 overflow-hidden"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-brand/20 rounded-full flex items-center justify-center text-brand text-sm font-medium">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 bg-brand/20 rounded-full flex items-center justify-center text-brand text-sm font-medium shrink-0">
                     {user.email[0].toUpperCase()}
                   </div>
-                  <span className="text-sm text-zinc-300">{user.email}</span>
+                  <span className="text-sm text-zinc-300 truncate">{user.email}</span>
                 </div>
                 <button
                   onClick={() => onRevoke(user.email)}
-                  className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-zinc-800"
+                  className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-zinc-800 shrink-0"
                 >
                   <UserMinus size={12} />
                   Revoke
@@ -102,22 +102,22 @@ export default function AccessList({
             pendingRequests.map((req) => (
               <div
                 key={req.id}
-                className="flex items-center justify-between bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3"
+                className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 overflow-hidden"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 min-w-0 mb-3">
                   {req.avatar_url ? (
-                    <img src={req.avatar_url} alt="" className="w-8 h-8 rounded-full" />
+                    <img src={req.avatar_url} alt="" className="w-8 h-8 rounded-full shrink-0" />
                   ) : (
-                    <div className="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center text-amber-400 text-sm font-medium">
+                    <div className="w-8 h-8 bg-amber-500/20 rounded-full flex items-center justify-center text-amber-400 text-sm font-medium shrink-0">
                       {(req.name || req.email)[0].toUpperCase()}
                     </div>
                   )}
-                  <div>
-                    <span className="text-sm text-zinc-300 block">{req.name || req.email}</span>
-                    {req.name && <span className="text-xs text-zinc-500">{req.email}</span>}
+                  <div className="min-w-0">
+                    <span className="text-sm text-zinc-300 block truncate">{req.name || req.email}</span>
+                    {req.name && <span className="text-xs text-zinc-500 block truncate">{req.email}</span>}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 ml-11">
                   <button
                     onClick={() => onApprove(req.id)}
                     className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg transition-colors font-medium"
