@@ -58,7 +58,7 @@ workers_dev = true
 name = "oauth-page-worker-staging"
 
 [env.staging.vars]
-APP_URL = "https://staging.oauth-page-worker.workers.dev"
+APP_URL = "https://oauth-page-worker-staging.karta.workers.dev"
 BETA_ONE_TIME_LINKS = "true"
 
 [[env.staging.d1_databases]]
