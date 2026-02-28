@@ -131,7 +131,7 @@ google.get("/callback", async (c) => {
       status: 302,
       headers: {
         Location: `${c.env.APP_URL}/sites`,
-        "Set-Cookie": setOwnerCookie(jwt, undefined, new URL(c.req.url).hostname),
+        "Set-Cookie": setOwnerCookie(jwt, undefined, c.env.APP_URL),
       },
     });
   } catch (err) {
