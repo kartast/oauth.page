@@ -11,6 +11,12 @@ When adding any new feature, always calculate and document:
 
 Present cost analysis before implementing. Flag features that cost >$0.001/invocation.
 
+
+### Test Before Deploy
+- **Always run the full test suite before deploying.** No exceptions.
+- When modifying client-side behavior (e.g. API interceptors, redirects, error handlers), consider the full request lifecycle — server tests alone won't catch client-side loops or regressions.
+- If a change affects both server and client, verify both sides have coverage.
+- Think through the redirect/retry chain: "If X returns 401, and the handler redirects to Y, and Y calls X again…"
 ### Infrastructure Pricing Reference (Feb 2026)
 | Service             | Unit Cost                                      |
 |---------------------|------------------------------------------------|
