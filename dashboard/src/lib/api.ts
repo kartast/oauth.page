@@ -33,8 +33,8 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
       });
 
       if (!response.ok) {
-        // 401 = session expired → redirect to login
-        if (response.status === 401) {
+        // 401 = session expired → redirect to login (skip auth check itself)
+        if (response.status === 401 && !path.includes('/auth/me')) {
           window.location.href = '/';
           return new Promise(() => {}) as never;
         }
