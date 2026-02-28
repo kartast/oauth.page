@@ -92,37 +92,34 @@ export default function Sites() {
                 key={req.id}
                 className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3"
               >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3 flex-1">
+                <div className="overflow-hidden">
+                  <div className="flex items-center gap-3">
                     {req.avatar_url ? (
                       <img
                         src={req.avatar_url}
                         alt=""
-                        className="w-9 h-9 rounded-full object-cover flex-shrink-0"
+                        className="w-9 h-9 rounded-full object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-9 h-9 bg-brand/20 rounded-full flex items-center justify-center text-brand text-sm font-medium flex-shrink-0">
+                      <div className="w-9 h-9 bg-brand/20 rounded-full flex items-center justify-center text-brand text-sm font-medium shrink-0">
                         {(req.name || req.email)[0].toUpperCase()}
                       </div>
                     )}
-                    <div className="flex-1 min-w-0">
+                    <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-sm text-zinc-200 truncate">
                           {req.name || "Unknown"}
                         </span>
                         <ProviderIcon provider={req.provider ?? undefined} />
-                        <span className="text-xs text-zinc-500 truncate">{req.email}</span>
                       </div>
+                      <span className="text-xs text-zinc-500 block truncate">{req.email}</span>
                       <p className="text-xs text-zinc-500 mt-1">
                         Requested access to <Link to={`/sites/${req.site_id}`} className="text-brand hover:underline font-medium">{req.site_name}</Link>
                         {req.message && <span className="italic ml-2">"{req.message}"</span>}
                       </p>
-                      <p className="text-xs text-zinc-600 mt-1">
-                        {new Date(req.created_at * 1000).toLocaleDateString()}
-                      </p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1.5 ml-4">
+                  <div className="flex items-center gap-1.5 mt-3 ml-12">
                     <button
                       onClick={() => handleApprove(req.site_id, req.id)}
                       className="flex items-center gap-1 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white text-xs font-medium rounded-md transition-colors"
