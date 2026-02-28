@@ -255,8 +255,15 @@ export default function SiteDetail() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      <div className="page-enter max-w-4xl mx-auto space-y-6">
+        <div className="flex justify-between mb-8">
+          <div className="h-8 w-48 skeleton"></div>
+          <div className="h-8 w-24 skeleton"></div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-6">
+          <div className="h-64 skeleton"></div>
+          <div className="h-64 skeleton"></div>
+        </div>
       </div>
     );
   }
@@ -365,9 +372,9 @@ export default function SiteDetail() {
               {formatBytes(storageUsed)}
               <span className="text-xs text-zinc-600 font-normal"> / 25 MB</span>
             </div>
-            <div className="mt-2 h-1.5 bg-zinc-700 rounded-full overflow-hidden">
+            <div className="mt-2 progress-track">
               <div
-                className={`h-full rounded-full ${storagePct > 85 ? "bg-red-500" : storagePct > 65 ? "bg-amber-500" : "bg-brand"}`}
+                className={`progress-fill ${storagePct > 85 ? "danger" : storagePct > 65 ? "warning" : ""}`}
                 style={{ width: `${storagePct}%` }}
               />
             </div>

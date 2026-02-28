@@ -62,15 +62,28 @@ export default function Sites() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+      <div className="page-enter">
+        <div className="flex justify-between items-center mb-6">
+          <div className="w-32 h-6 skeleton"></div>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden h-64 border-zinc-800/50">
+              <div className="h-40 skeleton rounded-none border-b border-zinc-800/50"></div>
+              <div className="p-4 space-y-3">
+                <div className="h-5 w-3/4 skeleton"></div>
+                <div className="h-4 w-1/2 skeleton"></div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-center py-20">
+      <div className="text-center py-20 empty-state max-w-md mx-auto mt-10">
         <p className="text-red-400">{error}</p>
       </div>
     );
@@ -148,8 +161,8 @@ export default function Sites() {
 
       {sites.length === 0 ? (
         <div className="text-center py-20">
-          <div className="w-16 h-16 bg-zinc-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <Shield size={28} className="text-zinc-600" />
+          <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand/20">
+            <Shield size={28} className="text-brand" />
           </div>
           <h2 className="text-zinc-300 font-medium mb-1">No sites yet</h2>
           <p className="text-zinc-600 text-sm mb-6">
