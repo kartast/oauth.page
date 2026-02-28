@@ -92,7 +92,8 @@ export default function Sites() {
   return (
     <div className="page-enter">
       {requests.length > 0 && (
-        <div className="mb-10">
+        <div className="mb-10 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
           <h2 className="text-lg font-semibold text-zinc-100 mb-4 flex items-center gap-2">
             Pending Approvals
             <span className="inline-flex items-center justify-center w-5 h-5 text-xs bg-amber-600 text-white rounded-full">
