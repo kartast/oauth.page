@@ -22,8 +22,8 @@ app.use("*", async (c, next) => {
   const host = new URL(c.req.url).hostname;
   const subdomain = host.split(".")[0];
 
-  if (subdomain === "app") {
-    // API/Dashboard traffic
+  if (subdomain === "app" || host.includes("workers.dev")) {
+    // API/Dashboard traffic (including staging on workers.dev)
     return next();
   }
 
@@ -41,7 +41,7 @@ app.use("*", async (c, next) => {
 app.use(
   "/api/*",
   cors({
-    origin: ["https://app.oauth.page", "https://oauth.page", "http://localhost:5173"],
+    origin: (origin) => origin.endsWith(".workers.dev") || origin.endsWith("oauth.page") || origin === "http://localhost:5173" ? origin : "https://app.oauth.page",
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
@@ -182,7 +182,7 @@ app.all("*", async (c) => {
   const subdomain = parts[0];
 
   // app.oauth.page → serve dashboard
-  if (subdomain === "app") {
+  if (subdomain === "app" || host.includes("workers.dev")) {
     return serveDashboard(c, url.pathname);
   }
 
