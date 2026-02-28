@@ -66,6 +66,8 @@ export interface Site {
   total_requests?: number;
   total_bytes_out?: number;
   storage_bytes?: number;
+  thumbnail_status?: string | null;
+  thumbnail_at?: number | null;
 }
 
 export interface SiteFile {
@@ -174,4 +176,15 @@ export async function revokeOneTimeLink(siteId: string, linkId: string) {
   return api<{ ok: boolean; beta: boolean }>(`/api/sites/${siteId}/links/${linkId}/revoke`, {
     method: "POST",
   });
+}
+
+// Screenshots / Thumbnails
+export async function triggerScreenshot(siteId: string) {
+  return api<{ ok: boolean; status: string }>(`/api/sites/${siteId}/screenshot`, {
+    method: "POST",
+  });
+}
+
+export function getThumbnailUrl(siteId: string): string {
+  return `${API_BASE}/api/sites/${siteId}/thumbnail`;
 }

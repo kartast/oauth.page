@@ -10,6 +10,7 @@ export interface Env {
   GOOGLE_CLIENT_SECRET: string;
   JWT_SECRET: string;
   RESEND_API_KEY?: string;
+  BROWSER: Fetcher;
 }
 
 export interface SiteConfig {

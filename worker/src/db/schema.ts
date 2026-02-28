@@ -20,6 +20,8 @@ export const sites = sqliteTable("sites", {
   name: text("name").notNull(),
   created_at: integer("created_at").notNull(),
   settings: text("settings", { mode: "json" }),
+  thumbnail_status: text("thumbnail_status"),
+  thumbnail_at: integer("thumbnail_at"),
 });
 
 export const accessRequests = sqliteTable("access_requests", {

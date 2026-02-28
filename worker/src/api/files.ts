@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
+import { captureScreenshot } from "./screenshots";
 
 const MAX_SITE_STORAGE = 26214400; // 25MB per deployment
 const MAX_FILE_SIZE = 26214400; // 25MB per file
@@ -126,6 +127,14 @@ filesApi.put("/:id/files/*", async (c) => {
     .bind(storageBytes, siteId)
     .run();
 
+  // Auto-trigger screenshot (debounce: skip if captured within last 60s)
+  const thumbAt = (site.thumbnail_at as number) || 0;
+  if (Math.floor(Date.now() / 1000) - thumbAt > 60) {
+    c.executionCtx.waitUntil(
+      captureScreenshot(c.env, siteId, site.slug as string, owner.user_id)
+    );
+  }
+
   return c.json({ ok: true, path: filePath, size: body.byteLength });
 });
 
@@ -212,6 +221,14 @@ filesApi.post("/:id/deploy", async (c) => {
   await c.env.DB.prepare("UPDATE sites SET storage_bytes = ? WHERE id = ?")
     .bind(storageBytes, siteId)
     .run();
+
+  // Auto-trigger screenshot (debounce: skip if captured within last 60s)
+  const thumbAt = (site.thumbnail_at as number) || 0;
+  if (Math.floor(Date.now() / 1000) - thumbAt > 60) {
+    c.executionCtx.waitUntil(
+      captureScreenshot(c.env, siteId, site.slug as string, owner.user_id)
+    );
+  }
 
   return c.json({ ok: true, count: decoded.length, totalSize });
 });

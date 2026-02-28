@@ -13,6 +13,7 @@ import {
   FolderUp,
   Link as LinkIcon,
   RefreshCw,
+  Camera,
 } from "lucide-react";
 import {
   getSite,
@@ -27,6 +28,7 @@ import {
   createOneTimeLink,
   listOneTimeLinks,
   revokeOneTimeLink,
+  triggerScreenshot,
   type Site,
   type AccessRequest,
   type SiteFile,
@@ -63,6 +65,7 @@ export default function SiteDetail() {
   const [creatingLink, setCreatingLink] = useState(false);
   const [newOneTimeUrl, setNewOneTimeUrl] = useState<string | null>(null);
   const [copiedNewLink, setCopiedNewLink] = useState(false);
+  const [capturingScreenshot, setCapturingScreenshot] = useState(false);
 
   const fetchSite = async () => {
     try {
@@ -208,6 +211,20 @@ export default function SiteDetail() {
     }
   };
 
+  const handleScreenshot = async () => {
+    setCapturingScreenshot(true);
+    setError(null);
+    try {
+      await triggerScreenshot(id!);
+      // Refresh site data to get updated thumbnail_status
+      await fetchSite();
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setCapturingScreenshot(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -272,14 +289,25 @@ export default function SiteDetail() {
             </div>
           </div>
 
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-red-400 hover:bg-red-950/50 rounded-lg transition-colors"
-          >
-            <Trash2 size={12} />
-            {deleting ? "Deleting..." : "Delete"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleScreenshot}
+              disabled={capturingScreenshot}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors disabled:opacity-50"
+              title="Refresh site preview"
+            >
+              <Camera size={12} />
+              {capturingScreenshot ? "Capturing..." : "Preview"}
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-red-400 hover:bg-red-950/50 rounded-lg transition-colors"
+            >
+              <Trash2 size={12} />
+              {deleting ? "Deleting..." : "Delete"}
+            </button>
+          </div>
         </div>
       </div>
 

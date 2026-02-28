@@ -12,6 +12,7 @@ import filesApi from "./api/files";
 import accessApi, { publicAccessApi } from "./api/access";
 import cliAuth from "./api/cli-auth";
 import linksApi from "./api/links";
+import screenshotsApi from "./api/screenshots";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -122,6 +123,7 @@ app.route("/api/sites", sitesApi);
 app.route("/api/sites", filesApi);
 app.route("/api/sites", accessApi);
 app.route("/api/sites", linksApi);
+app.route("/api/sites", screenshotsApi);
 
 // Catch-all for unknown API routes
 app.all("/api/*", (c) => c.json({ error: "Not found" }, 404));

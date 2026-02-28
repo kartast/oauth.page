@@ -1,6 +1,7 @@
 name = "oauth-page-worker"
 main = "src/index.ts"
 compatibility_date = "2024-06-20"
+compatibility_flags = ["nodejs_compat"]
 
 [vars]
 APP_URL = "https://app.oauth.page"
@@ -17,6 +18,7 @@ BETA_ONE_TIME_LINKS = "true" # easy launch toggle: set to "false"
 binding = "DB"
 database_name = "oauth-page-db"
 database_id = "d3fe89b5-4259-45ea-b344-77d6c26cbe8a"
+migrations_dir = "drizzle"
 
 [[kv_namespaces]]
 binding = "KV"
@@ -25,6 +27,9 @@ id = "b651495a73a04699a0d14cef9af8df2d"
 [[r2_buckets]]
 binding = "STORAGE"
 bucket_name = "oauthpage-sites"
+
+[browser]
+binding = "BROWSER"
 
 [[routes]]
 pattern = "*.oauth.page/*"

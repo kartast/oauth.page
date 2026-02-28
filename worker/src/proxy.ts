@@ -30,6 +30,16 @@ proxy.all("*", async (c) => {
 
   const site: SiteConfig = JSON.parse(siteJson);
 
+  // Screenshot bypass — one-time token via header, no auth or usage tracking
+  const screenshotToken = c.req.header("x-gk-screenshot");
+  if (screenshotToken) {
+    const expectedSiteId = await c.env.KV.get(`ss:${screenshotToken}`);
+    if (expectedSiteId === site.id) {
+      await c.env.KV.delete(`ss:${screenshotToken}`);
+      return serveFromR2(c.env.STORAGE, site, url.pathname);
+    }
+  }
+
   // One-time link consume flow (BETA): /_otl/<token>
   const otlMatch = url.pathname.match(/^\/_otl\/([a-f0-9]{32,})$/i);
   if (otlMatch) {
