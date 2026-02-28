@@ -81,7 +81,7 @@ export async function captureScreenshot(
   try {
     // Generate a one-time bypass token (30s TTL, auto-expires)
     const token = crypto.randomUUID();
-    await env.KV.put(`ss:${token}`, siteId, { expirationTtl: 30 });
+    await env.KV.put(`ss:${token}`, siteId, { expirationTtl: 60 });
 
     browser = await puppeteer.launch(env.BROWSER);
     const page = await browser.newPage();
