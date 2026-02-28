@@ -288,7 +288,7 @@ $ npx oauthpage link create q4-report --ttl 24h
 
           <H3>Authentication</H3>
           <P>
-            Sign in with GitHub (Google OAuth coming soon). Your session persists across browser restarts.
+            Sign in with GitHub (Google OAuth). Your session persists across browser restarts.
             Sign out from the header menu.
           </P>
 
@@ -417,7 +417,7 @@ $ opage logout     # Clear stored credentials`}</CodeBlock>
             {[
               "Visitor navigates to your-slug.oauth.page",
               "They see a branded gate page with a \"Request Access\" button",
-              "They authenticate via GitHub (or Google, coming soon)",
+              "They authenticate via GitHub or Google",
               "An access request appears in your dashboard",
               "You approve or deny — they get a session cookie on approval",
             ].map((step, i) => (
@@ -622,7 +622,7 @@ $ opage link create my-site --ttl 24h
           <H3>OAuth providers</H3>
           <ul className="space-y-2 mb-4">
             <Li><strong>GitHub OAuth</strong> — Fully supported for both owners and visitors</Li>
-            <Li><strong>Google OAuth</strong> — Coming soon</Li>
+            <Li><strong>Google OAuth</strong> — Fully supported for both owners and visitors</Li>
           </ul>
 
           <H3>Data isolation</H3>
@@ -655,12 +655,15 @@ $ opage link create my-site --ttl 24h
               </thead>
               <tbody className="divide-y divide-zinc-800/50">
                 {[
-                  ["Storage per deployment", "25 MB"],
-                  ["Active deployments", "10 per account"],
-                  ["File size", "25 MB per file"],
-                  ["OAuth providers", "GitHub (Google coming soon)"],
-                  ["One-time links", "Unlimited"],
-                  ["Custom domain", "Not yet (coming soon)"],
+                  ["Sites", "3"],
+                  ["Storage per site", "5 MB"],
+                  ["Deploys per month", "10"],
+                  ["Page views per site/mo", "1,000"],
+                  ["Email notifications/mo", "5"],
+                  ["One-time links", "3 active"],
+                  ["Preview screenshots", "First deploy only"],
+                  ["OAuth providers", "GitHub + Google"],
+                  ["Custom domain", "Coming soon"],
                 ].map(([resource, limit]) => (
                   <tr key={resource} className="hover:bg-zinc-900/30">
                     <td className="px-4 py-2.5 text-zinc-300">{resource}</td>
@@ -673,8 +676,7 @@ $ opage link create my-site --ttl 24h
 
           <H3>Paid plans</H3>
           <P>
-            Paid plans with higher limits, team support, and custom domains are coming after the beta period.
-            The free plan will always exist.
+            OAuthPage is free during beta. Paid plans with higher limits, custom domains, and team support are coming soon. The free plan will always exist.
           </P>
 
           {/* ────────── Troubleshooting ────────── */}

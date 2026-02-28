@@ -79,6 +79,6 @@ export function limitError(limitName: string, current: number, max: number) {
     limit: limitName,
     current,
     max,
-    upgrade_url: "/pricing",
+    message: "You've reached the free plan limit. Paid plans coming soon!",
   };
 }

@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, createContext, useContext } from "react";
 import * as Sentry from "@sentry/react";
 import { getMe } from "./lib/api";
+import { ToastProvider } from "./components/Toast";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Docs from "./pages/Docs";
@@ -73,17 +74,19 @@ export default function App() {
 
   return (
     <AuthContext.Provider value={{ user, loading, refresh }}>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/docs" element={<Docs />} />
-        <Route path="/login" element={user ? <Navigate to="/sites" /> : <Login />} />
-        <Route element={user ? <Layout /> : <Navigate to="/login" />}>
-          <Route path="/sites" element={<Sites />} />
-          <Route path="/sites/new" element={<CreateSite />} />
-          <Route path="/sites/:id" element={<SiteDetail />} />
-        </Route>
-        <Route path="*" element={<Navigate to={user ? "/sites" : "/"} />} />
-      </Routes>
+      <ToastProvider>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/docs" element={<Docs />} />
+          <Route path="/login" element={user ? <Navigate to="/sites" /> : <Login />} />
+          <Route element={user ? <Layout /> : <Navigate to="/login" />}>
+            <Route path="/sites" element={<Sites />} />
+            <Route path="/sites/new" element={<CreateSite />} />
+            <Route path="/sites/:id" element={<SiteDetail />} />
+          </Route>
+          <Route path="*" element={<Navigate to={user ? "/sites" : "/"} />} />
+        </Routes>
+      </ToastProvider>
     </AuthContext.Provider>
   );
 }
