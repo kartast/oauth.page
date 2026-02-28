@@ -14,6 +14,7 @@ import {
   Link as LinkIcon,
   RefreshCw,
   Camera,
+  Loader2,
 } from "lucide-react";
 import {
   getSite,
@@ -29,6 +30,7 @@ import {
   listOneTimeLinks,
   revokeOneTimeLink,
   triggerScreenshot,
+  getThumbnailUrl,
   type Site,
   type SiteFile,
   type OneTimeLink,
@@ -68,6 +70,7 @@ export default function SiteDetail() {
   const [screenshotMsg, setScreenshotMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [accessSubTab, setAccessSubTab] = useState<"approved" | "pending">("approved");
+  const [imgError, setImgError] = useState(false);
 
   const fetchSite = async () => {
     try {
@@ -278,6 +281,9 @@ export default function SiteDetail() {
 
   if (!site) return null;
 
+  const hasThumb = site.thumbnail_status === "ready" && !imgError;
+  const isPending = site.thumbnail_status === "pending";
+
   const storageUsed = site.storage_bytes ?? 0;
   const storageLimit = 25 * 1024 * 1024;
   const storagePct = Math.min(100, Math.round((storageUsed / storageLimit) * 100));
@@ -293,103 +299,140 @@ export default function SiteDetail() {
       </button>
 
       {/* Site header */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-brand/20 rounded-xl flex items-center justify-center">
-              <Globe size={20} className="text-brand" />
-            </div>
-            <div>
-              <h1 className="text-lg font-semibold text-zinc-100">{site.name}</h1>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="text-sm text-zinc-500">{site.slug}.oauth.page</span>
-                <button
-                  onClick={copyUrl}
-                  className="text-zinc-600 hover:text-zinc-400 btn-press"
-                  title="Copy URL"
-                >
-                  {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
-                </button>
-                <a
-                  href={`https://${site.slug}.oauth.page`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-zinc-600 hover:text-zinc-400 btn-press"
-                  title="Open site"
-                >
-                  <ExternalLink size={12} />
-                </a>
+      {/* Overview Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="md:col-span-2 flex flex-col gap-6">
+          {/* Site header */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <div className="flex items-start justify-between">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-brand/20 rounded-xl flex items-center justify-center">
+                  <Globe size={20} className="text-brand" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-semibold text-zinc-100">{site.name}</h1>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-sm text-zinc-500">{site.slug}.oauth.page</span>
+                    <button
+                      onClick={copyUrl}
+                      className="text-zinc-600 hover:text-zinc-400 btn-press"
+                      title="Copy URL"
+                    >
+                      {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
+                    </button>
+                    <a
+                      href={`https://${site.slug}.oauth.page`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-zinc-600 hover:text-zinc-400 btn-press"
+                      title="Open site"
+                    >
+                      <ExternalLink size={12} />
+                    </a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          {error && (
+            <div className="bg-red-950/50 border border-red-900 text-red-300 text-sm rounded-lg px-4 py-3">
+              {error}
+            </div>
+          )}
+
+          {/* Usage stats */}
+          <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <h2 className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
+              <Activity size={14} />
+              Usage
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-xs text-zinc-500 mb-1">Files</div>
+                <div className="text-lg font-semibold text-zinc-100">{files.length}</div>
+              </div>
+              <div className="bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-xs text-zinc-500 mb-1">Storage</div>
+                <div className="text-lg font-semibold text-zinc-100">
+                  {formatBytes(storageUsed)}
+                  <span className="text-xs text-zinc-600 font-normal"> / 25 MB</span>
+                </div>
+                <div className="mt-2 progress-track">
+                  <div
+                    className={`progress-fill ${storagePct > 85 ? "danger" : storagePct > 65 ? "warning" : ""}`}
+                    style={{ width: `${storagePct}%` }}
+                  />
+                </div>
+                <div className="text-[10px] text-zinc-500 mt-1">{storagePct}% used</div>
+              </div>
+              <div className="bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-xs text-zinc-500 mb-1">Requests</div>
+                <div className="text-lg font-semibold text-zinc-100">
+                  {(site.total_requests ?? 0).toLocaleString()}
+                </div>
+              </div>
+              <div className="bg-zinc-800/50 rounded-lg p-3">
+                <div className="text-xs text-zinc-500 mb-1">Bandwidth</div>
+                <div className="text-lg font-semibold text-zinc-100">
+                  {formatBytes(site.total_bytes_out ?? 0)}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Thumbnail Preview Box */}
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden flex flex-col h-full min-h-[280px]">
+          <div className="p-4 border-b border-zinc-800 flex items-center justify-between">
+            <h2 className="text-sm font-medium text-zinc-400 flex items-center gap-2">
+              <Camera size={14} />
+              Live Preview
+            </h2>
             <div className="flex items-center gap-2">
               <button
                 onClick={handleScreenshot}
                 disabled={capturingScreenshot}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-brand hover:bg-brand/10 rounded-lg btn-press disabled:opacity-50 disabled:hover:scale-100"
                 title="Refresh site preview">
-
                 {capturingScreenshot ? (
                   <div className="w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
                 ) : (
-                  <Camera size={12} />
+                  <RefreshCw size={12} />
                 )}
-                {capturingScreenshot ? "Generating preview…" : "Preview"}
+                {capturingScreenshot ? "Updating..." : "Refresh"}
               </button>
-              {screenshotMsg && (
-                <span className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md border ${screenshotMsg.type === "success" ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
-                  {screenshotMsg.type === "success" ? <Check size={12} /> : null} {screenshotMsg.text}
-                </span>
+            </div>
+          </div>
+          
+          {screenshotMsg && (
+            <div className="px-4 pt-3 pb-1">
+              <span className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1.5 rounded-md border ${screenshotMsg.type === "success" ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
+                {screenshotMsg.type === "success" ? <Check size={12} /> : null} {screenshotMsg.text}
+              </span>
+            </div>
+          )}
+
+          <div className="flex-1 bg-zinc-800/20 relative flex items-center justify-center p-4">
+            <div className="w-full aspect-video rounded-lg overflow-hidden border border-zinc-700/50 bg-zinc-800/50 relative shadow-sm">
+              {hasThumb ? (
+                <img
+                  src={`${getThumbnailUrl(site.id)}?t=${site.thumbnail_at ?? ""}`}
+                  alt={`${site.name} preview`}
+                  className="w-full h-full object-cover object-top"
+                  onError={() => setImgError(true)}
+                />
+              ) : isPending ? (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                  <Loader2 size={24} className="text-brand animate-spin" />
+                  <span className="text-xs text-zinc-500">Generating preview...</span>
+                </div>
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3">
+                  <Globe size={32} className="text-zinc-600" />
+                  <span className="text-xs text-zinc-500">No preview available</span>
+                </div>
               )}
-            </div>
-
-          </div>
-        </div>
-      </div>
-
-      {error && (
-        <div className="bg-red-950/50 border border-red-900 text-red-300 text-sm rounded-lg px-4 py-3 mb-4">
-          {error}
-        </div>
-      )}
-
-      {/* Usage stats */}
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 mb-6">
-        <h2 className="text-sm font-medium text-zinc-400 mb-4 flex items-center gap-2">
-          <Activity size={14} />
-          Usage
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <div className="bg-zinc-800/50 rounded-lg p-3">
-            <div className="text-xs text-zinc-500 mb-1">Files</div>
-            <div className="text-lg font-semibold text-zinc-100">{files.length}</div>
-          </div>
-          <div className="bg-zinc-800/50 rounded-lg p-3">
-            <div className="text-xs text-zinc-500 mb-1">Storage</div>
-            <div className="text-lg font-semibold text-zinc-100">
-              {formatBytes(storageUsed)}
-              <span className="text-xs text-zinc-600 font-normal"> / 25 MB</span>
-            </div>
-            <div className="mt-2 progress-track">
-              <div
-                className={`progress-fill ${storagePct > 85 ? "danger" : storagePct > 65 ? "warning" : ""}`}
-                style={{ width: `${storagePct}%` }}
-              />
-            </div>
-            <div className="text-[10px] text-zinc-500 mt-1">{storagePct}% used</div>
-          </div>
-          <div className="bg-zinc-800/50 rounded-lg p-3">
-            <div className="text-xs text-zinc-500 mb-1">Requests</div>
-            <div className="text-lg font-semibold text-zinc-100">
-              {(site.total_requests ?? 0).toLocaleString()}
-            </div>
-          </div>
-          <div className="bg-zinc-800/50 rounded-lg p-3">
-            <div className="text-xs text-zinc-500 mb-1">Bandwidth</div>
-            <div className="text-lg font-semibold text-zinc-100">
-              {formatBytes(site.total_bytes_out ?? 0)}
             </div>
           </div>
         </div>
