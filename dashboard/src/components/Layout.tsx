@@ -34,7 +34,7 @@ export default function Layout() {
             </Link>
             <Link
               to="/sites/new"
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white text-sm font-semibold rounded-lg transition-all shadow-sm active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white btn-press text-sm font-semibold rounded-lg transition-all shadow-sm active:scale-95"
             >
               <Plus size={14} />
               <span className="hidden xs:inline">New Site</span>

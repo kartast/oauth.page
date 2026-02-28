@@ -77,7 +77,7 @@ export default function Sites() {
   }
 
   return (
-    <div>
+    <div className="page-enter">
       {requests.length > 0 && (
         <div className="mb-10">
           <h2 className="text-lg font-semibold text-zinc-100 mb-4 flex items-center gap-2">
@@ -122,14 +122,14 @@ export default function Sites() {
                   <div className="flex items-center gap-1.5 mt-3 ml-12">
                     <button
                       onClick={() => handleApprove(req.site_id, req.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white text-xs font-medium rounded-md transition-colors"
+                      className="flex items-center gap-1 px-3 py-1.5 bg-brand hover:bg-brand-hover text-white text-xs font-medium rounded-md btn-press"
                     >
                       <Check size={12} />
                       Approve
                     </button>
                     <button
                       onClick={() => handleDeny(req.site_id, req.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs font-medium rounded-md transition-colors"
+                      className="flex items-center gap-1 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs font-medium rounded-md btn-press"
                     >
                       <X size={12} />
                       Deny

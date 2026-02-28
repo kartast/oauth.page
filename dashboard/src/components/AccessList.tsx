@@ -60,7 +60,7 @@ export default function AccessList({
       </div>
 
       {activeTab === "approved" && (
-        <div className="space-y-2">
+        <div className="space-y-2 tab-content">
           {approvedUsers.length === 0 ? (
             <div className="text-center py-12 text-zinc-600">
               <Users size={32} className="mx-auto mb-3 opacity-50" />
@@ -80,7 +80,7 @@ export default function AccessList({
                 </div>
                 <button
                   onClick={() => onRevoke(user.email)}
-                  className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-zinc-800 shrink-0"
+                  className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 transition-colors px-2 py-1 rounded hover:bg-zinc-800 shrink-0 btn-press"
                 >
                   <UserMinus size={12} />
                   Revoke
@@ -92,7 +92,7 @@ export default function AccessList({
       )}
 
       {activeTab === "pending" && (
-        <div className="space-y-2">
+        <div className="space-y-2 tab-content">
           {pendingRequests.length === 0 ? (
             <div className="text-center py-12 text-zinc-600">
               <Clock size={32} className="mx-auto mb-3 opacity-50" />
@@ -120,14 +120,14 @@ export default function AccessList({
                 <div className="flex items-center gap-2 ml-11">
                   <button
                     onClick={() => onApprove(req.id)}
-                    className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg transition-colors font-medium"
+                    className="flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20 px-3 py-1.5 rounded-lg btn-press font-medium"
                   >
                     <Check size={12} />
                     Approve
                   </button>
                   <button
                     onClick={() => onDeny(req.id)}
-                    className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 hover:bg-red-500/10 px-3 py-1.5 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-zinc-500 hover:text-red-400 hover:bg-red-500/10 px-3 py-1.5 rounded-lg btn-press"
                   >
                     <X size={12} />
                     Deny

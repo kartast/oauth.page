@@ -322,8 +322,8 @@ export default function SiteDetail() {
                 onClick={handleScreenshot}
                 disabled={capturingScreenshot}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors disabled:opacity-50"
-                title="Refresh site preview"
-              >
+                title="Refresh site preview">
+
                 {capturingScreenshot ? (
                   <div className="w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
                 ) : (
@@ -524,7 +524,7 @@ export default function SiteDetail() {
               {files.map((file) => (
                 <div
                   key={file.path}
-                  className="flex items-center justify-between py-2.5 group"
+                  className="flex items-center justify-between py-2.5 group row-hover rounded-lg px-2 -mx-2"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <File size={14} className="text-zinc-600 shrink-0" />
@@ -569,7 +569,7 @@ export default function SiteDetail() {
         {!confirmDelete ? (
           <button
             onClick={() => setConfirmDelete(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg btn-press"
           >
             <Trash2 size={14} />
             Delete this site
@@ -579,7 +579,7 @@ export default function SiteDetail() {
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors ring-2 ring-red-400 ring-offset-2 ring-offset-zinc-900"
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg btn-press ring-2 ring-red-400 ring-offset-2 ring-offset-zinc-900"
             >
               <Trash2 size={14} />
               {deleting ? "Deleting..." : `Yes, delete "${site.name}"`}
