@@ -50,3 +50,4 @@ max_batch_size = 1
 max_retries = 3
 dead_letter_queue = "screenshot-dlq"
 max_batch_timeout = 0
+max_concurrency = 5
