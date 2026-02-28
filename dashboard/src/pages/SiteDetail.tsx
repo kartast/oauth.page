@@ -66,6 +66,7 @@ export default function SiteDetail() {
   const [newOneTimeUrl, setNewOneTimeUrl] = useState<string | null>(null);
   const [copiedNewLink, setCopiedNewLink] = useState(false);
   const [capturingScreenshot, setCapturingScreenshot] = useState(false);
+  const [screenshotMsg, setScreenshotMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const fetchSite = async () => {
@@ -214,11 +215,29 @@ export default function SiteDetail() {
 
   const handleScreenshot = async () => {
     setCapturingScreenshot(true);
+    setScreenshotMsg(null);
     setError(null);
     try {
       await triggerScreenshot(id!);
-      // Refresh site data to get updated thumbnail_status
-      await fetchSite();
+      // Poll for completion (up to 30s)
+      for (let i = 0; i < 15; i++) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const data = await getSite(id!);
+        if (data.site.thumbnail_status === "ready") {
+          setSite(data.site);
+          setScreenshotMsg({ type: "success", text: "Preview updated!" });
+          setTimeout(() => setScreenshotMsg(null), 3000);
+          return;
+        }
+        if (data.site.thumbnail_status === "failed") {
+          setSite(data.site);
+          setScreenshotMsg({ type: "error", text: "Preview generation failed" });
+          setTimeout(() => setScreenshotMsg(null), 5000);
+          return;
+        }
+      }
+      setScreenshotMsg({ type: "error", text: "Preview timed out — try again" });
+      setTimeout(() => setScreenshotMsg(null), 5000);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -291,15 +310,26 @@ export default function SiteDetail() {
           </div>
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleScreenshot}
-              disabled={capturingScreenshot}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors disabled:opacity-50"
-              title="Refresh site preview"
-            >
-              <Camera size={12} />
-              {capturingScreenshot ? "Capturing..." : "Preview"}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleScreenshot}
+                disabled={capturingScreenshot}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors disabled:opacity-50"
+                title="Refresh site preview"
+              >
+                {capturingScreenshot ? (
+                  <div className="w-3 h-3 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Camera size={12} />
+                )}
+                {capturingScreenshot ? "Generating preview…" : "Preview"}
+              </button>
+              {screenshotMsg && (
+                <span className={`text-xs font-medium ${screenshotMsg.type === "success" ? "text-green-400" : "text-red-400"}`}>
+                  {screenshotMsg.type === "success" ? "✓" : "✗"} {screenshotMsg.text}
+                </span>
+              )}
+            </div>
 
           </div>
         </div>
