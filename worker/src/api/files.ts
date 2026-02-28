@@ -1,6 +1,5 @@
 import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
-import { captureScreenshot } from "./screenshots";
 import { getLimits, shouldResetMonthly, limitError, PLAN_LIMITS } from "../limits";
 
 const MAX_SITE_STORAGE = 26214400; // 25MB per deployment (legacy, now per-plan)
@@ -131,12 +130,16 @@ filesApi.put("/:id/files/*", async (c) => {
     .bind(storageBytes, siteId)
     .run();
 
-  // Auto-trigger screenshot (debounce: skip if captured within last 60s)
+  // Auto-trigger screenshot via queue (debounce: skip if captured within last 60s)
   const thumbAt = (site.thumbnail_at as number) || 0;
   if (Math.floor(Date.now() / 1000) - thumbAt > 60) {
-    c.executionCtx.waitUntil(
-      captureScreenshot(c.env, siteId, site.slug as string, owner.user_id)
-    );
+    await c.env.SCREENSHOT_QUEUE.send({
+      siteId,
+      slug: site.slug as string,
+      ownerId: owner.user_id,
+    });
+    await c.env.DB.prepare("UPDATE sites SET thumbnail_status = 'pending' WHERE id = ?")
+      .bind(siteId).run();
   }
 
   return c.json({ ok: true, path: filePath, size: body.byteLength });
@@ -252,14 +255,18 @@ filesApi.post("/:id/deploy", async (c) => {
     .bind(storageBytes, siteId)
     .run();
 
-  // Auto-trigger screenshot (debounce: skip if captured within last 60s)
+  // Auto-trigger screenshot via queue (debounce: skip if captured within last 60s)
   // Free plan: only on first deploy (thumbnail_status IS NULL)
   const thumbAt = (site.thumbnail_at as number) || 0;
   const canScreenshot = limits.screenshotOnEveryDeploy || !(site.thumbnail_status);
   if (canScreenshot && Math.floor(Date.now() / 1000) - thumbAt > 60) {
-    c.executionCtx.waitUntil(
-      captureScreenshot(c.env, siteId, site.slug as string, owner.user_id)
-    );
+    await c.env.SCREENSHOT_QUEUE.send({
+      siteId,
+      slug: site.slug as string,
+      ownerId: owner.user_id,
+    });
+    await c.env.DB.prepare("UPDATE sites SET thumbnail_status = 'pending' WHERE id = ?")
+      .bind(siteId).run();
   }
 
   return c.json({ ok: true, count: decoded.length, totalSize });

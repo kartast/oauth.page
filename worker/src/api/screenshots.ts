@@ -36,10 +36,12 @@ screenshotsApi.post("/:id/screenshot", async (c) => {
     .bind(siteId)
     .run();
 
-  // Run screenshot in background
-  c.executionCtx.waitUntil(
-    captureScreenshot(c.env, siteId, site.slug as string, site.owner_id as string)
-  );
+  // Enqueue screenshot job
+  await c.env.SCREENSHOT_QUEUE.send({
+    siteId,
+    slug: site.slug as string,
+    ownerId: site.owner_id as string,
+  });
 
   return c.json({ ok: true, status: "pending" });
 });
@@ -78,65 +80,52 @@ screenshotsApi.get("/:id/thumbnail", async (c) => {
 /**
  * Capture a screenshot of the site using CF Browser Rendering
  */
-const MAX_RETRIES = 3;
-const RETRY_DELAYS = [2000, 5000, 10000]; // ms backoff
-
 export async function captureScreenshot(
   env: Env,
   siteId: string,
   slug: string,
   ownerId: string
 ): Promise<void> {
-  // Generate bypass token once (60s TTL covers all retries)
-  const token = crypto.randomUUID();
-  await env.KV.put(`ss:${token}`, siteId, { expirationTtl: 60 });
+  let browser;
+  try {
+    const token = crypto.randomUUID();
+    await env.KV.put(`ss:${token}`, siteId, { expirationTtl: 60 });
 
-  for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
-    let browser;
-    try {
-      browser = await puppeteer.launch(env.BROWSER);
-      const page = await browser.newPage();
-      await page.setViewport({ width: 1280, height: 800 });
-      await page.setExtraHTTPHeaders({ "X-GK-Screenshot": token });
+    browser = await puppeteer.launch(env.BROWSER);
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1280, height: 800 });
+    await page.setExtraHTTPHeaders({ "X-GK-Screenshot": token });
 
-      const siteUrl = `https://${slug}.oauth.page/`;
-      await page.goto(siteUrl, { waitUntil: "networkidle0", timeout: 30000 });
+    const siteUrl = `https://${slug}.oauth.page/`;
+    await page.goto(siteUrl, { waitUntil: "networkidle0", timeout: 30000 });
 
-      const png = await page.screenshot({ type: "png" });
+    const png = await page.screenshot({ type: "png" });
 
-      // Store in R2
-      const key = `u_${ownerId}/s_${siteId}/.gk/thumbnail.png`;
-      await env.STORAGE.put(key, png, {
-        httpMetadata: { contentType: "image/png" },
-      });
+    // Store in R2
+    const key = `u_${ownerId}/s_${siteId}/.gk/thumbnail.png`;
+    await env.STORAGE.put(key, png, {
+      httpMetadata: { contentType: "image/png" },
+    });
 
-      // Update DB — success
-      const now = Math.floor(Date.now() / 1000);
-      await env.DB.prepare(
-        "UPDATE sites SET thumbnail_status = 'ready', thumbnail_at = ? WHERE id = ?"
-      )
-        .bind(now, siteId)
-        .run();
-
-      return; // success — exit retry loop
-    } catch (err) {
-      console.error(`Screenshot attempt ${attempt + 1}/${MAX_RETRIES} failed:`, err);
-
-      if (attempt < MAX_RETRIES - 1) {
-        // Wait before retrying (2s, 5s, 10s)
-        await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt]));
-      } else {
-        // Final attempt failed — mark as failed
-        await env.DB.prepare(
-          "UPDATE sites SET thumbnail_status = 'failed' WHERE id = ?"
-        )
-          .bind(siteId)
-          .run();
-      }
-    } finally {
-      if (browser) {
-        try { await browser.close(); } catch {}
-      }
+    // Update DB — success
+    const now = Math.floor(Date.now() / 1000);
+    await env.DB.prepare(
+      "UPDATE sites SET thumbnail_status = 'ready', thumbnail_at = ? WHERE id = ?"
+    )
+      .bind(now, siteId)
+      .run();
+  } catch (err) {
+    console.error("Screenshot capture failed:", err);
+    // Mark as failed — queue will retry up to 3 times automatically
+    await env.DB.prepare(
+      "UPDATE sites SET thumbnail_status = 'failed' WHERE id = ?"
+    )
+      .bind(siteId)
+      .run();
+    throw err; // re-throw so queue marks it for retry
+  } finally {
+    if (browser) {
+      try { await browser.close(); } catch {}
     }
   }
 }

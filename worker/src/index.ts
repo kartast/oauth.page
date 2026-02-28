@@ -12,7 +12,8 @@ import filesApi from "./api/files";
 import accessApi, { publicAccessApi } from "./api/access";
 import cliAuth from "./api/cli-auth";
 import linksApi from "./api/links";
-import screenshotsApi from "./api/screenshots";
+import screenshotsApi, { captureScreenshot } from "./api/screenshots";
+import type { ScreenshotJob } from "./types";
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -198,4 +199,18 @@ function parseCookie(cookieHeader: string, name: string): string | null {
   return match ? decodeURIComponent(match[1]) : null;
 }
 
-export default app;
+export default {
+  fetch: app.fetch,
+  async queue(batch: MessageBatch<ScreenshotJob>, env: Env) {
+    for (const msg of batch.messages) {
+      const { siteId, slug, ownerId } = msg.body;
+      try {
+        await captureScreenshot(env, siteId, slug, ownerId);
+        msg.ack();
+      } catch (err) {
+        console.error(`Queue screenshot failed for ${slug}:`, err);
+        msg.retry();
+      }
+    }
+  },
+};

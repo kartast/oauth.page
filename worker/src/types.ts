@@ -11,6 +11,13 @@ export interface Env {
   JWT_SECRET: string;
   RESEND_API_KEY?: string;
   BROWSER: Fetcher;
+  SCREENSHOT_QUEUE: Queue<ScreenshotJob>;
+}
+
+export interface ScreenshotJob {
+  siteId: string;
+  slug: string;
+  ownerId: string;
 }
 
 export interface SiteConfig {

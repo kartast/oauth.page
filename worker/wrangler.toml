@@ -38,3 +38,15 @@ zone_name = "oauth.page"
 [[routes]]
 pattern = "oauth.page/*"
 zone_name = "oauth.page"
+
+# Screenshot queue — decouples deploys from browser rendering
+[[queues.producers]]
+queue = "screenshot-jobs"
+binding = "SCREENSHOT_QUEUE"
+
+[[queues.consumers]]
+queue = "screenshot-jobs"
+max_batch_size = 1
+max_retries = 3
+dead_letter_queue = "screenshot-dlq"
+max_batch_timeout = 0

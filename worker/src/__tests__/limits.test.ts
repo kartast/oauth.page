@@ -72,6 +72,7 @@ function createMockEnv() {
     GOOGLE_CLIENT_ID: "test-google-client-id",
     GOOGLE_CLIENT_SECRET: "test-google-secret",
     JWT_SECRET,
+    SCREENSHOT_QUEUE: { send: vi.fn(() => Promise.resolve()) },
     BETA_ONE_TIME_LINKS: "true",
   };
 }
