@@ -54,7 +54,7 @@ export default function SiteDetail() {
   const [files, setFiles] = useState<SiteFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"files" | "approved" | "pending">("files");
+  const [activeTab, setActiveTab] = useState<"files" | "access">("files");
   const [deleting, setDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -408,14 +408,14 @@ export default function SiteDetail() {
           Files
         </button>
         <button
-          onClick={() => setActiveTab("approved")}
+          onClick={() => setActiveTab("access")}
           className={`flex-1 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
-            activeTab === "approved"
+            activeTab === "access"
               ? "bg-zinc-800 text-zinc-100"
               : "text-zinc-500 hover:text-zinc-300"
           }`}
         >
-          Approved ({approvedUsers.length})
+          Access {requests.length > 0 && <span className="ml-1.5 w-2 h-2 rounded-full bg-amber-500 inline-block"></span>}
         </button>
       </div>
 
@@ -555,8 +555,9 @@ export default function SiteDetail() {
       )}
 
       {/* Access tabs */}
-      {activeTab === "approved" && (
-        <AccessList
+      {activeTab === "access" && (
+        <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6 page-enter">
+          <AccessList
           approvedUsers={approvedUsers}
           requests={requests}
           onApprove={handleApprove}
@@ -564,7 +565,8 @@ export default function SiteDetail() {
           activeTab={accessSubTab}
           onTabChange={setAccessSubTab}
           onRevoke={handleRevoke}
-        />
+          />
+        </div>
       )}
 
       {/* Danger Zone */}
