@@ -66,6 +66,7 @@ export default function SiteDetail() {
   const [newOneTimeUrl, setNewOneTimeUrl] = useState<string | null>(null);
   const [copiedNewLink, setCopiedNewLink] = useState(false);
   const [capturingScreenshot, setCapturingScreenshot] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const fetchSite = async () => {
     try {
@@ -130,7 +131,6 @@ export default function SiteDetail() {
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Delete "${site?.name}"? This will remove all files and cannot be undone.`)) return;
     setDeleting(true);
     try {
       await deleteSite(id!);
@@ -138,6 +138,7 @@ export default function SiteDetail() {
     } catch (err: any) {
       setError(err.message);
       setDeleting(false);
+      setConfirmDelete(false);
     }
   };
 
@@ -299,14 +300,7 @@ export default function SiteDetail() {
               <Camera size={12} />
               {capturingScreenshot ? "Capturing..." : "Preview"}
             </button>
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-red-400 hover:bg-red-950/50 rounded-lg transition-colors"
-            >
-              <Trash2 size={12} />
-              {deleting ? "Deleting..." : "Delete"}
-            </button>
+
           </div>
         </div>
       </div>
@@ -543,6 +537,40 @@ export default function SiteDetail() {
           onTabChange={(tab) => setActiveTab(tab)}
         />
       )}
+
+      {/* Danger Zone */}
+      <div className="mt-8 bg-zinc-900 border border-red-900/50 rounded-xl p-6">
+        <h2 className="text-sm font-medium text-red-400 mb-2">Danger Zone</h2>
+        <p className="text-xs text-zinc-500 mb-4">
+          Permanently delete this site, all its files, access lists, and configuration. This action cannot be undone.
+        </p>
+        {!confirmDelete ? (
+          <button
+            onClick={() => setConfirmDelete(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            <Trash2 size={14} />
+            Delete this site
+          </button>
+        ) : (
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleDelete}
+              disabled={deleting}
+              className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-sm font-bold rounded-lg transition-colors ring-2 ring-red-400 ring-offset-2 ring-offset-zinc-900"
+            >
+              <Trash2 size={14} />
+              {deleting ? "Deleting..." : `Yes, delete "${site.name}"`}
+            </button>
+            <button
+              onClick={() => setConfirmDelete(false)}
+              className="px-4 py-2 text-sm text-zinc-400 hover:text-zinc-200 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
