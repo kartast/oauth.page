@@ -170,7 +170,12 @@ export default function Home() {
             <p className="text-zinc-400 mb-8">No credit card. No trial. Just start building.</p>
             <div className="flex justify-center items-baseline gap-2 mb-8"><span className="text-5xl font-bold text-zinc-100">$0</span><span className="text-zinc-500 font-medium">/ month</span></div>
             <div className="grid sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto mb-10">
-              <PricingFeature text="25 MB per deployment" /><PricingFeature text="10 active deployments" /><PricingFeature text="OAuth access control" /><PricingFeature text="One-time links (beta)" />
+              <PricingFeature text="3 sites, 5 MB each" />
+              <PricingFeature text="10 deploys / month" />
+              <PricingFeature text="1,000 views per site" />
+              <PricingFeature text="GitHub + Google OAuth" />
+              <PricingFeature text="Site preview screenshots" />
+              <PricingFeature text="One-time links (beta)" />
             </div>
             <Link to="/login" className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 rounded-xl bg-zinc-100 text-zinc-950 text-base font-semibold hover:bg-white hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
               Get started free <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
