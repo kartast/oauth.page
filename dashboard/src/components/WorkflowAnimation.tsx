@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 
 export function WorkflowAnimation() {
   return (
@@ -6,8 +5,8 @@ export function WorkflowAnimation() {
       
       {/* Dynamic Background Glows */}
       <div className="absolute inset-0 bg-gradient-to-br from-brand/5 via-transparent to-emerald-500/5 pointer-events-none transition-opacity duration-1000 group-hover:opacity-100 opacity-50" />
-      <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-brand/10 blur-[100px] rounded-full -translate-y-1/2" />
-      <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-emerald-500/10 blur-[100px] rounded-full -translate-y-1/2" />
+      <div className="absolute top-1/2 left-1/4 w-64 h-64 bg-brand/10 blur-[60px] rounded-full -translate-y-1/2" />
+      <div className="absolute top-1/2 right-1/4 w-64 h-64 bg-emerald-500/10 blur-[60px] rounded-full -translate-y-1/2" />
 
       <svg className="w-full h-full drop-shadow-2xl" viewBox="0 0 1000 400" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
@@ -24,7 +23,7 @@ export function WorkflowAnimation() {
           </linearGradient>
 
           <filter id="glow-brand" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -32,7 +31,7 @@ export function WorkflowAnimation() {
           </filter>
 
           <filter id="glow-emerald" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="6" result="blur" />
+            <feGaussianBlur stdDeviation="3" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -40,7 +39,7 @@ export function WorkflowAnimation() {
           </filter>
 
           <filter id="heavy-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="12" result="blur" />
+            <feGaussianBlur stdDeviation="4" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -109,6 +108,13 @@ export function WorkflowAnimation() {
               .anim-float-2 { animation: float-2 7.5s ease-in-out infinite; transform-origin: center; }
               .anim-float-3 { animation: float-3 5s ease-in-out infinite; transform-origin: center; }
               .cursor { animation: blink 1s step-end infinite; }
+              @media (prefers-reduced-motion: reduce) {
+                .anim-dash, .anim-beam-l, .anim-beam-r, 
+                .anim-ring-1, .anim-ring-2,
+                .anim-float-1, .anim-float-2, .anim-float-3,
+                .cursor { animation: none !important; }
+              }
+
             `}
           </style>
         </defs>

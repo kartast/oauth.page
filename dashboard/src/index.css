@@ -6,3 +6,73 @@ body {
   margin: 0;
   min-height: 100vh;
 }
+
+/* ── Scroll-reveal animations (replaces Framer Motion) ── */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-down {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes fade-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes fade-right {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.reveal {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.reveal.visible {
+  animation: fade-up 0.5s ease-out forwards;
+}
+.reveal-down.visible {
+  animation: fade-down 0.5s ease-out forwards;
+}
+.reveal-in.visible {
+  animation: fade-in 0.6s ease-out forwards;
+}
+.reveal-left.visible {
+  animation: fade-left 0.5s ease-out forwards;
+}
+.reveal-right.visible {
+  animation: fade-right 0.5s ease-out forwards;
+}
+
+/* Stagger children */
+.reveal-stagger > .reveal:nth-child(1) { animation-delay: 0.05s; }
+.reveal-stagger > .reveal:nth-child(2) { animation-delay: 0.1s; }
+.reveal-stagger > .reveal:nth-child(3) { animation-delay: 0.15s; }
+.reveal-stagger > .reveal:nth-child(4) { animation-delay: 0.2s; }
+.reveal-stagger > .reveal:nth-child(5) { animation-delay: 0.25s; }
+.reveal-stagger > .reveal:nth-child(6) { animation-delay: 0.3s; }
+.reveal-stagger > .reveal:nth-child(7) { animation-delay: 0.35s; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal.visible, .reveal-down.visible,
+  .reveal-in.visible, .reveal-left.visible, .reveal-right.visible {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .animate-ping, [class*="anim-"] {
+    animation: none !important;
+  }
+}
+
+/* Mobile: reduce blur radii for performance */
+@media (max-width: 768px) {
+  .hero-glow-1 { filter: blur(60px) !important; }
+  .hero-glow-2 { filter: blur(50px) !important; }
+}
