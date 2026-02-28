@@ -19,6 +19,8 @@ import {
   getSite,
   deleteSite,
   revokeAccess,
+  approveRequest,
+  denyRequest,
   listFiles,
   uploadFile,
   deleteFile,
@@ -48,10 +50,11 @@ export default function SiteDetail() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [site, setSite] = useState<Site | null>(null);
   const [approvedUsers, setApprovedUsers] = useState<{ email: string }[]>([]);
+  const [requests, setRequests] = useState<any[]>([]);
   const [files, setFiles] = useState<SiteFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"files" | "approved">("files");
+  const [activeTab, setActiveTab] = useState<"files" | "approved" | "pending">("files");
   const [deleting, setDeleting] = useState(false);
   const [copied, setCopied] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -64,12 +67,14 @@ export default function SiteDetail() {
   const [capturingScreenshot, setCapturingScreenshot] = useState(false);
   const [screenshotMsg, setScreenshotMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [accessSubTab, setAccessSubTab] = useState<"approved" | "pending">("approved");
 
   const fetchSite = async () => {
     try {
       const data = await getSite(id!);
       setSite(data.site);
       setApprovedUsers(data.approved_users);
+      setRequests(data.requests || []);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -193,6 +198,24 @@ export default function SiteDetail() {
     try {
       await revokeOneTimeLink(id!, linkId);
       await fetchOneTimeLinks();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handleApprove = async (requestId: string) => {
+    try {
+      await approveRequest(id!, requestId);
+      await fetchSite();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handleDeny = async (requestId: string) => {
+    try {
+      await denyRequest(id!, requestId);
+      await fetchSite();
     } catch (err: any) {
       setError(err.message);
     }
@@ -528,6 +551,11 @@ export default function SiteDetail() {
       {activeTab === "approved" && (
         <AccessList
           approvedUsers={approvedUsers}
+          requests={requests}
+          onApprove={handleApprove}
+          onDeny={handleDeny}
+          activeTab={accessSubTab}
+          onTabChange={setAccessSubTab}
           onRevoke={handleRevoke}
         />
       )}
