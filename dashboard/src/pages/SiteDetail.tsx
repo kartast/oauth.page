@@ -286,7 +286,7 @@ export default function SiteDetail() {
     <div>
       <button
         onClick={() => navigate("/sites")}
-        className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-6"
+        className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 btn-press mb-6"
       >
         <ArrowLeft size={14} />
         Back to sites
@@ -305,7 +305,7 @@ export default function SiteDetail() {
                 <span className="text-sm text-zinc-500">{site.slug}.oauth.page</span>
                 <button
                   onClick={copyUrl}
-                  className="text-zinc-600 hover:text-zinc-400 transition-colors"
+                  className="text-zinc-600 hover:text-zinc-400 btn-press"
                   title="Copy URL"
                 >
                   {copied ? <Check size={12} className="text-green-400" /> : <Copy size={12} />}
@@ -314,7 +314,7 @@ export default function SiteDetail() {
                   href={`https://${site.slug}.oauth.page`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-zinc-600 hover:text-zinc-400 transition-colors"
+                  className="text-zinc-600 hover:text-zinc-400 btn-press"
                   title="Open site"
                 >
                   <ExternalLink size={12} />
@@ -328,7 +328,7 @@ export default function SiteDetail() {
               <button
                 onClick={handleScreenshot}
                 disabled={capturingScreenshot}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-zinc-500 hover:text-brand hover:bg-brand/10 rounded-lg btn-press disabled:opacity-50 disabled:hover:scale-100"
                 title="Refresh site preview">
 
                 {capturingScreenshot ? (
@@ -339,8 +339,8 @@ export default function SiteDetail() {
                 {capturingScreenshot ? "Generating preview…" : "Preview"}
               </button>
               {screenshotMsg && (
-                <span className={`text-xs font-medium ${screenshotMsg.type === "success" ? "text-green-400" : "text-red-400"}`}>
-                  {screenshotMsg.type === "success" ? "✓" : "✗"} {screenshotMsg.text}
+                <span className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-md border ${screenshotMsg.type === "success" ? "bg-green-500/10 text-green-400 border-green-500/20" : "bg-red-500/10 text-red-400 border-red-500/20"}`}>
+                  {screenshotMsg.type === "success" ? <Check size={12} /> : null} {screenshotMsg.text}
                 </span>
               )}
             </div>
@@ -434,13 +434,13 @@ export default function SiteDetail() {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading}
-              className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-hover disabled:opacity-50 text-white text-sm font-medium rounded-lg transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-hover disabled:opacity-50 text-white text-sm font-medium rounded-lg btn-press disabled:hover:scale-100"
             >
               <Upload size={14} />
               {uploading ? uploadProgress || "Uploading..." : "Upload Files"}
             </button>
             {/* Folder upload via webkitdirectory */}
-            <label className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-medium rounded-lg transition-colors cursor-pointer">
+            <label className="flex items-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm font-medium rounded-lg btn-press cursor-pointer">
               <FolderUp size={14} />
               Upload Folder
               <input
@@ -468,13 +468,13 @@ export default function SiteDetail() {
                   <button
                     onClick={handleCreateOneTimeLink}
                     disabled={creatingLink}
-                    className="px-3 py-1.5 text-xs rounded-md bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white"
+                    className="px-3 py-1.5 text-xs rounded-md bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-white btn-press disabled:hover:scale-100"
                   >
                     {creatingLink ? "Creating..." : "Create one-time link"}
                   </button>
                   <button
                     onClick={fetchOneTimeLinks}
-                    className="p-1.5 rounded-md border border-zinc-700 text-zinc-300 hover:text-white"
+                    className="p-1.5 rounded-md border border-zinc-700 text-zinc-300 hover:text-white btn-press hover:bg-zinc-800"
                     title="Refresh links"
                   >
                     <RefreshCw size={12} />
@@ -487,7 +487,7 @@ export default function SiteDetail() {
                   <p className="text-[11px] text-zinc-300 mb-1">New link (copy now — shown once):</p>
                   <div className="flex gap-2">
                     <input readOnly value={newOneTimeUrl} className="flex-1 bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200" />
-                    <button onClick={handleCopyNewOneTimeLink} className="px-2 py-1 text-xs rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200">
+                    <button onClick={handleCopyNewOneTimeLink} className="px-2 py-1 text-xs rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-200 btn-press">
                       {copiedNewLink ? "Copied" : "Copy"}
                     </button>
                   </div>
@@ -507,7 +507,7 @@ export default function SiteDetail() {
                       {l.status === "active" && (
                         <button
                           onClick={() => handleRevokeOneTimeLink(l.id)}
-                          className="px-2 py-1 text-[11px] rounded border border-zinc-700 text-zinc-300 hover:text-red-300 hover:border-red-700"
+                          className="px-2 py-1 text-[11px] rounded border border-zinc-700 text-zinc-300 hover:text-red-300 hover:bg-red-950/30 hover:border-red-700 btn-press"
                         >
                           Revoke
                         </button>
@@ -531,7 +531,7 @@ export default function SiteDetail() {
               {files.map((file) => (
                 <div
                   key={file.path}
-                  className="flex items-center justify-between py-2.5 group row-hover rounded-lg px-2 -mx-2"
+                  className="flex items-center justify-between py-2.5 group row-hover rounded-lg px-2 -mx-2 page-enter"
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <File size={14} className="text-zinc-600 shrink-0" />
@@ -542,7 +542,7 @@ export default function SiteDetail() {
                   </div>
                   <button
                     onClick={() => handleDeleteFile(file.path)}
-                    className="text-zinc-700 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all p-1"
+                    className="text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 btn-press p-1 hover:bg-red-500/10 rounded"
                     title="Delete file"
                   >
                     <Trash2 size={12} />
