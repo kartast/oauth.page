@@ -1,7 +1,7 @@
 {
   "name": "oauthpage",
   "version": "0.1.0",
-  "description": "CLI for OAuthPage — protect any website with OAuth",
+  "description": "CLI for OAuthPage \u2014 protect any website with OAuth",
   "bin": {
     "oauthpage": "./bin/oauthpage",
     "opage": "./bin/oauthpage"
@@ -9,15 +9,23 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && cp -r src/templates dist/",
     "dev": "tsc --watch",
     "test": "vitest run src/__tests__",
     "test:watch": "vitest src/__tests__",
     "prepublishOnly": "npm run build"
   },
-  "keywords": ["oauth", "proxy", "access-control", "cli"],
+  "keywords": [
+    "oauth",
+    "proxy",
+    "access-control",
+    "cli"
+  ],
   "license": "MIT",
-  "files": ["dist", "bin"],
+  "files": [
+    "dist",
+    "bin"
+  ],
   "dependencies": {
     "chalk": "^5.3.0",
     "cli-table3": "^0.6.5",
