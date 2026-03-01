@@ -2,41 +2,22 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import app from "../index";
 import { shouldResetMonthly, PLAN_LIMITS } from "../limits";
 
-const JWT_SECRET = "test-jwt-secret-key-that-is-long-enough";
+const TEST_OWNER_TOKEN = "test-owner-token-abc123";
 
-async function createTestJwt(
+function createTestToken(
   userId: string = "owner1",
   email: string = "owner@example.com"
-): Promise<string> {
-  const header = btoa(JSON.stringify({ alg: "HS256", typ: "JWT" }))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-  const payload = btoa(
-    JSON.stringify({
-      sub: userId,
-      email,
-      name: "Owner",
-      exp: Math.floor(Date.now() / 1000) + 3600,
-    })
-  )
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-  const data = new TextEncoder().encode(`${header}.${payload}`);
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(JWT_SECRET),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const sig = await crypto.subtle.sign("HMAC", key, data);
-  const signature = btoa(String.fromCharCode(...new Uint8Array(sig)))
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
-  return `${header}.${payload}.${signature}`;
+): string {
+  return TEST_OWNER_TOKEN;
+}
+
+function ownerSessionJson(userId: string = "owner1", email: string = "owner@example.com"): string {
+  return JSON.stringify({
+    user_id: userId,
+    email,
+    name: "Owner",
+    exp: Math.floor(Date.now() / 1000) + 3600,
+  });
 }
 
 function createMockEnv() {
@@ -54,7 +35,12 @@ function createMockEnv() {
       })),
     },
     KV: {
-      get: vi.fn(() => Promise.resolve(null)),
+      get: vi.fn((key: string) => {
+        if (key === `owner:${TEST_OWNER_TOKEN}`) {
+          return Promise.resolve(ownerSessionJson());
+        }
+        return Promise.resolve(null);
+      }),
       put: vi.fn(() => Promise.resolve()),
       delete: vi.fn(() => Promise.resolve()),
     },
@@ -71,7 +57,7 @@ function createMockEnv() {
     GITHUB_CLIENT_SECRET: "test-github-secret",
     GOOGLE_CLIENT_ID: "test-google-client-id",
     GOOGLE_CLIENT_SECRET: "test-google-secret",
-    JWT_SECRET,
+    // JWT_SECRET no longer needed
     SCREENSHOT_QUEUE: { send: vi.fn(() => Promise.resolve()) },
     BETA_ONE_TIME_LINKS: "true",
   };
@@ -132,7 +118,7 @@ describe("Limit Enforcement", () => {
   beforeEach(async () => {
     env = createMockEnv();
     ctx = createMockExecutionCtx();
-    token = await createTestJwt();
+    token = createTestToken();
   });
 
   // --- 1. Site creation limit ---

@@ -6,7 +6,7 @@ import github from "./auth/github";
 import google from "./auth/google";
 import visitorGithub from "./auth/visitor-github";
 import visitorGoogle from "./auth/visitor-google";
-import { verifyOwnerToken } from "./auth/session";
+import { verifyOwnerToken, revokeOwnerToken } from "./auth/session";
 import sitesApi from "./api/sites";
 import filesApi from "./api/files";
 import accessApi, { publicAccessApi } from "./api/access";
@@ -79,13 +79,18 @@ app.get("/api/auth/me", async (c) => {
   });
 });
 
-// POST /api/auth/logout
-app.post("/api/auth/logout", (c) => {
+// POST /api/auth/logout — revoke session + clear cookie
+app.post("/api/auth/logout", async (c) => {
+  const cookies = c.req.header("cookie") || "";
+  const token = parseCookie(cookies, "gk_owner");
+  if (token) {
+    await revokeOwnerToken(c.env, token);
+  }
+  const domainAttr = c.env.APP_URL.includes("workers.dev") ? "" : " Domain=.oauth.page;";
   return new Response(JSON.stringify({ ok: true }), {
     headers: {
       "Content-Type": "application/json",
-      "Set-Cookie":
-        `gk_owner=; Path=/;${c.env.APP_URL.includes("workers.dev") ? "" : " Domain=.oauth.page;"} HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
+      "Set-Cookie": `gk_owner=; Path=/;${domainAttr} HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
     },
   });
 });
