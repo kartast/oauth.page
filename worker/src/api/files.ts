@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import { Env, OwnerSession } from "../types";
 import { getLimits, shouldResetMonthly, limitError, PLAN_LIMITS } from "../limits";
 
-const MAX_SITE_STORAGE = 26214400; // 25MB per deployment (legacy, now per-plan)
 const MAX_FILE_SIZE = 26214400; // 25MB per file
 const BLOCKED_EXTENSIONS = new Set([".exe", ".sh", ".bat", ".cmd", ".ps1", ".msi", ".dll"]);
 
@@ -59,6 +58,14 @@ function r2Key(ownerId: string, siteId: string, path: string): string {
   return `u_${ownerId}/s_${siteId}/${path}`;
 }
 
+
+async function getOwnerStorageBytes(env: Env, ownerId: string): Promise<number> {
+  const row = await env.DB.prepare("SELECT COALESCE(SUM(storage_bytes), 0) as total FROM sites WHERE owner_id = ?")
+    .bind(ownerId)
+    .first<{ total: number }>();
+  return Number((row as any)?.total || 0);
+}
+
 const filesApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
 
 // GET /api/sites/:id/files — list files
@@ -109,16 +116,19 @@ filesApi.put("/:id/files/*", async (c) => {
     return c.json({ error: "File too large (max 25MB)" }, 413);
   }
 
-  // Check plan storage quota
+  // Check plan total storage quota (account-wide)
   const { limits } = await getLimits(c.env, owner.user_id);
   const maxStorage = limits.storageMb * 1024 * 1024;
-  const currentStorage = (site.storage_bytes as number) || 0;
-  if (currentStorage + body.byteLength > maxStorage) {
-    const currentMb = Math.round(currentStorage / 1024 / 1024 * 10) / 10;
+  const key = r2Key(owner.user_id, siteId, filePath);
+  const existing = await c.env.STORAGE.head(key);
+  const existingSize = existing?.size || 0;
+  const ownerStorage = await getOwnerStorageBytes(c.env, owner.user_id);
+  const projectedStorage = ownerStorage - existingSize + body.byteLength;
+  if (projectedStorage > maxStorage) {
+    const currentMb = Math.round(ownerStorage / 1024 / 1024 * 10) / 10;
     return c.json(limitError("storageMb", currentMb, limits.storageMb), 403);
   }
 
-  const key = r2Key(owner.user_id, siteId, filePath);
   const contentType = getMimeType(filePath);
 
   await c.env.STORAGE.put(key, body, {
@@ -211,12 +221,15 @@ filesApi.post("/:id/deploy", async (c) => {
     decoded.push({ path: filePath, data: binary.buffer });
   }
 
-  // Check plan storage quota
+  // Check plan total storage quota (account-wide)
   const { limits, user } = await getLimits(c.env, owner.user_id);
   const maxStorage = limits.storageMb * 1024 * 1024;
-  if (totalSize > maxStorage) {
-    const totalMb = Math.round(totalSize / 1024 / 1024 * 10) / 10;
-    return c.json(limitError("storageMb", totalMb, limits.storageMb), 403);
+  const ownerTotalStorage = await getOwnerStorageBytes(c.env, owner.user_id);
+  const currentSiteStorage = Number((site as any).storage_bytes || 0);
+  const projectedStorage = ownerTotalStorage - currentSiteStorage + totalSize;
+  if (projectedStorage > maxStorage) {
+    const currentMb = Math.round(ownerTotalStorage / 1024 / 1024 * 10) / 10;
+    return c.json(limitError("storageMb", currentMb, limits.storageMb), 403);
   }
 
   // Check deploy limit with lazy monthly reset

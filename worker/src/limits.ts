@@ -2,7 +2,7 @@ import { Env } from "./types";
 
 export interface PlanLimits {
   sites: number;
-  storageMb: number;
+  storageMb: number; // total account storage quota in MB
   deploysPerMonth: number;
   viewsPerSite: number;
   emailsPerMonth: number;
@@ -12,9 +12,9 @@ export interface PlanLimits {
 
 export const PLAN_LIMITS: Record<string, PlanLimits> = {
   free: {
-    sites: 3,
-    storageMb: 5,
-    deploysPerMonth: 10,
+    sites: 10,
+    storageMb: 50,
+    deploysPerMonth: 500,
     viewsPerSite: 1000,
     emailsPerMonth: 5,
     oneTimeLinks: 3,

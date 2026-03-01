@@ -19,8 +19,8 @@ Deploy static sites, gate them behind GitHub/Google OAuth, approve or deny visit
 | Limit                    | Value              | Cost Driver          |
 |--------------------------|--------------------|----------------------|
 | Sites                    | 3                  | R2 storage           |
-| Storage per site         | 5 MB               | R2 storage           |
-| Total storage            | 15 MB              | R2 storage           |
+| Storage total            | 50 MB              | R2 storage           |
+| Total storage            | 50 MB              | R2 storage           |
 | Deploys per month        | 10                 | R2 writes            |
 | Page views per site/mo   | 1,000              | Workers + KV + R2    |
 | Preview screenshots      | First deploy only  | Browser Rendering    |
@@ -87,7 +87,7 @@ Pro tier gets auto-screenshot on every deploy.
 7. **One-time link creation** → check active link count
 
 ### Response on limit hit
-- API returns `{ error: "Limit reached", limit: "sites", current: 3, max: 3, message: "You've reached the free plan limit. Paid plans coming soon!" }`
+- API returns `{ error: "Limit reached", limit: "sites", current: 10, max: 10, message: "You've reached the free plan limit. Paid plans coming soon!" }`
 - Dashboard shows upgrade prompt with usage bar
 - Page views over limit: serve a "bandwidth exceeded" page (not a hard block — shows site name + upgrade CTA)
 
@@ -272,7 +272,7 @@ Hit real staging worker with real DB/KV/R2:
 - [ ] Deny flow sends real email
 - [ ] One-time link: create → consume → expired on reuse
 - [ ] View limit: hit 1000 views → 429 page
-- [ ] Storage limit: exceed 5MB → 403
+- [ ] Storage limit: exceed 50MB total → 403
 - [ ] Deploy limit: exceed 10 → 403
 - [ ] Site creation limit: 4th site → 403
 

@@ -46,6 +46,7 @@ function createMockEnv() {
     },
     STORAGE: {
       get: vi.fn(() => Promise.resolve(null)),
+      head: vi.fn(() => Promise.resolve(null)),
       put: vi.fn(() => Promise.resolve()),
       delete: vi.fn(() => Promise.resolve()),
       list: vi.fn(() =>
@@ -72,9 +73,9 @@ function createMockExecutionCtx() {
 
 describe("Plan Limits Config", () => {
   it("has correct free plan limits", () => {
-    expect(PLAN_LIMITS.free.sites).toBe(3);
-    expect(PLAN_LIMITS.free.storageMb).toBe(5);
-    expect(PLAN_LIMITS.free.deploysPerMonth).toBe(10);
+    expect(PLAN_LIMITS.free.sites).toBe(10);
+    expect(PLAN_LIMITS.free.storageMb).toBe(50);
+    expect(PLAN_LIMITS.free.deploysPerMonth).toBe(500);
     expect(PLAN_LIMITS.free.viewsPerSite).toBe(1000);
     expect(PLAN_LIMITS.free.emailsPerMonth).toBe(5);
     expect(PLAN_LIMITS.free.oneTimeLinks).toBe(3);
@@ -144,7 +145,7 @@ describe("Limit Enforcement", () => {
         if (sql.includes("COUNT(*)") && sql.includes("sites")) {
           return {
             bind: vi.fn(() => ({
-              first: vi.fn(() => Promise.resolve({ c: 3 })),
+              first: vi.fn(() => Promise.resolve({ c: 10 })),
             })),
           };
         }
@@ -170,8 +171,8 @@ describe("Limit Enforcement", () => {
       const body = (await res.json()) as any;
       expect(body.error).toBe("Limit reached");
       expect(body.limit).toBe("sites");
-      expect(body.current).toBe(3);
-      expect(body.max).toBe(3);
+      expect(body.current).toBe(10);
+      expect(body.max).toBe(10);
     });
 
     it("allows site creation for pro plan with higher limit", async () => {
@@ -193,7 +194,7 @@ describe("Limit Enforcement", () => {
         if (sql.includes("COUNT(*)") && sql.includes("sites")) {
           return {
             bind: vi.fn(() => ({
-              first: vi.fn(() => Promise.resolve({ c: 3 })),
+              first: vi.fn(() => Promise.resolve({ c: 10 })),
             })),
           };
         }
@@ -260,9 +261,16 @@ describe("Limit Enforcement", () => {
                   id: siteId,
                   owner_id: "owner1",
                   slug: "test",
-                  storage_bytes: 5 * 1024 * 1024, // already at 5MB
+                  storage_bytes: 50 * 1024 * 1024,
                 })
               ),
+            })),
+          };
+        }
+        if (sql.includes("COALESCE(SUM(storage_bytes), 0)")) {
+          return {
+            bind: vi.fn(() => ({
+              first: vi.fn(() => Promise.resolve({ total: 50 * 1024 * 1024 })),
             })),
           };
         }
@@ -302,7 +310,7 @@ describe("Limit Enforcement", () => {
               first: vi.fn(() =>
                 Promise.resolve({
                   plan: "free",
-                  deploys_this_month: 10,
+                  deploys_this_month: 500,
                   deploys_reset_at: Math.floor(Date.now() / 1000),
                   emails_this_month: 0,
                 })
@@ -355,8 +363,8 @@ describe("Limit Enforcement", () => {
       const body = (await res.json()) as any;
       expect(body.error).toBe("Limit reached");
       expect(body.limit).toBe("deploysPerMonth");
-      expect(body.current).toBe(10);
-      expect(body.max).toBe(10);
+      expect(body.current).toBe(500);
+      expect(body.max).toBe(500);
     });
 
     it("resets deploy counter on new month (lazy reset)", async () => {
@@ -374,7 +382,7 @@ describe("Limit Enforcement", () => {
               first: vi.fn(() =>
                 Promise.resolve({
                   plan: "free",
-                  deploys_this_month: 10, // at limit but from last month
+                  deploys_this_month: 500, // at limit but from last month
                   deploys_reset_at: lastMonthTs,
                   emails_this_month: 0,
                 })
