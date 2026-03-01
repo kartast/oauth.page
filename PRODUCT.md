@@ -136,3 +136,123 @@ ALTER TABLE sites ADD COLUMN views_reset_at INTEGER;
 - [ ] Custom domains (Pro)
 - [ ] Team seats (Scale)
 - [ ] Landing page: real screenshot, SPA mention, trust signals, social links
+
+---
+
+## Planned Feature: Markdown Sites
+
+### Vision
+Deploy markdown files as beautiful, private websites. No LLM, no build tools, no config.
+The simplest way to share private docs, notes, specs, and knowledge bases.
+
+### User Stories
+1. **Solo dev**: `oauthpage deploy SPEC.md --site spec` → private spec shared with 3 teammates
+2. **Team lead**: `oauthpage deploy ./docs/ --site team-docs` → multi-page internal docs
+3. **Founder**: `oauthpage deploy pitch.md --site investors` → private pitch deck with one-time links
+4. **Researcher**: `oauthpage deploy ./papers/ --site research` → share findings with collaborators
+
+### CLI Interface
+```bash
+# Single file → single page site
+oauthpage deploy README.md --site my-docs
+
+# Folder → multi-page site with navigation
+oauthpage deploy ./docs/ --site team-docs
+
+# With options
+oauthpage deploy ./notes/ --site notes --theme dark --toc --title "Project Notes"
+
+# Pipe from stdin (combine with other tools)
+cat CHANGELOG.md | oauthpage deploy - --site changelog
+```
+
+### How It Works (no magic)
+```
+┌──────────────────────────────────────────┐
+│                                          │
+│  .md files                               │
+│      ↓                                   │
+│  CLI (runs locally, no LLM)             │
+│      ↓                                   │
+│  1. Parse markdown (markdown-it)         │
+│  2. Extract frontmatter (title, desc)    │
+│  3. Generate table of contents           │
+│  4. Syntax highlight code blocks         │
+│  5. Wrap in HTML template + CSS          │
+│  6. Build nav from folder structure      │
+│      ↓                                   │
+│  Deploy to OAuthPage (existing flow)     │
+│      ↓                                   │
+│  Private site with OAuth gate            │
+│                                          │
+└──────────────────────────────────────────┘
+```
+
+### Template Features
+- **Typography**: Clean, readable prose (system fonts, proper line-height)
+- **Code blocks**: Syntax highlighting via highlight.js (50+ languages)
+- **Tables**: Styled, responsive, horizontal scroll on mobile
+- **Images**: Lazy-loaded, lightbox on click
+- **Table of contents**: Auto-generated from h1-h3, sticky sidebar on desktop
+- **Navigation**: Auto-generated from folder structure (multi-file deploys)
+- **Dark/light mode**: Toggle, respects system preference
+- **Search**: Client-side full-text search across all pages (Ctrl+K)
+- **Mobile**: Fully responsive, hamburger nav, touch-friendly
+
+### Frontmatter Support
+```markdown
+---
+title: API Reference
+description: Internal API docs for the team
+theme: dark
+toc: true
+nav_order: 2
+---
+
+# API Reference
+...
+```
+
+### Folder Structure → Site Structure
+```
+docs/
+├── index.md          → /           (home page)
+├── getting-started.md → /getting-started
+├── api/
+│   ├── index.md      → /api        (section landing)
+│   ├── auth.md       → /api/auth
+│   └── endpoints.md  → /api/endpoints
+└── changelog.md      → /changelog
+```
+
+Navigation auto-generated from folder hierarchy.
+File names → page titles (kebab-case → Title Case).
+`nav_order` frontmatter overrides sort order.
+
+### Themes (built-in, no config needed)
+- `dark` — zinc-950 bg, matches OAuthPage dashboard (default)
+- `light` — clean white, optimized for reading
+- `github` — GitHub-flavored markdown style
+
+### Implementation Plan
+1. **Phase 1**: Single .md file → styled HTML (markdown-it + template)
+2. **Phase 2**: Folder → multi-page site with nav
+3. **Phase 3**: Search, lightbox, advanced features
+
+### Dependencies (all lightweight, no LLM)
+- `markdown-it` — markdown parser (~30KB)
+- `highlight.js` — syntax highlighting (tree-shakeable, ~20KB per language)
+- `gray-matter` — frontmatter parser (~5KB)
+- HTML template — single CSS file (~10KB)
+
+### Cost Impact
+- Zero additional infrastructure cost
+- Processing happens in CLI (client-side)
+- Only stores the generated HTML in R2 (existing flow)
+- Typical markdown site: 50-200KB total
+
+### Why This Wins
+- **vs Notion**: Private by default, no account needed for readers, custom domain
+- **vs GitHub Pages**: OAuth-gated, not public, one-time links
+- **vs GitBook/Docusaurus**: Zero config, no build pipeline, 1 command
+- **vs Google Docs link sharing**: Beautiful, fast, branded, access control
