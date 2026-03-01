@@ -233,6 +233,17 @@ filesApi.post("/:id/deploy", async (c) => {
     return c.json(limitError("deploysPerMonth", currentDeploys, limits.deploysPerMonth), 403);
   }
 
+  // Delete all existing files first (deploy = replace, not additive)
+  const prefix = r2Key(owner.user_id, siteId, "");
+  let cursor: string | undefined;
+  do {
+    const listed = await c.env.STORAGE.list({ prefix, limit: 1000, cursor });
+    if (listed.objects.length > 0) {
+      await c.env.STORAGE.delete(listed.objects.map((o) => o.key));
+    }
+    cursor = listed.truncated ? listed.cursor : undefined;
+  } while (cursor);
+
   // Upload all files
   for (const file of decoded) {
     const key = r2Key(owner.user_id, siteId, file.path);
