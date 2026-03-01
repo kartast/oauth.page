@@ -255,3 +255,52 @@ File names → page titles (kebab-case → Title Case).
 - **vs GitHub Pages**: OAuth-gated, not public, one-time links
 - **vs GitBook/Docusaurus**: Zero config, no build pipeline, 1 command
 - **vs Google Docs link sharing**: Beautiful, fast, branded, access control
+
+---
+
+## Testing Strategy
+
+### Unit Tests (102 tests) ✅
+- Mock all external APIs (GitHub, Google, Resend)
+- Test routing, auth, limits, cookies, XSS escaping
+- `cd worker && npm test`
+- Run before every deploy
+
+### Integration Tests (staging) — Backlog 📋
+Hit real staging worker with real DB/KV/R2:
+- [ ] Deploy replaces files (upload A, upload B, A is gone)
+- [ ] Markdown site gets Docsify shell
+- [ ] Auto-sidebar generated from .md files
+- [ ] Approve flow sends real email (verify via Resend API)
+- [ ] Deny flow sends real email
+- [ ] One-time link: create → consume → expired on reuse
+- [ ] View limit: hit 1000 views → 429 page
+- [ ] Storage limit: exceed 5MB → 403
+- [ ] Deploy limit: exceed 10 → 403
+- [ ] Site creation limit: 4th site → 403
+
+### Browser Tests (Playwright) — Backlog 📋
+Real browser against staging, tests the full user journey:
+- [ ] Landing page loads, animations render
+- [ ] Login → GitHub OAuth → redirect to /sites
+- [ ] Create site → appears in dashboard
+- [ ] Deploy via dashboard drag-drop (future)
+- [ ] Preview thumbnail loads
+- [ ] Approve/deny from Pending Requests tab
+- [ ] Delete site → Danger Zone confirmation flow
+- [ ] Mobile: hamburger menu, card layouts, no overflow
+- [ ] Markdown site: sidebar nav, theme toggle, search
+- [ ] Dark/light theme toggle persists across reload
+- [ ] Gate page: sign in buttons, request access, pending state
+
+### CLI Tests — Backlog 📋
+Test the CLI binary against staging:
+- [ ] `oauthpage login` → opens browser, stores token
+- [ ] `oauthpage sites` → lists sites
+- [ ] `oauthpage deploy ./dir --site x` → uploads files
+- [ ] `oauthpage deploy README.md --site x` → markdown mode
+- [ ] `oauthpage add "Name" --slug x` → creates site
+- [ ] `oauthpage remove x` → deletes site
+- [ ] Deploy folder with no .md → normal static site
+- [ ] Deploy folder with only .md → no index.html uploaded
+- [ ] Error handling: no auth, invalid site, network failure
