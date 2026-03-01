@@ -24,6 +24,7 @@ const MIME_TYPES: Record<string, string> = {
   ".ttf": "font/ttf",
   ".ico": "image/x-icon",
   ".txt": "text/plain; charset=utf-8",
+  ".md": "text/markdown; charset=utf-8",
   ".xml": "application/xml",
   ".webmanifest": "application/manifest+json",
   ".map": "application/json",

@@ -120,10 +120,14 @@ ALTER TABLE sites ADD COLUMN views_reset_at INTEGER;
 - [x] Sentry error tracking
 - [x] Landing page (oauth.page)
 - [x] Danger Zone delete confirmation
+- [x] Free tier limit enforcement (7 checkpoints)
+- [x] Markdown sites (server-side Docsify, auto-sidebar, dark/light theme)
+- [x] KV-backed owner sessions (revocable, replaces JWT)
+- [x] Deploy = full replace (not additive)
+- [x] Security audit v3 (XSS fixes in OTL, views exceeded, sidebar)
 
 ### In Progress 🔧
-- [ ] Free tier limit enforcement
-- [ ] Sentry committed + filtering
+- [ ] CLI npm publish (`npx oauthpage`)
 
 ### Backlog 📋
 - [ ] Google OAuth credentials (secrets not set)
@@ -166,38 +170,31 @@ oauthpage deploy ./notes/ --site notes --theme dark --toc --title "Project Notes
 cat CHANGELOG.md | oauthpage deploy - --site changelog
 ```
 
-### How It Works (no magic)
+### How It Works (server-side Docsify)
 ```
-┌──────────────────────────────────────────┐
-│                                          │
-│  .md files                               │
-│      ↓                                   │
-│  CLI (runs locally, no LLM)             │
-│      ↓                                   │
-│  1. Parse markdown (markdown-it)         │
-│  2. Extract frontmatter (title, desc)    │
-│  3. Generate table of contents           │
-│  4. Syntax highlight code blocks         │
-│  5. Wrap in HTML template + CSS          │
-│  6. Build nav from folder structure      │
-│      ↓                                   │
-│  Deploy to OAuthPage (existing flow)     │
-│      ↓                                   │
-│  Private site with OAuth gate            │
-│                                          │
-└──────────────────────────────────────────┘
+.md files → CLI uploads raw to R2 → Done
+
+On request:
+Worker detects .md-only site (no index.html)
+→ Generates Docsify shell (title from DB)
+→ Auto-generates _sidebar.md from R2 listing
+→ Docsify renders markdown client-side
+
+All template logic lives in the worker.
+Template updates ship to ALL sites instantly.
 ```
 
-### Template Features
-- **Typography**: Clean, readable prose (system fonts, proper line-height)
-- **Code blocks**: Syntax highlighting via highlight.js (50+ languages)
-- **Tables**: Styled, responsive, horizontal scroll on mobile
-- **Images**: Lazy-loaded, lightbox on click
-- **Table of contents**: Auto-generated from h1-h3, sticky sidebar on desktop
-- **Navigation**: Auto-generated from folder structure (multi-file deploys)
-- **Dark/light mode**: Toggle, respects system preference
-- **Search**: Client-side full-text search across all pages (Ctrl+K)
-- **Mobile**: Fully responsive, hamburger nav, touch-friendly
+### Template Features (powered by Docsify)
+- **Docsify**: MIT-licensed, battle-tested (29K★ GitHub)
+- **Code blocks**: Syntax highlighting via Prism.js (auto-detect language)
+- **Tables**: Styled, responsive
+- **Table of contents**: Auto-generated from headings (subMaxLevel: 3)
+- **Navigation**: Auto-generated sidebar from R2 file listing
+- **Dark/light mode**: Toggle button, persisted in localStorage
+- **Search**: Full-text search across all pages (built-in plugin)
+- **Copy code**: One-click copy button on code blocks
+- **Mobile**: Fully responsive, hamburger nav
+- **Zero CLI overhead**: CLI just uploads .md files
 
 ### Frontmatter Support
 ```markdown
@@ -235,21 +232,23 @@ File names → page titles (kebab-case → Title Case).
 - `github` — GitHub-flavored markdown style
 
 ### Implementation Plan
-1. **Phase 1**: Single .md file → styled HTML (markdown-it + template)
-2. **Phase 2**: Folder → multi-page site with nav
-3. **Phase 3**: Search, lightbox, advanced features
+1. **Phase 1**: ✅ SHIPPED — Server-side Docsify, single + multi-file, auto-sidebar
+2. **Phase 2**: Frontmatter support (title, nav_order), nested folder nav
+3. **Phase 3**: Dashboard theme picker, inline .md editor
 
-### Dependencies (all lightweight, no LLM)
-- `markdown-it` — markdown parser (~30KB)
-- `highlight.js` — syntax highlighting (tree-shakeable, ~20KB per language)
-- `gray-matter` — frontmatter parser (~5KB)
-- HTML template — single CSS file (~10KB)
+### Dependencies
+- Docsify v4 (~45KB, loaded from CDN, cached)
+- Prism.js (syntax highlighting, loaded from CDN)
+- docsify-themeable (dark/light themes)
+- docsify-copy-code (copy button plugin)
+- Zero npm dependencies in CLI for this feature
 
 ### Cost Impact
 - Zero additional infrastructure cost
-- Processing happens in CLI (client-side)
-- Only stores the generated HTML in R2 (existing flow)
-- Typical markdown site: 50-200KB total
+- Only raw .md files stored in R2
+- KV cache for sidebar + site detection (1hr TTL)
+- 1 R2 list op per cache miss (~$0.36/1M)
+- Typical markdown site: 10-50KB stored
 
 ### Why This Wins
 - **vs Notion**: Private by default, no account needed for readers, custom domain

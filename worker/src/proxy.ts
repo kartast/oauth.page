@@ -375,12 +375,15 @@ async function serveAutoSidebar(storage: R2Bucket, site: SiteConfig, env: Env): 
     if (name === "README") {
       lines.unshift("- [Home](/)");
     } else {
-      const title = name
+      const rawTitle = name
         .split("/")
         .pop()!
         .replace(/[-_]/g, " ")
         .replace(/\b\w/g, (ch: string) => ch.toUpperCase());
-      lines.push(`- [${title}](/${name})`);
+      // Sanitize: strip anything that could break markdown/HTML
+      const title = rawTitle.replace(/[\[\]()\\<>"']/g, "");
+      const safeName = name.replace(/[\[\]()\\<>"']/g, "");
+      lines.push(`- [${title}](/${safeName})`);
     }
   }
 
@@ -462,15 +465,15 @@ async function handleOneTimeLink(
 }
 
 function renderOneTimeConfirm(confirmUrl: string): string {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>One-time link (BETA)</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}.btn{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#8b5cf6;color:#fff;text-decoration:none;font-weight:600}</style></head><body><div class="card"><h2>One-time access link (BETA)</h2><p class="muted">This link can be used only once. Click continue to enter the site.</p><a class="btn" href="${confirmUrl}">Continue</a></div></body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>One-time link (BETA)</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}.btn{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#8b5cf6;color:#fff;text-decoration:none;font-weight:600}</style></head><body><div class="card"><h2>One-time access link (BETA)</h2><p class="muted">This link can be used only once. Click continue to enter the site.</p><a class="btn" href="${escapeHtml(confirmUrl)}">Continue</a></div></body></html>`;
 }
 
 function renderOneTimeInfo(title: string, message: string): string {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${title}</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}</style></head><body><div class="card"><h2>${title}</h2><p class="muted">${message}</p></div></body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>${title}</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}</style></head><body><div class="card"><h2>${escapeHtml(title)}</h2><p class="muted">${escapeHtml(message)}</p></div></body></html>`;
 }
 
 function renderViewsExceeded(siteName: string): string {
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Views Exceeded</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}.btn{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#8b5cf6;color:#fff;text-decoration:none;font-weight:600}</style></head><body><div class="card"><h2>${siteName}</h2><p class="muted">This site has exceeded its monthly view limit. The site owner can upgrade to restore access.</p><a class="btn" href="https://oauth.page/pricing">Learn more</a></div></body></html>`;
+  return `<!DOCTYPE html><html><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>Views Exceeded</title><style>body{font-family:system-ui,-apple-system,sans-serif;background:#0a0a0a;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}.card{max-width:460px;text-align:center;padding:24px;background:#111;border:1px solid #262626;border-radius:12px}.muted{color:#d4d4d8}.btn{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:#8b5cf6;color:#fff;text-decoration:none;font-weight:600}</style></head><body><div class="card"><h2>${escapeHtml(siteName)}</h2><p class="muted">This site has exceeded its monthly view limit. The site owner can upgrade to restore access.</p><a class="btn" href="https://oauth.page/pricing">Learn more</a></div></body></html>`;
 }
 
 export function parseCookie(cookieHeader: string, name: string): string | null {
