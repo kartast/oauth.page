@@ -90,3 +90,33 @@ Filter for `SLOW_SCREENSHOT` to catch performance regressions.
 - Binding: `SCREENSHOT_QUEUE` in `worker/wrangler.toml`
 - Bypass token: 60s TTL in KV (`ss:{uuid}`)
 - Page timeout: 30s (`networkidle0`)
+
+### Deploy Workflow: Staging First
+**Always deploy to staging before production.** No exceptions.
+```bash
+# 1. Run tests
+cd worker && npm test
+
+# 2. Deploy to staging
+source ../.env.credentials && export CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID
+wrangler deploy --env staging
+
+# 3. Verify on staging
+# Test at: https://oauth-page-worker-staging.karta.workers.dev
+
+# 4. Deploy to production
+wrangler deploy
+```
+Never skip staging. Even for "small" changes.
+
+### Markdown Sites (Server-Side Docsify)
+Worker auto-detects markdown-only sites (has `.md` files, no `index.html`):
+- Generates Docsify shell with site name as title
+- Auto-generates `_sidebar.md` from R2 file listing
+- Caches detection + sidebar in KV (1hr TTL, invalidated on deploy)
+- Theme toggle (dark/light), search, copy code, syntax highlighting
+- CLI just uploads raw `.md` files — zero template logic client-side
+
+### Deploy Behavior
+Deploy is **full replace** — all existing R2 files are deleted before uploading new ones.
+This prevents stale files from lingering after re-deploys.
