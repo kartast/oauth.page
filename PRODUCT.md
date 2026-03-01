@@ -164,13 +164,16 @@ oauthpage deploy README.md --site my-docs
 oauthpage deploy ./docs/ --site team-docs
 
 # With options
-oauthpage deploy ./notes/ --site notes --theme dark --toc --title "Project Notes"
+oauthpage deploy ./notes/ --site notes
 
 # Pipe from stdin (combine with other tools)
 cat CHANGELOG.md | oauthpage deploy - --site changelog
 ```
 
 ### How It Works (server-side Docsify)
+
+- Server renders Docsify shell dynamically for markdown-only sites
+- CLI uploads raw markdown only (no template files)
 ```
 .md files → CLI uploads raw to R2 → Done
 

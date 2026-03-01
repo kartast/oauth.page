@@ -280,7 +280,7 @@ $ npx oauthpage link create q4-report --ttl 24h
 
           <H3>Site detail</H3>
           <ul className="space-y-2 mb-4">
-            <Li><strong>Files tab</strong> — Upload files, upload folders, delete files. Storage usage bar shows how much of 25 MB is used.</Li>
+            <Li><strong>Files tab</strong> — Upload files, upload folders, delete files. Storage usage bar shows how much of 5 MB is used (free plan).</Li>
             <Li><strong>Access tab</strong> — View pending access requests. Approve or deny with one click. Revoke existing access.</Li>
             <Li><strong>Links tab</strong> — Create one-time links, copy URLs, and revoke active links.</Li>
             <Li><strong>Settings</strong> — Delete the site (removes all files, access, and sessions).</Li>
@@ -701,7 +701,7 @@ $ opage link create my-site --ttl 24h
               },
               {
                 q: "Upload was rejected",
-                a: "Check the file extension (blocked: .exe .sh .bat .cmd .ps1 .msi .dll) and deployment size limit (25 MB total).",
+                a: "Check the file extension (blocked: .exe .sh .bat .cmd .ps1 .msi .dll) and deployment size limit (5 MB per site on free plan).",
               },
               {
                 q: "CLI login isn't working",

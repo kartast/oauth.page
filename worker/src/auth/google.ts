@@ -1,17 +1,18 @@
 import { Hono } from "hono";
 import { Env } from "../types";
 import { createOwnerToken, setOwnerCookie, createVisitorIdentity, setVisitorCookie } from "./session";
+import { createOAuthState, consumeOAuthState, parseLegacyOAuthState } from "./state";
 
 const google = new Hono<{ Bindings: Env }>();
 
 const CALLBACK_PATH = "/api/auth/google/callback";
 
 // POST /api/auth/google — owner login (dashboard calls this)
-google.post("/", (c) => {
+google.post("/", async (c) => {
   if (!c.env.GOOGLE_CLIENT_ID) {
     return c.json({ error: "Google OAuth not configured" }, 503);
   }
-  const state = btoa(JSON.stringify({ type: "owner" }));
+  const state = await createOAuthState(c.env, { type: "owner" });
   const params = new URLSearchParams({
     client_id: c.env.GOOGLE_CLIENT_ID,
     redirect_uri: `${c.env.APP_URL}${CALLBACK_PATH}`,
@@ -28,13 +29,19 @@ google.get("/callback", async (c) => {
   const code = c.req.query("code");
   const stateParam = c.req.query("state") || "";
 
-  let flowType = "owner";
+  let flowType: "owner" | "visitor" | "cli" = "owner";
   let siteSlug = "";
-  try {
-    const parsed = JSON.parse(atob(stateParam));
-    flowType = parsed.type || "owner";
-    siteSlug = parsed.slug || "";
-  } catch {}
+
+  let parsedState = stateParam ? await consumeOAuthState(c.env, stateParam) : null;
+  if (!parsedState && stateParam) {
+    parsedState = parseLegacyOAuthState(stateParam);
+  }
+  if (parsedState) {
+    flowType = parsedState.type;
+    siteSlug = parsedState.slug || "";
+  } else if (stateParam) {
+    return c.redirect(`${c.env.APP_URL}/login?error=invalid_state`);
+  }
 
   if (!code) {
     if (flowType === "visitor" && siteSlug) {

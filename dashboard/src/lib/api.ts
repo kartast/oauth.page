@@ -184,7 +184,7 @@ export async function deleteFile(siteId: string, path: string) {
 
 // Feature flags
 export async function getFlags() {
-  return api<{ beta: { one_time_links: boolean } }>("/api/flags");
+  return api<{ beta: { one_time_links: boolean }; oauth?: { google_enabled?: boolean } }>("/api/flags");
 }
 
 // One-time links (BETA)

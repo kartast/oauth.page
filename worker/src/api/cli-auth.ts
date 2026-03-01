@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { Env } from "../types";
 import { createOwnerToken } from "../auth/session";
+import { createOAuthState } from "../auth/state";
 
 const cliAuth = new Hono<{ Bindings: Env }>();
 
@@ -48,7 +49,7 @@ cliAuth.get("/callback", async (c) => {
   if (parsed.status !== "pending") return c.text("Code already used", 400);
 
   // Redirect to GitHub OAuth using the app's canonical callback to avoid GitHub warning
-  const state = btoa(JSON.stringify({ type: "cli", code }));
+  const state = await createOAuthState(c.env, { type: "cli", code });
   const params = new URLSearchParams({
     client_id: c.env.GITHUB_CLIENT_ID,
     redirect_uri: `${c.env.APP_URL || "https://app.oauth.page"}/api/auth/github/callback`,

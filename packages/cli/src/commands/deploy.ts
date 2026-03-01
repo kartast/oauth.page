@@ -24,7 +24,7 @@ export async function deployCommand(dir: string, opts: DeployOpts): Promise<void
 
     if (isMarkdown || isDirWithMd) {
       files = buildMarkdownSite(dir);
-      console.log(chalk.dim(`  📝 Markdown mode: ${files.filter((f) => f.path.endsWith(".md")).length} doc(s) + template`));
+      console.log(chalk.dim(`  📝 Markdown mode: ${files.filter((f) => f.path.endsWith(".md")).length} doc(s)`));
     } else {
       files = collectFiles(dir);
     }

@@ -1,15 +1,16 @@
 import { Hono } from "hono";
 import { Env } from "../types";
+import { createOAuthState } from "./state";
 
 const visitorGoogle = new Hono<{ Bindings: Env }>();
 
 // GET /api/visitor/auth/google?site=<slug> — redirect to Google OAuth (uses shared callback)
-visitorGoogle.get("/", (c) => {
+visitorGoogle.get("/", async (c) => {
   if (!c.env.GOOGLE_CLIENT_ID) {
     return c.text("Google OAuth not configured", 503);
   }
   const slug = c.req.query("site") || "";
-  const state = btoa(JSON.stringify({ slug, type: "visitor" }));
+  const state = await createOAuthState(c.env, { type: "visitor", slug });
 
   const params = new URLSearchParams({
     client_id: c.env.GOOGLE_CLIENT_ID,

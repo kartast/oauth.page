@@ -304,9 +304,20 @@ async function checkMarkdownSite(storage: R2Bucket, site: SiteConfig, env: Env):
   if (cached !== null) return cached === "1";
 
   const prefix = `u_${site.owner_id}/s_${site.id}/`;
-  const list = await storage.list({ prefix, limit: 20 });
-  const hasMd = list.objects.some((o) => o.key.endsWith(".md"));
-  const hasHtml = list.objects.some((o) => o.key.endsWith(".html"));
+  let hasMd = false;
+  let hasHtml = false;
+  let cursor: string | undefined;
+
+  do {
+    const list = await storage.list({ prefix, limit: 1000, cursor });
+    for (const obj of list.objects) {
+      if (obj.key.endsWith(".md")) hasMd = true;
+      if (obj.key.endsWith(".html")) hasHtml = true;
+      if (hasMd && hasHtml) break;
+    }
+    if (hasMd && hasHtml) break;
+    cursor = list.truncated ? list.cursor : undefined;
+  } while (cursor);
 
   const isMarkdown = hasMd && !hasHtml;
   await env.KV.put(cacheKey, isMarkdown ? "1" : "0", { expirationTtl: 3600 });
@@ -321,7 +332,7 @@ function serveDocsifyShell(site: SiteConfig): Response {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
   <title>${escapeHtml(title)}</title>
-  <link rel="stylesheet" id="theme-link" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
+  <link rel="stylesheet" id="theme-link" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0.9.0/dist/css/theme-simple-dark.css" integrity="sha384-G+RAlt+LEfAH/nY+DZh3+XIhRboypMI32hiJ9BwnmjF41May5BWQKyrDrEkNdV/i" crossorigin="anonymous">
   <style>
     :root{--theme-color:#a78bfa;--link-color:#a78bfa;--link-color--hover:#c4b5fd;--sidebar-nav-link-color--active:#a78bfa;--sidebar-name-color:#a78bfa;--sidebar-name-font-weight:700;--base-font-size:15px;--sidebar-width:260px}
     .theme-btn{position:fixed;bottom:1rem;right:1rem;z-index:999;background:var(--theme-color);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer;opacity:.7;transition:opacity .2s}.theme-btn:hover{opacity:1}
@@ -331,23 +342,50 @@ function serveDocsifyShell(site: SiteConfig): Response {
   <div id="app">Loading...</div>
   <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">◐</button>
   <script>
-    var themes={dark:'https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css',light:'https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css'};
+    var themes={
+      dark:{url:'https://cdn.jsdelivr.net/npm/docsify-themeable@0.9.0/dist/css/theme-simple-dark.css',sri:'sha384-G+RAlt+LEfAH/nY+DZh3+XIhRboypMI32hiJ9BwnmjF41May5BWQKyrDrEkNdV/i'},
+      light:{url:'https://cdn.jsdelivr.net/npm/docsify-themeable@0.9.0/dist/css/theme-simple.css',sri:'sha384-IuZucGNxm+6VGvZLv3+oxh1kE70WlIXci7p3g/Dtchij0oKFb9s8zG9GYnIkl8CB'}
+    };
     var current=localStorage.getItem('op-theme')||'dark';
-    if(current==='light')document.getElementById('theme-link').href=themes.light;
-    function toggleTheme(){current=current==='dark'?'light':'dark';document.getElementById('theme-link').href=themes[current];localStorage.setItem('op-theme',current)}
+    function applyTheme(name){
+      var t=themes[name];
+      var link=document.getElementById('theme-link');
+      link.href=t.url;
+      link.integrity=t.sri;
+      link.crossOrigin='anonymous';
+    }
+    if(current==='light')applyTheme('light');
+    function toggleTheme(){current=current==='dark'?'light':'dark';applyTheme(current);localStorage.setItem('op-theme',current)}
     window.\$docsify={name:'${escapeHtml(title).replace(/'/g,"\\'")}',loadSidebar:true,subMaxLevel:3,auto2top:true,search:{placeholder:'Search',noData:'No results',depth:3},copyCode:{buttonText:'Copy',successText:'Copied'}};
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4.13.1/lib/docsify.min.js" integrity="sha384-KaHhgnx/OTLoJ4J33SSJsF4x1pk4I7q3s5ZOfIDHJYl6IG7Oyn2vNDsHiWJe46fD" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4.13.1/lib/plugins/search.min.js" integrity="sha384-LthJPBJ4RGco78kBY+EmKz5rmISZ5vrtAu3+l2ALQ2mrZHOe6Wyf6knyKjeC4cL6" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2.1.1/dist/docsify-copy-code.min.js" integrity="sha384-t4d9b4/0dEBkoJ5e77XEPBrqJ790jbFQFmEaTbBqIlTDeGosM1AbZvC1NQwqTg+5" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js" integrity="sha384-9WmlN8ABpoFSSHvBGGjhvB3E/D8UkNB9HpLJjBQFC2VSQsM1odiQDv4NbEo+7l15" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-json.min.js" integrity="sha384-RhrmFFMb0ZCHImjFMpR/UE3VEtIVTCtNrtKQqXCzqXZNJala02N3UbVhi+qzw3CY" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-typescript.min.js" integrity="sha384-PeOqKNW/piETaCg8rqKFy+Pm6KEk7e36/5YZE5XO/OaFdO+/Aw3O8qZ9qDPKVUgx" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js" integrity="sha384-WJdEkJKrbsqw0evQ4GB6mlsKe5cGTxBOw4KAEIa52ZLB7DDpliGkwdme/HMa5n1m" crossorigin="anonymous"></script>
 </body>
 </html>`;
+  const csp = [
+    "default-src 'self'",
+    "img-src 'self' data: https:",
+    "font-src 'self' https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net",
+    "connect-src 'self'",
+    "frame-ancestors 'none'",
+    "base-uri 'none'",
+  ].join('; ');
+
   return new Response(html, {
-    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" },
+    headers: {
+      "Content-Type": "text/html; charset=utf-8",
+      "Cache-Control": "no-cache",
+      "Content-Security-Policy": csp,
+      "Referrer-Policy": "strict-origin-when-cross-origin",
+      "X-Content-Type-Options": "nosniff",
+    },
   });
 }
 
@@ -362,12 +400,20 @@ async function serveAutoSidebar(storage: R2Bucket, site: SiteConfig, env: Env): 
   }
 
   const prefix = `u_${site.owner_id}/s_${site.id}/`;
-  const list = await storage.list({ prefix, limit: 100 });
+  const mdFiles: string[] = [];
+  let cursor: string | undefined;
 
-  const mdFiles = list.objects
-    .map((o) => o.key.replace(prefix, ""))
-    .filter((k) => k.endsWith(".md") && !k.startsWith("_"))
-    .sort();
+  do {
+    const list = await storage.list({ prefix, limit: 1000, cursor });
+    mdFiles.push(
+      ...list.objects
+        .map((o) => o.key.replace(prefix, ""))
+        .filter((k) => k.endsWith(".md") && !k.startsWith("_"))
+    );
+    cursor = list.truncated ? list.cursor : undefined;
+  } while (cursor);
+
+  mdFiles.sort();
 
   const lines: string[] = [];
   for (const file of mdFiles) {

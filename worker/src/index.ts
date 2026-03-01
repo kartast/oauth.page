@@ -37,11 +37,25 @@ app.use("*", async (c, next) => {
   return proxy.fetch(c.req.raw, c.env, c.executionCtx);
 });
 
+function isAllowedOrigin(origin?: string): string {
+  if (!origin) return "https://app.oauth.page";
+  try {
+    const url = new URL(origin);
+    const host = url.hostname;
+    const isOauthPage = host === "oauth.page" || host === "app.oauth.page" || host.endsWith(".oauth.page");
+    const isStagingHost = host.endsWith(".karta.workers.dev");
+    const isLocalDev = origin === "http://localhost:5173";
+    return (isOauthPage || isStagingHost || isLocalDev) ? origin : "https://app.oauth.page";
+  } catch {
+    return "https://app.oauth.page";
+  }
+}
+
 // CORS for API routes (dashboard cross-origin)
 app.use(
   "/api/*",
   cors({
-    origin: (origin) => origin.endsWith(".karta.workers.dev") || origin.endsWith("oauth.page") || origin === "http://localhost:5173" ? origin : "https://app.oauth.page",
+    origin: (origin) => isAllowedOrigin(origin),
     credentials: true,
     allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowHeaders: ["Content-Type", "Authorization"],
@@ -98,7 +112,8 @@ app.post("/api/auth/logout", async (c) => {
 // Feature flags for dashboard/cli
 app.get("/api/flags", (c) => {
   const oneTimeLinks = String(c.env.BETA_ONE_TIME_LINKS || "false").toLowerCase() === "true";
-  return c.json({ beta: { one_time_links: oneTimeLinks } });
+  const googleEnabled = Boolean(c.env.GOOGLE_CLIENT_ID && c.env.GOOGLE_CLIENT_SECRET);
+  return c.json({ beta: { one_time_links: oneTimeLinks }, oauth: { google_enabled: googleEnabled } });
 });
 
 // --- Auth middleware for protected API routes ---

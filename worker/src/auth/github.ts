@@ -1,14 +1,15 @@
 import { Hono } from "hono";
 import { Env } from "../types";
 import { createOwnerToken, setOwnerCookie, createVisitorIdentity, setVisitorCookie } from "./session";
+import { createOAuthState, consumeOAuthState, parseLegacyOAuthState } from "./state";
 
 const github = new Hono<{ Bindings: Env }>();
 
 const CALLBACK_PATH = "/api/auth/github/callback";
 
 // POST /api/auth/github — owner login (dashboard calls this)
-github.post("/", (c) => {
-  const state = btoa(JSON.stringify({ type: "owner" }));
+github.post("/", async (c) => {
+  const state = await createOAuthState(c.env, { type: "owner" });
   const params = new URLSearchParams({
     client_id: c.env.GITHUB_CLIENT_ID,
     redirect_uri: `${c.env.APP_URL}${CALLBACK_PATH}`,
@@ -23,16 +24,23 @@ github.get("/callback", async (c) => {
   const code = c.req.query("code");
   const stateParam = c.req.query("state") || "";
 
-  // Parse state to determine flow type
-  let flowType = "owner";
+  // Parse state to determine flow type (nonce-backed, one-time)
+  let flowType: "owner" | "visitor" | "cli" = "owner";
   let siteSlug = "";
   let cliCode = "";
-  try {
-    const parsed = JSON.parse(atob(stateParam));
-    flowType = parsed.type || "owner";
-    siteSlug = parsed.slug || "";
-    cliCode = parsed.code || "";
-  } catch {}
+
+  let parsedState = stateParam ? await consumeOAuthState(c.env, stateParam) : null;
+  if (!parsedState && stateParam) {
+    // Backward compatibility for older in-flight OAuth redirects
+    parsedState = parseLegacyOAuthState(stateParam);
+  }
+  if (parsedState) {
+    flowType = parsedState.type;
+    siteSlug = parsedState.slug || "";
+    cliCode = parsedState.code || "";
+  } else if (stateParam) {
+    return c.redirect(`${c.env.APP_URL}/login?error=invalid_state`);
+  }
 
   if (!code) {
     if (flowType === "visitor" && siteSlug) {
