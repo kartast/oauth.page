@@ -87,7 +87,7 @@ Pro tier gets auto-screenshot on every deploy.
 7. **One-time link creation** → check active link count
 
 ### Response on limit hit
-- API returns `{ error: "Limit reached", limit: "sites", current: 3, max: 3, upgrade_url: "/pricing" }`
+- API returns `{ error: "Limit reached", limit: "sites", current: 3, max: 3, message: "You've reached the free plan limit. Paid plans coming soon!" }`
 - Dashboard shows upgrade prompt with usage bar
 - Page views over limit: serve a "bandwidth exceeded" page (not a hard block — shows site name + upgrade CTA)
 
@@ -160,15 +160,17 @@ The simplest way to share private docs, notes, specs, and knowledge bases.
 # Single file → single page site
 oauthpage deploy README.md --site my-docs
 
-# Folder → multi-page site with navigation
+# Folder → multi-page docs
 oauthpage deploy ./docs/ --site team-docs
 
-# With options
-oauthpage deploy ./notes/ --site notes
-
-# Pipe from stdin (combine with other tools)
-cat CHANGELOG.md | oauthpage deploy - --site changelog
+# Regular static deploy still works
+oauthpage deploy ./dist --site my-app
 ```
+
+Notes:
+- Markdown mode auto-detects when input is a `.md` file or a directory containing `.md` files.
+- The worker generates Docsify shell + sidebar server-side.
+- Deploy is **replace** (not additive): old files are removed first.
 
 ### How It Works (server-side Docsify)
 
@@ -200,18 +202,10 @@ Template updates ship to ALL sites instantly.
 - **Zero CLI overhead**: CLI just uploads .md files
 
 ### Frontmatter Support
-```markdown
----
-title: API Reference
-description: Internal API docs for the team
-theme: dark
-toc: true
-nav_order: 2
----
+Currently **not implemented** in production rendering.
 
-# API Reference
-...
-```
+Planned (backlog):
+- `title`, `description`, `nav_order`, `theme`
 
 ### Folder Structure → Site Structure
 ```
@@ -240,11 +234,11 @@ File names → page titles (kebab-case → Title Case).
 3. **Phase 3**: Dashboard theme picker, inline .md editor
 
 ### Dependencies
-- Docsify v4 (~45KB, loaded from CDN, cached)
-- Prism.js (syntax highlighting, loaded from CDN)
-- docsify-themeable (dark/light themes)
-- docsify-copy-code (copy button plugin)
-- Zero npm dependencies in CLI for this feature
+- Docsify v4.13.1 (CDN, version pinned + SRI)
+- Prism.js v1.29.0 components (CDN, version pinned + SRI)
+- docsify-themeable v0.9.0 (CDN, version pinned + SRI)
+- docsify-copy-code v2.1.1 (CDN, version pinned + SRI)
+- Zero markdown-rendering npm dependencies in CLI
 
 ### Cost Impact
 - Zero additional infrastructure cost
