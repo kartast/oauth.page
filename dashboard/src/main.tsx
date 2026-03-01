@@ -5,6 +5,29 @@ import * as Sentry from "@sentry/react";
 import App from "./App";
 import "./index.css";
 
+
+// Canonical host redirect: Pages previews/prod pages.dev should bounce to worker/app domain
+(() => {
+  const { hostname, pathname, search, hash } = window.location;
+  const isStagingPages =
+    hostname === "oauth-page-dashboard-staging.pages.dev" ||
+    hostname.endsWith(".oauth-page-dashboard-staging.pages.dev");
+  const isProdPages =
+    hostname === "oauth-page-dashboard.pages.dev" ||
+    hostname.endsWith(".oauth-page-dashboard.pages.dev");
+
+  const targetBase = isStagingPages
+    ? "https://oauth-page-worker-staging.karta.workers.dev"
+    : isProdPages
+      ? "https://app.oauth.page"
+      : "";
+
+  if (targetBase) {
+    const target = `${targetBase}${pathname}${search}${hash}`;
+    window.location.replace(target);
+  }
+})();
+
 Sentry.init({
   dsn: "https://39a8ba08d8a5b3d684bca5b9817c0862@o4510961134665728.ingest.us.sentry.io/4510961135976448",
   sendDefaultPii: true,
