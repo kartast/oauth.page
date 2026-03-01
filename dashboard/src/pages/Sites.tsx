@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Shield, Check, X, BarChart3 } from "lucide-react";
+import { Plus, Shield, Check, X, BarChart3, Terminal, Sparkles, FileText, Globe } from "lucide-react";
 import { getSites, getGlobalRequests, getUsage, approveRequest, denyRequest, type Site, type GlobalAccessRequest, type UsageSnapshot } from "../lib/api";
 import SiteCard from "../components/SiteCard";
 
@@ -214,22 +214,58 @@ export default function Sites() {
       </div>
 
       {sites.length === 0 ? (
-        <div className="text-center py-20">
-          <div className="w-16 h-16 bg-brand/10 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-brand/20">
-            <Shield size={28} className="text-brand" />
+        <div className="py-12 max-w-5xl mx-auto">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-semibold text-zinc-100 mb-2">No sites yet</h2>
+            <p className="text-zinc-400">Here are a few ways to get started.</p>
           </div>
-          <h2 className="text-zinc-300 font-medium mb-1">No sites yet</h2>
-          <p className="text-zinc-600 text-sm mb-6">
-            Protect your first website with OAuthPage
-          </p>
-          <Link
-            to="/sites/new"
-            className="inline-flex items-center gap-2 px-4 py-2 bg-brand hover:bg-brand-hover text-white text-sm font-medium rounded-lg transition-colors"
-          >
-            <Plus size={16} />
-            Create your first site
-          </Link>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-6">
+              <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center mb-4 border border-indigo-500/20">
+                <Sparkles size={20} className="text-indigo-400" />
+              </div>
+              <h3 className="text-base font-medium text-zinc-200 mb-2">1. Build with AI</h3>
+              <p className="text-sm text-zinc-400 mb-4 h-16">
+                Tell Cursor, Claude, or Bolt to build a web app in a folder, then protect it instantly.
+              </p>
+              <div className="bg-zinc-950 rounded-md p-3 font-mono text-xs text-zinc-400 border border-zinc-800 overflow-x-auto whitespace-nowrap">
+                <span className="text-brand-light">npx</span> oauthpage deploy ./dist
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-6">
+              <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-4 border border-emerald-500/20">
+                <FileText size={20} className="text-emerald-400" />
+              </div>
+              <h3 className="text-base font-medium text-zinc-200 mb-2">2. Publish Markdown</h3>
+              <p className="text-sm text-zinc-400 mb-4 h-16">
+                Turn any Markdown file or folder into a beautifully rendered, secure documentation site.
+              </p>
+              <div className="bg-zinc-950 rounded-md p-3 font-mono text-xs text-zinc-400 border border-zinc-800 overflow-x-auto whitespace-nowrap">
+                <span className="text-brand-light">npx</span> oauthpage deploy README.md
+              </div>
+            </div>
+
+            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-6 flex flex-col">
+              <div className="w-10 h-10 bg-brand/10 rounded-lg flex items-center justify-center mb-4 border border-brand/20">
+                <Globe size={20} className="text-brand" />
+              </div>
+              <h3 className="text-base font-medium text-zinc-200 mb-2">3. Manual Setup</h3>
+              <p className="text-sm text-zinc-400 mb-6 flex-grow h-10">
+                Create a site manually and configure your origin URL from the dashboard.
+              </p>
+              <Link
+                to="/sites/new"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-100 hover:bg-white text-zinc-900 text-sm font-medium rounded-lg transition-colors w-full"
+              >
+                <Plus size={16} />
+                Create Site Manually
+              </Link>
+            </div>
+          </div>
         </div>
+
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {sites.map((site) => (
