@@ -170,8 +170,8 @@ export default function Home() {
             <p className="text-zinc-400 mb-8">No credit card. No trial. Just start building.</p>
             <div className="flex justify-center items-baseline gap-2 mb-8"><span className="text-5xl font-bold text-zinc-100">$0</span><span className="text-zinc-500 font-medium">/ month</span></div>
             <div className="grid sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto mb-10">
-              <PricingFeature text="3 sites, 5 MB each" />
-              <PricingFeature text="10 deploys / month" />
+              <PricingFeature text="10 sites, 50 MB total" />
+              <PricingFeature text="500 deploys / month" />
               <PricingFeature text="1,000 views per site" />
               <PricingFeature text="GitHub + Google OAuth" />
               <PricingFeature text="Site preview screenshots" />

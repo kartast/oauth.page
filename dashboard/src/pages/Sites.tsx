@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Shield, Check, X } from "lucide-react";
-import { getSites, getGlobalRequests, approveRequest, denyRequest, type Site, type GlobalAccessRequest } from "../lib/api";
+import { Plus, Shield, Check, X, BarChart3 } from "lucide-react";
+import { getSites, getGlobalRequests, getUsage, approveRequest, denyRequest, type Site, type GlobalAccessRequest, type UsageSnapshot } from "../lib/api";
 import SiteCard from "../components/SiteCard";
 
 const GitHubIcon = () => (
@@ -30,15 +30,18 @@ export default function Sites() {
   const [requests, setRequests] = useState<GlobalAccessRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [usage, setUsage] = useState<UsageSnapshot | null>(null);
 
   const fetchData = async () => {
     try {
-      const [sitesData, requestsData] = await Promise.all([
+      const [sitesData, requestsData, usageData] = await Promise.all([
         getSites(),
-        getGlobalRequests()
+        getGlobalRequests(),
+        getUsage(),
       ]);
       setSites(sitesData.sites);
       setRequests(requestsData.requests);
+      setUsage(usageData);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -61,8 +64,59 @@ export default function Sites() {
   };
 
   if (loading) {
-    return (
+  
+  const formatBytes = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const percent = (used: number, max: number) => {
+    if (!max || max <= 0) return 0;
+    return Math.min(100, Math.round((used / max) * 100));
+  };
+
+  return (
       <div className="page-enter">
+      {usage && (
+        <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+          <div className="flex items-center gap-2 mb-4">
+            <BarChart3 size={16} className="text-brand-light" />
+            <h2 className="text-sm font-medium text-zinc-200">Current Usage</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+            <div>
+              <div className="flex items-center justify-between text-zinc-400 mb-1">
+                <span>Sites</span>
+                <span>{usage.usage.sites} / {usage.limits.sites}</span>
+              </div>
+              <div className="progress-track"><div className={`progress-fill ${percent(usage.usage.sites, usage.limits.sites) > 90 ? "danger" : percent(usage.usage.sites, usage.limits.sites) > 75 ? "warning" : ""}`} style={{ width: `${percent(usage.usage.sites, usage.limits.sites)}%` }} /></div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between text-zinc-400 mb-1">
+                <span>Storage</span>
+                <span>{formatBytes(usage.usage.storage_bytes)} / {usage.limits.storageMb} MB</span>
+              </div>
+              <div className="progress-track"><div className={`progress-fill ${percent(usage.usage.storage_bytes, usage.limits.storageMb * 1024 * 1024) > 90 ? "danger" : percent(usage.usage.storage_bytes, usage.limits.storageMb * 1024 * 1024) > 75 ? "warning" : ""}`} style={{ width: `${percent(usage.usage.storage_bytes, usage.limits.storageMb * 1024 * 1024)}%` }} /></div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between text-zinc-400 mb-1">
+                <span>Deploys this month</span>
+                <span>{usage.usage.deploys_this_month} / {usage.limits.deploysPerMonth}</span>
+              </div>
+              <div className="progress-track"><div className={`progress-fill ${percent(usage.usage.deploys_this_month, usage.limits.deploysPerMonth) > 90 ? "danger" : percent(usage.usage.deploys_this_month, usage.limits.deploysPerMonth) > 75 ? "warning" : ""}`} style={{ width: `${percent(usage.usage.deploys_this_month, usage.limits.deploysPerMonth)}%` }} /></div>
+            </div>
+            <div>
+              <div className="flex items-center justify-between text-zinc-400 mb-1">
+                <span>One-time links</span>
+                <span>{usage.usage.one_time_links_active} / {usage.limits.oneTimeLinks}</span>
+              </div>
+              <div className="progress-track"><div className={`progress-fill ${percent(usage.usage.one_time_links_active, usage.limits.oneTimeLinks) > 90 ? "danger" : percent(usage.usage.one_time_links_active, usage.limits.oneTimeLinks) > 75 ? "warning" : ""}`} style={{ width: `${percent(usage.usage.one_time_links_active, usage.limits.oneTimeLinks)}%` }} /></div>
+            </div>
+          </div>
+        </div>
+      )}
+
         <div className="flex justify-between items-center mb-6">
           <div className="w-32 h-6 skeleton"></div>
         </div>

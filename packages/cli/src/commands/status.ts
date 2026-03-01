@@ -67,3 +67,11 @@ function formatBytes(bytes: number): string {
 }
 
 export { resolveSlug };
+
+
+function progressBar(used: number, max: number, width = 18): string {
+  if (!max || max <= 0) return "[------------------]";
+  const ratio = Math.max(0, Math.min(1, used / max));
+  const filled = Math.round(ratio * width);
+  return `[${"#".repeat(filled)}${"-".repeat(width - filled)}]`;
+}

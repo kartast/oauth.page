@@ -655,9 +655,9 @@ $ opage link create my-site --ttl 24h
               </thead>
               <tbody className="divide-y divide-zinc-800/50">
                 {[
-                  ["Sites", "3"],
+                  ["Sites", "10"],
                   ["Storage total", "50 MB"],
-                  ["Deploys per month", "10"],
+                  ["Deploys per month", "500"],
                   ["Page views per site/mo", "1,000"],
                   ["Email notifications/mo", "5"],
                   ["One-time links", "3 active"],

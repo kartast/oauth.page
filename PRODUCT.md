@@ -18,10 +18,9 @@ Deploy static sites, gate them behind GitHub/Google OAuth, approve or deny visit
 
 | Limit                    | Value              | Cost Driver          |
 |--------------------------|--------------------|----------------------|
-| Sites                    | 3                  | R2 storage           |
+| Sites                    | 10                 | R2 storage           |
 | Storage total            | 50 MB              | R2 storage           |
-| Total storage            | 50 MB              | R2 storage           |
-| Deploys per month        | 10                 | R2 writes            |
+| Deploys per month        | 500                | R2 writes            |
 | Page views per site/mo   | 1,000              | Workers + KV + R2    |
 | Preview screenshots      | First deploy only  | Browser Rendering    |
 | Email notifications      | 5 / month          | Resend               |
@@ -55,7 +54,7 @@ Target: $49/mo — custom limits, team seats, API access, webhooks
 | Component          | Usage               | Cost/user    | Total (1M)  |
 |--------------------|----------------------|-------------|-------------|
 | R2 storage         | 15MB                | $0.000225   | $225        |
-| R2 writes          | 50 puts (10 deploys × 5 files) | $0.000225 | $225  |
+| R2 writes          | 2,500 puts (500 deploys × 5 files) | $0.01125 | $11,250 |
 | Screenshots        | 1 (first deploy)    | $0.0005     | $500        |
 | KV read/write      | ~100 ops            | $0.0001     | $100        |
 | Workers            | ~100 requests       | $0.00003    | $30         |
@@ -273,8 +272,8 @@ Hit real staging worker with real DB/KV/R2:
 - [ ] One-time link: create → consume → expired on reuse
 - [ ] View limit: hit 1000 views → 429 page
 - [ ] Storage limit: exceed 50MB total → 403
-- [ ] Deploy limit: exceed 10 → 403
-- [ ] Site creation limit: 4th site → 403
+- [ ] Deploy limit: exceed 500 → 403
+- [ ] Site creation limit: 11th site → 403
 
 ### Browser Tests (Playwright) — Backlog 📋
 Real browser against staging, tests the full user journey:

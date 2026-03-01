@@ -182,6 +182,32 @@ export async function deleteFile(siteId: string, path: string) {
   return api(`/api/sites/${siteId}/files/${path}`, { method: "DELETE" });
 }
 
+
+export interface UsageLimits {
+  sites: number;
+  storageMb: number;
+  deploysPerMonth: number;
+  viewsPerSite: number;
+  emailsPerMonth: number;
+  oneTimeLinks: number;
+}
+
+export interface UsageSnapshot {
+  limits: UsageLimits;
+  usage: {
+    sites: number;
+    storage_bytes: number;
+    deploys_this_month: number;
+    emails_this_month: number;
+    views_this_month: number;
+    one_time_links_active: number;
+  };
+}
+
+export async function getUsage() {
+  return api<UsageSnapshot>("/api/sites/usage");
+}
+
 // Feature flags
 export async function getFlags() {
   return api<{ beta: { one_time_links: boolean }; oauth?: { google_enabled?: boolean } }>("/api/flags");

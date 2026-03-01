@@ -38,6 +38,17 @@ export async function sitesCommand(opts: { json?: boolean }): Promise<void> {
     }
 
     console.log(table.toString());
+
+    // Usage summary
+    try {
+      const usage = await apiFetch<any>("/api/sites/usage");
+      const u = usage.usage;
+      const l = usage.limits;
+      console.log(chalk.dim(`
+Usage: sites ${u.sites}/${l.sites} · storage ${formatBytes(u.storage_bytes)}/${l.storageMb} MB · deploys ${u.deploys_this_month}/${l.deploysPerMonth} this month`));
+    } catch {
+      // best effort only
+    }
   } catch (err: any) {
     console.error(chalk.red(`✗ ${err.message}`));
     process.exit(1);

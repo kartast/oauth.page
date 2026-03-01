@@ -20,6 +20,44 @@ sitesApi.get("/", async (c) => {
   return c.json({ sites: sites.results });
 });
 
+
+// GET /api/sites/usage — account usage vs plan limits
+sitesApi.get("/usage", async (c) => {
+  const owner = c.get("owner");
+  const { limits, user } = await getLimits(c.env, owner.user_id);
+  const now = Math.floor(Date.now() / 1000);
+
+  const siteCountRow = await c.env.DB.prepare("SELECT COUNT(*) as c FROM sites WHERE owner_id = ?")
+    .bind(owner.user_id)
+    .first<{ c: number }>();
+  const storageRow = await c.env.DB.prepare("SELECT COALESCE(SUM(storage_bytes), 0) as total FROM sites WHERE owner_id = ?")
+    .bind(owner.user_id)
+    .first<{ total: number }>();
+  const viewsRow = await c.env.DB.prepare("SELECT COALESCE(SUM(views_this_month), 0) as total FROM sites WHERE owner_id = ?")
+    .bind(owner.user_id)
+    .first<{ total: number }>();
+  const linksRow = await c.env.DB.prepare(
+    `SELECT COUNT(*) as c
+     FROM one_time_links otl
+     JOIN sites s ON s.id = otl.site_id
+     WHERE s.owner_id = ? AND otl.status = 'active' AND otl.expires_at > ?`
+  )
+    .bind(owner.user_id, now)
+    .first<{ c: number }>();
+
+  return c.json({
+    limits,
+    usage: {
+      sites: Number((siteCountRow as any)?.c || 0),
+      storage_bytes: Number((storageRow as any)?.total || 0),
+      deploys_this_month: user.deploys_this_month,
+      emails_this_month: user.emails_this_month,
+      views_this_month: Number((viewsRow as any)?.total || 0),
+      one_time_links_active: Number((linksRow as any)?.c || 0),
+    },
+  });
+});
+
 // POST /api/sites — create a new site
 sitesApi.post("/", async (c) => {
   const owner = c.get("owner");
