@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import { readFileSync, writeFileSync, statSync, readdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, statSync, readdirSync, existsSync } from "node:fs";
 import { join, relative, basename, extname, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { apiFetch } from "../api.js";
@@ -106,43 +106,68 @@ function buildMarkdownSite(
   const __filename = fileURLToPath(import.meta.url);
   const templateDir = join(dirname(__filename), "..", "templates", "md");
 
-  // Add template files under /_md/
-  const templateFiles = ["style.css", "render.js"];
-  for (const tf of templateFiles) {
-    const abs = join(templateDir, tf);
-    if (existsSync(abs)) {
-      files.push({ absPath: abs, path: `_md/${tf}`, size: statSync(abs).size });
-    }
-  }
-
-  // Generate index.html from template
+  // Generate index.html from Docsify template
   const title = opts.title || opts.name || basename(stat.isFile() ? dirname(input) : input) || "Docs";
   let indexHtml = readFileSync(join(templateDir, "index.html"), "utf8");
   indexHtml = indexHtml.replace(/\{\{TITLE\}\}/g, escapeHtml(title));
 
-  // Write to a temp file
-  const tmpIndex = join(templateDir, ".index.tmp.html");
-
+  const tmpDir = join(templateDir, ".tmp");
+  if (!existsSync(tmpDir)) { mkdirSync(tmpDir, { recursive: true }); }
+  const tmpIndex = join(tmpDir, "index.html");
   writeFileSync(tmpIndex, indexHtml);
   files.push({ absPath: tmpIndex, path: "index.html", size: Buffer.byteLength(indexHtml) });
 
-  // Collect .md files
   if (stat.isFile()) {
-    // Single file: deploy as README.md
+    // Single .md file → deploy as README.md
     files.push({ absPath: input, path: "README.md", size: stat.size });
   } else {
-    // Directory: collect all .md files, plus any images/assets
-    const mdFiles = collectFilesFiltered(input, (name, isDir) => {
+    // Directory: collect all files
+    const allFiles = collectFilesFiltered(input, (name, isDir) => {
       if (isDir) return !["node_modules", ".git", ".next", "dist"].includes(name);
-      return true; // include all files (md, images, etc.)
+      return true;
     });
 
-    for (const f of mdFiles) {
+    // Auto-generate _sidebar.md if user didn't provide one
+    const hasSidebar = allFiles.some((f) => f.path === "_sidebar.md");
+    if (!hasSidebar) {
+      const sidebar = generateSidebar(allFiles);
+      const tmpSidebar = join(tmpDir, "_sidebar.md");
+      writeFileSync(tmpSidebar, sidebar);
+      files.push({ absPath: tmpSidebar, path: "_sidebar.md", size: Buffer.byteLength(sidebar) });
+    }
+
+    for (const f of allFiles) {
       files.push(f);
     }
   }
 
   return files;
+}
+
+function generateSidebar(files: { path: string }[]): string {
+  const mdFiles = files
+    .filter((f) => f.path.endsWith(".md") && !f.path.startsWith("_"))
+    .map((f) => f.path);
+
+  const lines: string[] = [];
+
+  for (const file of mdFiles.sort()) {
+    const name = file.replace(/\.md$/, "");
+    if (name === "README") {
+      lines.push("- [Home](/)");
+    } else {
+      // Convert kebab-case/snake_case to Title Case
+      const title = name
+        .split("/")
+        .pop()!
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+      const link = name === "README" ? "/" : name;
+      lines.push(`- [${title}](${link})`);
+    }
+  }
+
+  return lines.join("\n") + "\n";
 }
 
 function collectFilesFiltered(

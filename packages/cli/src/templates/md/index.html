@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
   <title>{{TITLE}}</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
+  <link rel="stylesheet" id="theme-link" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
   <style>
     :root {
       --theme-color: #a78bfa;
@@ -16,11 +16,26 @@
       --base-font-size: 15px;
       --sidebar-width: 260px;
     }
+    .theme-btn { position:fixed; bottom:1rem; right:1rem; z-index:999; background:var(--theme-color); color:#fff; border:none; border-radius:50%; width:36px; height:36px; font-size:16px; cursor:pointer; opacity:0.7; transition:opacity .2s; }
+    .theme-btn:hover { opacity:1; }
   </style>
 </head>
 <body>
   <div id="app">Loading...</div>
+  <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">◐</button>
   <script>
+    var themes = {
+      dark: 'https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css',
+      light: 'https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css',
+    };
+    var current = localStorage.getItem('op-theme') || 'dark';
+    if (current === 'light') document.getElementById('theme-link').href = themes.light;
+    function toggleTheme() {
+      current = current === 'dark' ? 'light' : 'dark';
+      document.getElementById('theme-link').href = themes[current];
+      localStorage.setItem('op-theme', current);
+    }
+
     window.$docsify = {
       name: '{{TITLE}}',
       loadSidebar: true,
@@ -36,5 +51,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
 </body>
 </html>
