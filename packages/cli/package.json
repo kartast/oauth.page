@@ -9,7 +9,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && cp -r src/templates dist/",
+    "build": "tsc",
     "dev": "tsc --watch",
     "test": "vitest run src/__tests__",
     "test:watch": "vitest src/__tests__",

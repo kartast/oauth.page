@@ -269,6 +269,10 @@ filesApi.post("/:id/deploy", async (c) => {
       .bind(siteId).run();
   }
 
+  // Invalidate markdown site caches (sidebar + detection)
+  await c.env.KV.delete(`md_site:${siteId}`);
+  await c.env.KV.delete(`sidebar:${siteId}`);
+
   return c.json({ ok: true, count: decoded.length, totalSize });
 });
 

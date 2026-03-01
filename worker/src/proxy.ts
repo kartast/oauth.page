@@ -37,7 +37,7 @@ proxy.all("*", async (c) => {
     const expectedSiteId = await c.env.KV.get(`ss:${screenshotToken}`);
     if (expectedSiteId === site.id) {
       // Let token expire naturally (60s TTL) so subresource requests also bypass gate
-      return serveFromR2(c.env.STORAGE, site, url.pathname);
+      return serveFromR2(c.env.STORAGE, site, url.pathname, c.env);
     }
   }
 
@@ -132,7 +132,7 @@ proxy.all("*", async (c) => {
     const viewBlock = await checkViewLimit();
     if (viewBlock) return viewBlock;
 
-    const resp = await serveFromR2(c.env.STORAGE, site, url.pathname);
+    const resp = await serveFromR2(c.env.STORAGE, site, url.pathname, c.env);
     const body = await resp.arrayBuffer();
     const bytesOut = body.byteLength;
 
@@ -253,7 +253,7 @@ proxy.all("*", async (c) => {
   return c.html(renderGatePage({ siteName: site.name, slug }), 200);
 });
 
-async function serveFromR2(storage: R2Bucket, site: SiteConfig, pathname: string): Promise<Response> {
+async function serveFromR2(storage: R2Bucket, site: SiteConfig, pathname: string, env?: Env): Promise<Response> {
   const path = pathname === "/" ? "/index.html" : pathname;
   const cleanPath = path.replace(/^\//, "").replace(/\.\./g, "").replace(/\0/g, "");
   const key = `u_${site.owner_id}/s_${site.id}/${cleanPath}`;
@@ -271,6 +271,20 @@ async function serveFromR2(storage: R2Bucket, site: SiteConfig, pathname: string
         },
       });
     }
+
+    // Markdown site: no index.html → generate Docsify shell
+    if (env) {
+      const isMarkdownSite = await checkMarkdownSite(storage, site, env);
+      if (isMarkdownSite) {
+        if (cleanPath === "index.html") {
+          return serveDocsifyShell(site);
+        }
+        if (cleanPath === "_sidebar.md") {
+          return await serveAutoSidebar(storage, site, env);
+        }
+      }
+    }
+
     return new Response("Not found", { status: 404 });
   }
 
@@ -281,6 +295,100 @@ async function serveFromR2(storage: R2Bucket, site: SiteConfig, pathname: string
       "Cache-Control": isHashed(cleanPath) ? "public, max-age=31536000, immutable" : "no-cache",
       "ETag": object.httpEtag,
     },
+  });
+}
+
+async function checkMarkdownSite(storage: R2Bucket, site: SiteConfig, env: Env): Promise<boolean> {
+  const cacheKey = `md_site:${site.id}`;
+  const cached = await env.KV.get(cacheKey);
+  if (cached !== null) return cached === "1";
+
+  const prefix = `u_${site.owner_id}/s_${site.id}/`;
+  const list = await storage.list({ prefix, limit: 20 });
+  const hasMd = list.objects.some((o) => o.key.endsWith(".md"));
+  const hasHtml = list.objects.some((o) => o.key.endsWith(".html"));
+
+  const isMarkdown = hasMd && !hasHtml;
+  await env.KV.put(cacheKey, isMarkdown ? "1" : "0", { expirationTtl: 3600 });
+  return isMarkdown;
+}
+
+function serveDocsifyShell(site: SiteConfig): Response {
+  const title = site.name || "Docs";
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+  <title>${escapeHtml(title)}</title>
+  <link rel="stylesheet" id="theme-link" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css">
+  <style>
+    :root{--theme-color:#a78bfa;--link-color:#a78bfa;--link-color--hover:#c4b5fd;--sidebar-nav-link-color--active:#a78bfa;--sidebar-name-color:#a78bfa;--sidebar-name-font-weight:700;--base-font-size:15px;--sidebar-width:260px}
+    .theme-btn{position:fixed;bottom:1rem;right:1rem;z-index:999;background:var(--theme-color);color:#fff;border:none;border-radius:50%;width:36px;height:36px;font-size:16px;cursor:pointer;opacity:.7;transition:opacity .2s}.theme-btn:hover{opacity:1}
+  </style>
+</head>
+<body>
+  <div id="app">Loading...</div>
+  <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">◐</button>
+  <script>
+    var themes={dark:'https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css',light:'https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple.css'};
+    var current=localStorage.getItem('op-theme')||'dark';
+    if(current==='light')document.getElementById('theme-link').href=themes.light;
+    function toggleTheme(){current=current==='dark'?'light':'dark';document.getElementById('theme-link').href=themes[current];localStorage.setItem('op-theme',current)}
+    window.\$docsify={name:'${escapeHtml(title).replace(/'/g,"\\'")}',loadSidebar:true,subMaxLevel:3,auto2top:true,search:{placeholder:'Search',noData:'No results',depth:3},copyCode:{buttonText:'Copy',successText:'Copied'}};
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-json.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-python.min.js"></script>
+</body>
+</html>`;
+  return new Response(html, {
+    headers: { "Content-Type": "text/html; charset=utf-8", "Cache-Control": "no-cache" },
+  });
+}
+
+async function serveAutoSidebar(storage: R2Bucket, site: SiteConfig, env: Env): Promise<Response> {
+  // Check KV cache first
+  const cacheKey = `sidebar:${site.id}`;
+  const cached = await env.KV.get(cacheKey);
+  if (cached) {
+    return new Response(cached, {
+      headers: { "Content-Type": "text/markdown; charset=utf-8", "Cache-Control": "no-cache" },
+    });
+  }
+
+  const prefix = `u_${site.owner_id}/s_${site.id}/`;
+  const list = await storage.list({ prefix, limit: 100 });
+
+  const mdFiles = list.objects
+    .map((o) => o.key.replace(prefix, ""))
+    .filter((k) => k.endsWith(".md") && !k.startsWith("_"))
+    .sort();
+
+  const lines: string[] = [];
+  for (const file of mdFiles) {
+    const name = file.replace(/\.md$/, "");
+    if (name === "README") {
+      lines.unshift("- [Home](/)");
+    } else {
+      const title = name
+        .split("/")
+        .pop()!
+        .replace(/[-_]/g, " ")
+        .replace(/\b\w/g, (ch: string) => ch.toUpperCase());
+      lines.push(`- [${title}](/${name})`);
+    }
+  }
+
+  const sidebar = lines.join("\n") + "\n";
+  await env.KV.put(cacheKey, sidebar, { expirationTtl: 3600 });
+
+  return new Response(sidebar, {
+    headers: { "Content-Type": "text/markdown; charset=utf-8", "Cache-Control": "no-cache" },
   });
 }
 
@@ -371,3 +479,8 @@ export function parseCookie(cookieHeader: string, name: string): string | null {
 }
 
 export default proxy;
+
+
+function escapeHtml(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}

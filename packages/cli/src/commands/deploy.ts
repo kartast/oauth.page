@@ -1,7 +1,6 @@
 import chalk from "chalk";
-import { readFileSync, writeFileSync, mkdirSync, statSync, readdirSync, existsSync } from "node:fs";
-import { join, relative, basename, extname, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { readFileSync, statSync, readdirSync } from "node:fs";
+import { join, relative, basename, extname } from "node:path";
 import { apiFetch } from "../api.js";
 
 type Site = { id: string; slug: string; name: string };
@@ -24,7 +23,7 @@ export async function deployCommand(dir: string, opts: DeployOpts): Promise<void
     let files: { absPath: string; path: string; size: number }[];
 
     if (isMarkdown || isDirWithMd) {
-      files = buildMarkdownSite(dir, opts);
+      files = buildMarkdownSite(dir);
       console.log(chalk.dim(`  📝 Markdown mode: ${files.filter((f) => f.path.endsWith(".md")).length} doc(s) + template`));
     } else {
       files = collectFiles(dir);
@@ -96,78 +95,20 @@ export async function deployCommand(dir: string, opts: DeployOpts): Promise<void
 }
 
 function buildMarkdownSite(
-  input: string,
-  opts: DeployOpts
+  input: string
 ): { absPath: string; path: string; size: number }[] {
-  const files: { absPath: string; path: string; size: number }[] = [];
   const stat = statSync(input);
-
-  // Locate template directory
-  const __filename = fileURLToPath(import.meta.url);
-  const templateDir = join(dirname(__filename), "..", "templates", "md");
-
-  // Generate index.html from Docsify template
-  const title = opts.title || opts.name || basename(stat.isFile() ? dirname(input) : input) || "Docs";
-  let indexHtml = readFileSync(join(templateDir, "index.html"), "utf8");
-  indexHtml = indexHtml.replace(/\{\{TITLE\}\}/g, escapeHtml(title));
-
-  const tmpDir = join(templateDir, ".tmp");
-  if (!existsSync(tmpDir)) { mkdirSync(tmpDir, { recursive: true }); }
-  const tmpIndex = join(tmpDir, "index.html");
-  writeFileSync(tmpIndex, indexHtml);
-  files.push({ absPath: tmpIndex, path: "index.html", size: Buffer.byteLength(indexHtml) });
 
   if (stat.isFile()) {
     // Single .md file → deploy as README.md
-    files.push({ absPath: input, path: "README.md", size: stat.size });
-  } else {
-    // Directory: collect all files
-    const allFiles = collectFilesFiltered(input, (name, isDir) => {
-      if (isDir) return !["node_modules", ".git", ".next", "dist"].includes(name);
-      return true;
-    });
-
-    // Auto-generate _sidebar.md if user didn't provide one
-    const hasSidebar = allFiles.some((f) => f.path === "_sidebar.md");
-    if (!hasSidebar) {
-      const sidebar = generateSidebar(allFiles);
-      const tmpSidebar = join(tmpDir, "_sidebar.md");
-      writeFileSync(tmpSidebar, sidebar);
-      files.push({ absPath: tmpSidebar, path: "_sidebar.md", size: Buffer.byteLength(sidebar) });
-    }
-
-    for (const f of allFiles) {
-      files.push(f);
-    }
+    return [{ absPath: input, path: "README.md", size: stat.size }];
   }
 
-  return files;
-}
-
-function generateSidebar(files: { path: string }[]): string {
-  const mdFiles = files
-    .filter((f) => f.path.endsWith(".md") && !f.path.startsWith("_"))
-    .map((f) => f.path);
-
-  const lines: string[] = [];
-
-  for (const file of mdFiles.sort()) {
-    const name = file.replace(/\.md$/, "");
-    if (name === "README") {
-      lines.push("- [Home](/)");
-    } else {
-      // Convert kebab-case/snake_case to Title Case
-      const title = name
-        .split("/")
-        .pop()!
-        .replace(/[-_]/g, " ")
-        .replace(/\b\w/g, (c) => c.toUpperCase());
-      const link = name === "README" ? "/" : name;
-      lines.push(`- [${title}](${link})`);
-    }
-  }
-
-  return lines.join("\n") + "\n";
+  // Directory: collect all files (server generates index.html + _sidebar.md)
+  return collectFilesFiltered(input, (name, isDir) => {
+    if (isDir) return !["node_modules", ".git", ".next", "dist"].includes(name);
+    return true;
+  });
 }
 
 function collectFilesFiltered(
@@ -253,6 +194,3 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function escapeHtml(s: string): string {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
-}
