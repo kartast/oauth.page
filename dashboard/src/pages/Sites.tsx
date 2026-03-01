@@ -63,8 +63,6 @@ export default function Sites() {
     await fetchData();
   };
 
-  if (loading) {
-  
   const formatBytes = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -76,8 +74,37 @@ export default function Sites() {
     return Math.min(100, Math.round((used / max) * 100));
   };
 
-  return (
+  if (loading) {
+    return (
       <div className="page-enter">
+        <div className="flex justify-between items-center mb-6">
+          <div className="w-32 h-6 skeleton"></div>
+        </div>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden h-64 border-zinc-800/50">
+              <div className="h-40 skeleton rounded-none border-b border-zinc-800/50"></div>
+              <div className="p-4 space-y-3">
+                <div className="h-5 w-3/4 skeleton"></div>
+                <div className="h-4 w-1/2 skeleton"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-20 empty-state max-w-md mx-auto mt-10">
+        <p className="text-red-400">{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-enter">
       {usage && (
         <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
           <div className="flex items-center gap-2 mb-4">
@@ -117,34 +144,6 @@ export default function Sites() {
         </div>
       )}
 
-        <div className="flex justify-between items-center mb-6">
-          <div className="w-32 h-6 skeleton"></div>
-        </div>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden h-64 border-zinc-800/50">
-              <div className="h-40 skeleton rounded-none border-b border-zinc-800/50"></div>
-              <div className="p-4 space-y-3">
-                <div className="h-5 w-3/4 skeleton"></div>
-                <div className="h-4 w-1/2 skeleton"></div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center py-20 empty-state max-w-md mx-auto mt-10">
-        <p className="text-red-400">{error}</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="page-enter">
       {requests.length > 0 && (
         <div className="mb-10 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
