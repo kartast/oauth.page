@@ -92,6 +92,7 @@ Filter for `SLOW_SCREENSHOT` to catch performance regressions.
 - Page timeout: 30s (`networkidle0`)
 
 ### Deploy Workflow: Staging First
+- **Production deploy requires explicit user approval (green light).** Never deploy prod automatically after staging.
 **Always deploy to staging before production.** No exceptions.
 ```bash
 # 1. Run tests
