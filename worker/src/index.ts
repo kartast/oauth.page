@@ -182,7 +182,8 @@ const MIME_TYPES: Record<string, string> = {
 async function serveDashboard(c: any, pathname: string): Promise<Response> {
   const url = new URL(c.req.url);
   // Proxy request to the Cloudflare Pages deployment
-  const pagesUrl = new URL(pathname, "https://oauth-page-dashboard.pages.dev");
+  const dashboardBase = c.env.DASHBOARD_URL || "https://oauth-page-dashboard.pages.dev";
+  const pagesUrl = new URL(pathname, dashboardBase);
   pagesUrl.search = url.search;
   
   const req = new Request(pagesUrl.toString(), {

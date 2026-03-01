@@ -3,6 +3,7 @@ export interface Env {
   KV: KVNamespace;
   STORAGE: R2Bucket;
   APP_URL: string;
+  DASHBOARD_URL: string;
   BETA_ONE_TIME_LINKS?: string;
   GITHUB_CLIENT_ID: string;
   GITHUB_CLIENT_SECRET: string;
