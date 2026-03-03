@@ -57,6 +57,7 @@ max_concurrency = 5
 [env.staging]
 workers_dev = true
 name = "oauth-page-worker-staging"
+routes = []
 
 [env.staging.vars]
 APP_URL = "https://oauth-page-worker-staging.karta.workers.dev"

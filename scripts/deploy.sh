@@ -15,6 +15,14 @@ BOLD='\033[1m'
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Load .env if present
+if [ -f "$PROJECT_DIR/.env" ]; then
+  # Automatically export variables
+  set -a
+  source "$PROJECT_DIR/.env"
+  set +a
+fi
+
 echo ""
 echo -e "${PURPLE}${BOLD}  ╔══════════════════════════╗${NC}"
 echo -e "${PURPLE}${BOLD}  ║    OAuthPage Deploy       ║${NC}"

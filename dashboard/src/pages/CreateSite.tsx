@@ -41,43 +41,43 @@ export default function CreateSite() {
     <div className="max-w-lg mx-auto">
       <button
         onClick={() => navigate("/sites")}
-        className="flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-300 transition-colors mb-6"
+        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-6"
       >
         <ArrowLeft size={14} />
         Back to sites
       </button>
 
-      <h1 className="text-lg font-semibold text-zinc-100 mb-6">Create a new site</h1>
+      <h1 className="text-lg font-semibold text-slate-900 mb-6">Create a new site</h1>
 
       {error && (
-        <div className="bg-red-950/50 border border-red-900 text-red-300 text-sm rounded-lg px-4 py-3 mb-4">
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
           {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-zinc-400 mb-1.5">Site Name</label>
+          <label className="block text-sm font-medium text-slate-600 mb-1.5">Site Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="My Private Site"
             required
-            className="w-full px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-lg text-zinc-100 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-brand transition-colors"
+            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 transition-colors"
           />
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-sm font-medium text-zinc-400">Subdomain</label>
+            <label className="text-sm font-medium text-slate-600">Subdomain</label>
             <button
               type="button"
               onClick={() => {
                 setAutoSlug(!autoSlug);
                 if (!autoSlug) setSlug("");
               }}
-              className="text-xs text-brand hover:text-brand-light transition-colors"
+              className="text-xs text-brand hover:text-brand-hover transition-colors"
             >
               {autoSlug ? "Customize" : "Auto-generate"}
             </button>
@@ -88,15 +88,15 @@ export default function CreateSite() {
               value={autoSlug ? generatedSlug : slug}
               onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
               disabled={autoSlug}
-              className="flex-1 px-3 py-2 bg-zinc-900 border border-zinc-800 rounded-l-lg text-zinc-100 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-brand transition-colors disabled:opacity-50"
+              className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-l-lg text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 transition-colors disabled:opacity-50 disabled:bg-slate-50"
             />
-            <span className="px-3 py-2 bg-zinc-800 border border-zinc-700 rounded-r-lg text-sm text-zinc-500">
+            <span className="px-3 py-2 bg-slate-100 border border-slate-200 border-l-0 rounded-r-lg text-sm text-slate-500">
               .oauth.page
             </span>
           </div>
         </div>
 
-        <p className="text-xs text-zinc-600 bg-zinc-900/50 rounded-lg px-3 py-2">
+        <p className="text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
           Free plan: max 10 active deployments. Each deployment supports up to 25 MB of uploaded files.
         </p>
 

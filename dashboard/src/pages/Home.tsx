@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Bot, Check, Cloud, Code2, Lock, Shield, Terminal, Zap, Globe } from "lucide-react";
-import { WorkflowAnimation } from "../components/WorkflowAnimation";
 
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
@@ -38,137 +37,225 @@ export default function Home() {
   }, []);
 
   const heroRef = useReveal();
-  const workflowRef = useReveal();
   const trustRef = useReveal();
   const aiRef = useReveal();
-  const featRef = useReveal();
   const termRef = useReveal();
   const pricingRef = useReveal();
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 relative overflow-hidden font-sans selection:bg-brand/30">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="hero-glow-1 absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-brand-light/10 blur-[120px] rounded-full mix-blend-screen" />
-        <div className="hero-glow-2 absolute top-[20%] right-[-10%] w-[500px] h-[500px] bg-blue-500/5 blur-[100px] rounded-full mix-blend-screen" />
-      </div>
-
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-12 lg:px-8">
-        <header className="flex items-center justify-between mb-12 lg:mb-24 gap-2" style={{ animation: "fade-down 0.5s ease-out forwards" }}>
-          <Link to="/" className="inline-flex items-center gap-2.5 group shrink-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-gradient-to-br from-zinc-800 to-zinc-900 border border-zinc-700/50 flex items-center justify-center shadow-inner group-hover:border-zinc-700 transition-colors">
-              <Shield size={18} className="text-brand-light" />
+    <div className="min-h-screen bg-white text-slate-900 relative overflow-hidden font-sans selection:bg-brand-200/50">
+      {/* ── Glass Navigation ── */}
+      <nav className="fixed w-full z-50 glass-nav transition-all duration-300">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <Link to="/" className="flex-shrink-0 flex items-center gap-2 group">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-blue-700 flex items-center justify-center text-white font-bold shadow-lg">
+                <Shield size={16} />
+              </div>
+              <span className="font-serif font-semibold text-xl tracking-tight text-slate-900">OAuthPage</span>
+            </Link>
+            <div className="hidden md:block">
+              <div className="ml-10 flex items-baseline space-x-8">
+                <a href="#features" className="text-slate-700 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Features</a>
+                <a href="#pricing" className="text-slate-700 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Pricing</a>
+                <Link to="/docs" className="text-slate-700 hover:text-slate-900 px-3 py-2 rounded-md text-sm font-medium transition-colors">Docs</Link>
+              </div>
             </div>
-            <span className="text-lg font-bold tracking-tight text-zinc-100 group-hover:text-white transition-colors hidden sm:block">OAuthPage</span>
-          </Link>
-          <div className="flex items-center gap-3 sm:gap-8 shrink-0">
-            <Link to="/docs" className="hidden md:block text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors">Docs</Link>
-            <Link to="/login" className="hidden xs:block text-sm font-medium text-zinc-400 hover:text-zinc-200 transition-colors whitespace-nowrap">Sign in</Link>
-            <Link to="/login" className="px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl bg-zinc-100 text-zinc-950 text-xs sm:text-sm font-bold hover:bg-white hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_15px_rgba(255,255,255,0.1)] whitespace-nowrap">
-              Get started <span className="hidden xs:inline">free</span>
+            <div className="flex items-center gap-2">
+              <Link to="/login" className="text-slate-700 hover:text-slate-900 px-4 py-2 text-sm font-medium transition-colors hidden xs:block">Login</Link>
+              <Link to="/login" className="bg-slate-900 text-white hover:bg-slate-800 px-5 py-2.5 rounded-full text-sm font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">Get Started</Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      {/* ── Hero Section ── */}
+      <section className="hero-bg pt-32 pb-20 md:pt-40 md:pb-32 px-4 relative">
+        <div ref={heroRef} className="reveal reveal-stagger max-w-5xl mx-auto text-center relative z-10">
+          <div className="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/70 backdrop-blur-md border border-white/80 shadow-sm text-xs font-medium text-slate-800 mb-8">
+            <span className="flex h-2 w-2 relative">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-500 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-600"></span>
+            </span>
+            Private hosting for AI outputs
+          </div>
+
+          <h1 className="reveal text-5xl md:text-7xl font-serif text-slate-900 tracking-tight leading-tight mb-6">
+            Gatekeep any site.<br />
+            <span className="italic text-brand-900">Zero code required.</span>
+          </h1>
+
+          <p className="reveal text-lg md:text-xl text-slate-700 mb-10 max-w-2xl mx-auto font-light">
+            OAuthPage is an edge proxy SaaS that puts a secure authentication layer in front of your website in seconds. No backend changes, no SDKs to install.
+          </p>
+
+          <div className="reveal flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+            <Link to="/login" className="w-full sm:w-auto bg-slate-900 text-white hover:bg-slate-800 px-8 py-4 rounded-full text-base font-medium transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 inline-flex items-center justify-center gap-2">
+              Start Securing for Free <ArrowRight size={18} />
+            </Link>
+            <Link to="/docs" className="w-full sm:w-auto glass-card text-slate-900 hover:bg-white/60 px-8 py-4 rounded-full text-base font-medium transition-all shadow-md hover:shadow-lg inline-flex items-center justify-center">
+              View Documentation
             </Link>
           </div>
-        </header>
 
-        <section className="mb-20 lg:mb-32">
-          <div ref={heroRef} className="reveal reveal-stagger text-center max-w-4xl mx-auto">
-            <div className="reveal inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-brand/30 bg-brand/10 text-brand-light text-xs font-semibold uppercase tracking-wider mb-8">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-light opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
-              </span>
-              Private hosting for AI outputs
+          {stats && (stats.sites > 0 || stats.deploys > 0) && (
+            <div className="reveal inline-flex items-center gap-6 px-5 py-2.5 rounded-full glass-card text-sm text-slate-600">
+              <span className="flex items-center gap-2"><Globe size={14} className="text-brand-600" /><strong className="text-slate-900">{stats.sites}</strong> sites deployed</span>
+              <span className="w-px h-4 bg-slate-300" />
+              <span className="flex items-center gap-2"><Zap size={14} className="text-emerald-500" /><strong className="text-slate-900">{stats.deploys.toLocaleString()}</strong> deployments</span>
             </div>
-            <h1 className="reveal text-5xl sm:text-6xl md:text-7xl tracking-tight font-semibold mb-6 text-zinc-100">
-              Upload a site.{" "}
-              <span className="block mt-2 bg-gradient-to-br from-white via-zinc-200 to-zinc-500 bg-clip-text text-transparent pb-2">Pick who can see it.</span>
-            </h1>
-            <p className="reveal text-lg sm:text-xl text-zinc-300 max-w-2xl mx-auto leading-relaxed mb-3">Like Google Docs sharing, but for entire websites.</p>
-            <p className="reveal text-base text-slate-400 max-w-xl mx-auto leading-relaxed mb-10">Your AI agent builds a site. OAuthPage hosts it privately. Visitors sign in with GitHub or Google — you approve or deny.</p>
-            <div className="reveal flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
-              <Link to="/login" className="group inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-zinc-100 text-zinc-950 text-base font-semibold hover:bg-white hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
-                Get started free <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-              </Link>
-              <a href="#workflow" className="px-6 py-3 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 text-base font-medium hover:bg-zinc-800 hover:text-zinc-100 transition-all">See how it works</a>
-            </div>
-            {stats && (stats.sites > 0 || stats.deploys > 0) && (
-              <div className="reveal inline-flex items-center gap-6 px-5 py-2.5 rounded-full border border-zinc-800 bg-zinc-900/40 text-sm text-zinc-400">
-                <span className="flex items-center gap-2"><Globe size={14} className="text-brand-light" /><strong className="text-zinc-200">{stats.sites}</strong> sites deployed</span>
-                <span className="w-px h-4 bg-zinc-700" />
-                <span className="flex items-center gap-2"><Zap size={14} className="text-emerald-400" /><strong className="text-zinc-200">{stats.deploys.toLocaleString()}</strong> deployments</span>
+          )}
+
+          {/* Floating Browser Mockup */}
+          <div className="reveal mt-12 md:mt-20 relative mx-auto max-w-4xl">
+            <div className="glass-card rounded-2xl p-2 md:p-4 shadow-2xl relative animate-float">
+              {/* Browser Bar */}
+              <div className="flex items-center gap-2 px-4 pb-4 border-b border-slate-200/40">
+                <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                <div className="w-3 h-3 rounded-full bg-green-400"></div>
+                <div className="mx-auto bg-slate-100/80 text-slate-500 text-xs px-3 py-1 rounded-md font-mono">dashboard.oauth.page</div>
               </div>
-            )}
+              {/* App Content */}
+              <div className="bg-white/60 rounded-xl p-6 md:p-10 text-left mt-2 backdrop-blur-md">
+                <div className="flex items-center justify-between mb-8">
+                  <div>
+                    <h3 className="font-serif text-2xl text-slate-900">Your Sites</h3>
+                    <p className="text-sm text-slate-500">Manage access controls at the edge.</p>
+                  </div>
+                  <button className="bg-brand-500 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm">+ Add Site</button>
+                </div>
+                {/* Mock List Item */}
+                <div className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500">
+                      <Globe size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-900">Internal Wiki</h4>
+                      <p className="text-xs text-slate-500 font-mono mt-1">wiki.yourcompany.com</p>
+                    </div>
+                  </div>
+                  <div className="w-12 h-6 bg-brand-500 rounded-full relative shadow-inner">
+                    <div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow"></div>
+                  </div>
+                </div>
+                {/* Mock List Item 2 */}
+                <div className="bg-white/50 rounded-xl p-5 border border-slate-100 flex items-center justify-between opacity-70">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
+                      <Cloud size={20} />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-slate-900">Staging Env</h4>
+                      <p className="text-xs text-slate-500 font-mono mt-1">staging.yourcompany.com</p>
+                    </div>
+                  </div>
+                  <div className="w-12 h-6 bg-slate-200 rounded-full relative shadow-inner">
+                    <div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Decorative blurred shapes */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-pink-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-float-delayed z-[-1]"></div>
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 bg-blue-200 rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-float z-[-1]"></div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="mb-24 lg:mb-32 max-w-5xl mx-auto relative">
-          <div className="absolute inset-0 -m-8 pointer-events-none">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.08)_0%,transparent_70%)]" />
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(63,63,70,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(63,63,70,0.12)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_70%)]" />
+      {/* ── Features / Value Prop ── */}
+      <section className="py-16 md:py-24 bg-white" id="features">
+        <div ref={trustRef} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="reveal text-center max-w-3xl mx-auto mb-12 md:mb-16">
+            <h2 className="font-serif text-3xl md:text-4xl text-slate-900 mb-4">Enterprise access control, zero setup.</h2>
+            <p className="text-base md:text-lg text-slate-600">Stop writing authentication logic for every internal tool. Route your traffic through OAuthPage and secure it at the edge instantly.</p>
           </div>
-          <div ref={workflowRef} className="reveal reveal-in"><WorkflowAnimation /></div>
-        </section>
 
-        <section className="mb-24 lg:mb-32 max-w-6xl mx-auto">
-          <p className="text-center text-sm font-medium text-zinc-500 uppercase tracking-wider mb-8">Why OAuthPage</p>
-          <div ref={trustRef} className="reveal reveal-stagger grid grid-cols-1 md:grid-cols-3 gap-6">
-            <TrustCard icon={<Cloud size={20} className="text-blue-400" />} label="Fast everywhere" text="Your sites load instantly from 300+ edge locations worldwide. No server to manage." />
-            <TrustCard icon={<Lock size={20} className="text-brand-light" />} label="Private by default" text="Every page is locked until you approve someone. Visitors sign in with GitHub or Google." />
-            <TrustCard icon={<Shield size={20} className="text-emerald-400" />} label="You decide who sees what" text="Approve, revoke, or send a self-destructing link. Full control, no guesswork." />
+          <div className="reveal-stagger grid md:grid-cols-3 gap-6 md:gap-8">
+            <TrustCard
+              icon={<Zap size={24} className="text-brand-600" />}
+              label="Lightning Fast Edge"
+              text="Deployed on Cloudflare Workers. Authentication happens at the edge, globally distributed, adding virtually zero latency."
+              hoverColor="hover:bg-brand-50"
+            />
+            <TrustCard
+              icon={<Lock size={24} className="text-indigo-600" />}
+              label="Bring Your Provider"
+              text="Connect Google Workspace, GitHub, Okta, or any custom OpenID Connect provider with a few clicks."
+              hoverColor="hover:bg-indigo-50"
+            />
+            <TrustCard
+              icon={<Code2 size={24} className="text-emerald-600" />}
+              label="Zero Application Code"
+              text="No SDKs. No library updates. The proxy handles the OAuth flow and forwards authenticated requests seamlessly."
+              hoverColor="hover:bg-emerald-50"
+            />
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="mb-24 lg:mb-32 max-w-5xl mx-auto">
-          <div ref={aiRef} className="reveal reveal-in rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/5 via-zinc-900/50 to-zinc-950 p-8 sm:p-10 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-brand/10 blur-[80px] rounded-full" />
+
+      {/* ── AI Workflows Section ── */}
+      <section className="py-16 md:py-24 bg-slate-50">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div ref={aiRef} className="reveal reveal-in rounded-2xl border border-slate-200 bg-white p-6 sm:p-10 relative overflow-hidden shadow-sm">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-brand-100 blur-[80px] rounded-full opacity-50" />
             <div className="relative">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-xl bg-brand/10 border border-brand/30 flex items-center justify-center"><Bot size={20} className="text-brand-light" /></div>
-                <h2 className="text-2xl font-semibold text-zinc-100">Built for AI workflows</h2>
+                <div className="w-10 h-10 rounded-xl bg-brand-50 border border-brand-200 flex items-center justify-center"><Bot size={20} className="text-brand-600" /></div>
+                <h2 className="text-2xl font-semibold text-slate-900">Built for AI workflows</h2>
               </div>
-              <p className="text-zinc-400 text-lg leading-relaxed max-w-3xl mb-8">AI agents generate reports, dashboards, and full websites — but sharing them securely is still a pain. OAuthPage gives your agents a <strong className="text-zinc-200">publish endpoint</strong> with access control built in.</p>
+              <p className="text-slate-600 text-lg leading-relaxed max-w-3xl mb-8">AI agents generate reports, dashboards, and full websites — but sharing them securely is still a pain. OAuthPage gives your agents a <strong className="text-slate-900">publish endpoint</strong> with access control built in.</p>
               <div className="grid sm:grid-cols-3 gap-6 mb-8">
-                <div className="space-y-2"><div className="flex items-center gap-2 text-sm font-medium text-zinc-200"><Code2 size={16} className="text-brand-light" />Any coding agent</div><p className="text-sm text-zinc-500">Claude Code, Codex, Cursor, Devin — any agent that builds HTML can deploy here.</p></div>
-                <div className="space-y-2"><div className="flex items-center gap-2 text-sm font-medium text-zinc-200"><Terminal size={16} className="text-emerald-400" />CLI-first</div><p className="text-sm text-zinc-500">One command to deploy. JSON output for piping. Built for scripts and automation.</p></div>
-                <div className="space-y-2"><div className="flex items-center gap-2 text-sm font-medium text-zinc-200"><Shield size={16} className="text-amber-400" />Private by default</div><p className="text-sm text-zinc-500">No more public Vercel links for sensitive AI outputs. Every page is gated.</p></div>
+                <div className="space-y-2"><div className="flex items-center gap-2 text-sm font-medium text-slate-900"><Code2 size={16} className="text-brand-600" />Any coding agent</div><p className="text-sm text-slate-500">Claude Code, Codex, Cursor, Devin — any agent that builds HTML can deploy here.</p></div>
+                <div className="space-y-2"><div className="flex items-center gap-2 text-sm font-medium text-slate-900"><Terminal size={16} className="text-emerald-500" />CLI-first</div><p className="text-sm text-slate-500">One command to deploy. JSON output for piping. Built for scripts and automation.</p></div>
+                <div className="space-y-2"><div className="flex items-center gap-2 text-sm font-medium text-slate-900"><Shield size={16} className="text-amber-500" />Private by default</div><p className="text-sm text-slate-500">No more public Vercel links for sensitive AI outputs. Every page is gated.</p></div>
               </div>
-              <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-zinc-800/60 transition-colors">
-                <div className="flex items-center gap-3 flex-shrink-0"><span className="text-2xl">🐾</span><div><p className="text-sm font-semibold text-zinc-200">Works with OpenClaw</p><p className="text-xs text-zinc-500">AI assistant framework</p></div></div>
-                <div className="sm:border-l sm:border-zinc-700 sm:pl-4 flex-1"><p className="text-sm text-zinc-400">OpenClaw agents use <code className="text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">opage deploy</code> to publish artifacts, reports, and dashboards directly — then share secure links in chat. No manual steps.</p></div>
+              <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-slate-100 transition-colors">
+                <div className="flex items-center gap-3 flex-shrink-0"><span className="text-2xl">🐾</span><div><p className="text-sm font-semibold text-slate-900">Works with OpenClaw</p><p className="text-xs text-slate-500">AI assistant framework</p></div></div>
+                <div className="sm:border-l sm:border-slate-200 sm:pl-4 flex-1"><p className="text-sm text-slate-600">OpenClaw agents use <code className="text-slate-900 bg-slate-200 px-1.5 py-0.5 rounded text-xs">opage deploy</code> to publish artifacts, reports, and dashboards directly — then share secure links in chat. No manual steps.</p></div>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section id="workflow" className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center mb-24 lg:mb-32">
-          <div ref={featRef} className="reveal reveal-left space-y-8 pr-0 lg:pr-12">
-            <div><h2 className="text-3xl font-semibold mb-4 text-zinc-100">Three commands. Done.</h2><p className="text-zinc-400 text-lg leading-relaxed">No config files. No auth setup. No infrastructure to manage.</p></div>
+      {/* ── Terminal / Features Side-by-Side ── */}
+      <section id="workflow" className="py-16 md:py-24 bg-white">
+        <div ref={termRef} className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+          <div className="reveal reveal-left space-y-8 pr-0 lg:pr-12">
+            <div><h2 className="text-3xl font-serif font-semibold mb-4 text-slate-900">Three commands. Done.</h2><p className="text-slate-600 text-lg leading-relaxed">No config files. No auth setup. No infrastructure to manage.</p></div>
             <ul className="space-y-6">
               <FeatureItem title="Upload anything" desc="HTML, React apps, reports, dashboards — if a browser can open it, OAuthPage can host it." />
               <FeatureItem title="Share the link" desc="Send your URL to a client or teammate. They sign in, you approve — that's it." />
               <FeatureItem title="Stay in control" desc="Revoke access anytime. Send one-time links that expire after a single use." />
             </ul>
           </div>
-          <div ref={termRef} className="reveal reveal-right relative">
-            <div className="absolute inset-0 bg-gradient-to-tr from-brand/10 to-transparent rounded-2xl blur-2xl" />
-            <div className="relative rounded-2xl border border-zinc-700/60 bg-zinc-900/60 p-1 shadow-2xl hover:border-zinc-600/60 transition-colors">
-              <div className="flex items-center gap-2 px-4 py-3 border-b border-zinc-800/80 bg-zinc-900/80 rounded-t-xl">
-                <Terminal size={16} className="text-zinc-400" /><span className="text-sm font-medium text-zinc-300">Terminal</span>
-                <div className="ml-auto flex gap-1.5"><div className="w-3 h-3 rounded-full bg-zinc-700" /><div className="w-3 h-3 rounded-full bg-zinc-700" /><div className="w-3 h-3 rounded-full bg-zinc-700" /></div>
+          <div className="reveal reveal-right relative">
+            <div className="absolute inset-0 bg-gradient-to-tr from-brand-100/50 to-transparent rounded-2xl blur-2xl" />
+            <div className="relative rounded-2xl border border-slate-200 bg-slate-900 p-1 shadow-2xl hover:border-slate-300 transition-colors">
+              <div className="flex items-center gap-2 px-4 py-3 border-b border-slate-800 bg-slate-900 rounded-t-xl">
+                <Terminal size={16} className="text-slate-400" /><span className="text-sm font-medium text-slate-300">Terminal</span>
+                <div className="ml-auto flex gap-1.5"><div className="w-3 h-3 rounded-full bg-red-400" /><div className="w-3 h-3 rounded-full bg-amber-400" /><div className="w-3 h-3 rounded-full bg-green-400" /></div>
               </div>
               <div className="p-6 overflow-auto">
-                <p className="text-xs text-zinc-500 mb-3">Each line is a separate command:</p>
-                <pre className="text-sm text-zinc-300 font-mono leading-relaxed whitespace-pre">{`$ opage login\n✔ Authenticated successfully\n\n$ opage add "My Site" --slug my-site\n✔ Site created\n\n$ opage deploy ./dist --site my-site\n⠋ Uploading assets...\n✔ Deployed to my-site.oauth.page\n\n$ opage link create my-site --ttl 1h\n🔗 my-site.oauth.page/_otl/...`}</pre>
+                <p className="text-xs text-slate-500 mb-3">Each line is a separate command:</p>
+                <pre className="text-sm text-slate-300 font-mono leading-relaxed whitespace-pre">{`$ opage login\n✔ Authenticated successfully\n\n$ opage add "My Site" --slug my-site\n✔ Site created\n\n$ opage deploy ./dist --site my-site\n⠋ Uploading assets...\n✔ Deployed to my-site.oauth.page\n\n$ opage link create my-site --ttl 1h\n🔗 my-site.oauth.page/_otl/...`}</pre>
               </div>
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="max-w-3xl mx-auto text-center mb-24 lg:mb-32">
-          <div ref={pricingRef} className="reveal reveal-in rounded-3xl border border-zinc-800 bg-zinc-900/30 p-8 sm:p-12 relative overflow-hidden">
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-brand/50 to-transparent" />
-            <h2 className="text-2xl font-semibold mb-2 text-zinc-100">Free while in beta</h2>
-            <p className="text-zinc-400 mb-8">No credit card. No trial. Just start building.</p>
-            <div className="flex justify-center items-baseline gap-2 mb-8"><span className="text-5xl font-bold text-zinc-100">$0</span><span className="text-zinc-500 font-medium">/ month</span></div>
+      {/* ── Pricing Section ── */}
+      <section className="py-16 md:py-24 bg-slate-50" id="pricing">
+        <div className="max-w-3xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+          <div ref={pricingRef} className="reveal reveal-in rounded-3xl border border-slate-200 bg-white p-8 sm:p-12 relative overflow-hidden shadow-sm">
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-400/50 to-transparent" />
+            <h2 className="text-2xl font-serif font-semibold mb-2 text-slate-900">Free while in beta</h2>
+            <p className="text-slate-500 mb-8">No credit card. No trial. Just start building.</p>
+            <div className="flex justify-center items-baseline gap-2 mb-8"><span className="text-5xl font-bold text-slate-900">$0</span><span className="text-slate-500 font-medium">/ month</span></div>
             <div className="grid sm:grid-cols-2 gap-4 text-left max-w-xl mx-auto mb-10">
               <PricingFeature text="10 sites, 50 MB total" />
               <PricingFeature text="500 deploys / month" />
@@ -177,35 +264,45 @@ export default function Home() {
               <PricingFeature text="Site preview screenshots" />
               <PricingFeature text="One-time links (beta)" />
             </div>
-            <Link to="/login" className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 rounded-xl bg-zinc-100 text-zinc-950 text-base font-semibold hover:bg-white hover:scale-[1.02] transition-all shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+            <Link to="/login" className="group inline-flex items-center justify-center gap-2 w-full sm:w-auto px-8 py-3.5 rounded-full bg-slate-900 text-white text-base font-semibold hover:bg-slate-800 hover:scale-[1.02] transition-all shadow-lg">
               Get started free <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </Link>
-            <p className="text-xs text-zinc-500 mt-6">Paid plans for teams coming after beta.</p>
+            <p className="text-xs text-slate-400 mt-6">Paid plans for teams coming after beta.</p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <footer className="pt-8 border-t border-zinc-700/50 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-zinc-500">
-          <div className="flex items-center gap-2 text-zinc-400 hover:text-zinc-300 transition-colors"><Shield size={16} /><span className="font-medium">OAuthPage</span></div>
-          <div className="flex flex-wrap items-center justify-center gap-6">
-            <Link to="/docs" className="hover:text-zinc-300 transition-colors">Documentation</Link>
-            <Link to="/docs#status" className="hover:text-zinc-300 transition-colors">System Status</Link>
-            <Link to="/docs#privacy" className="hover:text-zinc-300 transition-colors">Privacy</Link>
-            <Link to="/docs#terms" className="hover:text-zinc-300 transition-colors">Terms</Link>
-            <a href="mailto:hello@oauth.page" className="hover:text-zinc-300 transition-colors">Contact</a>
+      {/* ── Footer ── */}
+      <footer className="bg-slate-50 py-12 border-t border-slate-200">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-blue-700 flex items-center justify-center text-white shadow-sm">
+              <Shield size={13} />
+            </div>
+            <span className="font-serif font-semibold text-lg text-slate-900">OAuthPage</span>
           </div>
-          <span className="text-xs">© {new Date().getFullYear()} OAuthPage. All rights reserved.</span>
-        </footer>
-      </div>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-slate-500">
+            <Link to="/docs" className="hover:text-slate-900 transition-colors">Documentation</Link>
+            <Link to="/docs#status" className="hover:text-slate-900 transition-colors">System Status</Link>
+            <Link to="/docs#privacy" className="hover:text-slate-900 transition-colors">Privacy</Link>
+            <Link to="/docs#terms" className="hover:text-slate-900 transition-colors">Terms</Link>
+            <a href="mailto:hello@oauth.page" className="hover:text-slate-900 transition-colors">Contact</a>
+          </div>
+          <span className="text-xs text-slate-400">© {new Date().getFullYear()} OAuthPage. All rights reserved.</span>
+        </div>
+      </footer>
     </div>
   );
 }
 
-function TrustCard({ icon, label, text }: { icon: React.ReactNode; label: string; text: string }) {
+function TrustCard({ icon, label, text, hoverColor }: { icon: React.ReactNode; label: string; text: string; hoverColor: string }) {
   return (
-    <div className="reveal group rounded-2xl border border-zinc-800/80 bg-zinc-900/30 p-8 hover:bg-zinc-900/50 hover:border-zinc-700/80 transition-all cursor-default">
-      <div className="relative w-12 h-12 rounded-xl bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center mb-5 shadow-inner group-hover:scale-110 transition-transform duration-300"><div className="relative">{icon}</div></div>
-      <h3 className="text-lg font-semibold text-zinc-100 mb-2 group-hover:text-brand-light transition-colors">{label}</h3>
-      <p className="text-sm text-zinc-400 leading-relaxed">{text}</p>
+    <div className={`reveal bg-slate-50 rounded-2xl p-8 ${hoverColor} transition-colors border border-slate-100 cursor-default group`}>
+      <div className="w-12 h-12 rounded-xl bg-white shadow-sm flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+        {icon}
+      </div>
+      <h3 className="text-xl font-semibold text-slate-900 mb-3">{label}</h3>
+      <p className="text-slate-600 leading-relaxed">{text}</p>
     </div>
   );
 }
@@ -213,14 +310,14 @@ function TrustCard({ icon, label, text }: { icon: React.ReactNode; label: string
 function FeatureItem({ title, desc }: { title: string; desc: string }) {
   return (
     <div className="flex gap-4 group">
-      <div className="mt-1 w-6 h-6 rounded-full bg-brand/10 text-brand-light flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-brand/20 transition-all"><Check size={14} strokeWidth={3} /></div>
-      <div><h4 className="text-base font-semibold text-zinc-200 mb-1 group-hover:text-white transition-colors">{title}</h4><p className="text-sm text-zinc-400 leading-relaxed">{desc}</p></div>
+      <div className="mt-1 w-6 h-6 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 group-hover:bg-brand-100 transition-all"><Check size={14} strokeWidth={3} /></div>
+      <div><h4 className="text-base font-semibold text-slate-900 mb-1 group-hover:text-brand-700 transition-colors">{title}</h4><p className="text-sm text-slate-500 leading-relaxed">{desc}</p></div>
     </div>
   );
 }
 
 function PricingFeature({ text }: { text: string }) {
   return (
-    <div className="flex items-center gap-3 p-3 rounded-lg bg-zinc-800/30 border border-zinc-800/50 hover:bg-zinc-800/50 transition-colors"><Check size={16} className="text-brand-light" /><span className="text-sm text-zinc-300">{text}</span></div>
+    <div className="flex items-center gap-3 p-3 rounded-lg bg-slate-50 border border-slate-100 hover:bg-slate-100 transition-colors"><Check size={16} className="text-brand-600" /><span className="text-sm text-slate-700">{text}</span></div>
   );
 }

@@ -13,8 +13,7 @@ import "./index.css";
     hostname === "oauth-page-dashboard-staging.pages.dev" ||
     hostname.endsWith(".oauth-page-dashboard-staging.pages.dev");
   const isProdPages =
-    hostname === "oauth-page-dashboard.pages.dev" ||
-    hostname.endsWith(".oauth-page-dashboard.pages.dev");
+    hostname === "oauth-page-dashboard.pages.dev";
 
   const targetBase = isStagingPages
     ? "https://oauth-page-worker-staging.karta.workers.dev"

@@ -25,10 +25,10 @@ export default function SiteCard({ site }: SiteCardProps) {
   return (
     <Link
       to={`/sites/${site.id}`}
-      className="block bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden hover:border-zinc-700 transition-colors group"
+      className="block bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-slate-300 hover:shadow-md transition-all group"
     >
       {/* Thumbnail area */}
-      <div className="aspect-video bg-zinc-800/50 relative overflow-hidden">
+      <div className="aspect-video bg-slate-50 relative overflow-hidden">
         {hasThumb ? (
           <img
             src={`${getThumbnailUrl(site.id)}?t=${site.thumbnail_at ?? ""}`}
@@ -38,11 +38,11 @@ export default function SiteCard({ site }: SiteCardProps) {
           />
         ) : isPending ? (
           <div className="w-full h-full flex items-center justify-center">
-            <Loader2 size={24} className="text-zinc-600 animate-spin" />
+            <Loader2 size={24} className="text-slate-300 animate-spin" />
           </div>
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <Globe size={32} className="text-zinc-700" />
+            <Globe size={32} className="text-slate-300" />
           </div>
         )}
       </div>
@@ -51,23 +51,23 @@ export default function SiteCard({ site }: SiteCardProps) {
       <div className="p-5">
         <div className="flex items-start justify-between mb-3">
           <div>
-            <h3 className="font-semibold text-zinc-100 group-hover:text-brand transition-colors">
+            <h3 className="font-semibold text-slate-900 group-hover:text-brand transition-colors">
               {site.name}
             </h3>
-            <p className="text-sm text-zinc-500 mt-0.5">{site.slug}.oauth.page</p>
+            <p className="text-sm text-slate-500 mt-0.5">{site.slug}.oauth.page</p>
           </div>
-          <div className="w-8 h-8 bg-zinc-800 rounded-lg flex items-center justify-center">
-            <Globe size={14} className="text-zinc-400" />
+          <div className="w-8 h-8 bg-slate-100 rounded-lg flex items-center justify-center">
+            <Globe size={14} className="text-slate-400" />
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-zinc-500 mt-4">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-slate-500 mt-4">
           <div className="flex items-center gap-1.5 whitespace-nowrap">
             <Users size={12} className="shrink-0" />
             <span className="truncate">{site.user_count ?? 0} users</span>
           </div>
           {(site.pending_count ?? 0) > 0 && (
-            <div className="flex items-center gap-1.5 text-amber-400 whitespace-nowrap">
+            <div className="flex items-center gap-1.5 text-amber-600 whitespace-nowrap">
               <Clock size={12} className="shrink-0" />
               <span className="truncate">{site.pending_count} pending</span>
             </div>
@@ -76,7 +76,7 @@ export default function SiteCard({ site }: SiteCardProps) {
             <Activity size={12} className="shrink-0" />
             <span className="truncate">{(site.total_requests ?? 0).toLocaleString()} req</span>
           </div>
-          <div className="text-zinc-600 whitespace-nowrap truncate">
+          <div className="text-slate-400 whitespace-nowrap truncate">
             {formatBytes(site.total_bytes_out ?? 0)}
           </div>
         </div>

@@ -5,28 +5,125 @@
 body {
   margin: 0;
   min-height: 100vh;
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
-/* ── Scroll-reveal animations (replaces Framer Motion) ── */
+/* ── Hero background gradient ── */
+.hero-bg {
+  background: linear-gradient(180deg, #38bdf8 0%, #e0f2fe 60%, #ffffff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Cloud-like soft blobs */
+.hero-bg::before,
+.hero-bg::after {
+  content: "";
+  position: absolute;
+  filter: blur(80px);
+  opacity: 0.6;
+  z-index: 0;
+}
+.hero-bg::before {
+  top: 20%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: #ffffff;
+  border-radius: 50%;
+}
+.hero-bg::after {
+  top: 30%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: #bae6fd;
+  border-radius: 50%;
+}
+
+/* ── Glassmorphism ── */
+.glass-nav {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+/* ── Dark section (How it Works) ── */
+.dark-section {
+  background: #020617;
+  color: #f8fafc;
+}
+
+.dark-glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Scroll-reveal animations ── */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes fade-down {
-  from { opacity: 0; transform: translateY(-20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 @keyframes fade-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes fade-left {
-  from { opacity: 0; transform: translateX(-30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 @keyframes fade-right {
-  from { opacity: 0; transform: translateX(30px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .reveal {
@@ -50,50 +147,80 @@ body {
 }
 
 /* Stagger children */
-.reveal-stagger > .reveal:nth-child(1) { animation-delay: 0.05s; }
-.reveal-stagger > .reveal:nth-child(2) { animation-delay: 0.1s; }
-.reveal-stagger > .reveal:nth-child(3) { animation-delay: 0.15s; }
-.reveal-stagger > .reveal:nth-child(4) { animation-delay: 0.2s; }
-.reveal-stagger > .reveal:nth-child(5) { animation-delay: 0.25s; }
-.reveal-stagger > .reveal:nth-child(6) { animation-delay: 0.3s; }
-.reveal-stagger > .reveal:nth-child(7) { animation-delay: 0.35s; }
+.reveal-stagger > .reveal:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.reveal-stagger > .reveal:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.reveal-stagger > .reveal:nth-child(3) {
+  animation-delay: 0.15s;
+}
+.reveal-stagger > .reveal:nth-child(4) {
+  animation-delay: 0.2s;
+}
+.reveal-stagger > .reveal:nth-child(5) {
+  animation-delay: 0.25s;
+}
+.reveal-stagger > .reveal:nth-child(6) {
+  animation-delay: 0.3s;
+}
+.reveal-stagger > .reveal:nth-child(7) {
+  animation-delay: 0.35s;
+}
 
 /* Respect reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  .reveal, .reveal.visible, .reveal-down.visible,
-  .reveal-in.visible, .reveal-left.visible, .reveal-right.visible {
+  .reveal,
+  .reveal.visible,
+  .reveal-down.visible,
+  .reveal-in.visible,
+  .reveal-left.visible,
+  .reveal-right.visible {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;
   }
-  .animate-ping, [class*="anim-"] {
+  .animate-ping,
+  [class*="anim-"] {
     animation: none !important;
   }
 }
 
 /* Mobile: reduce blur radii for performance */
 @media (max-width: 768px) {
-  .hero-glow-1 { filter: blur(60px) !important; }
-  .hero-glow-2 { filter: blur(50px) !important; }
+  .hero-bg::before {
+    filter: blur(60px) !important;
+  }
+  .hero-bg::after {
+    filter: blur(50px) !important;
+  }
 }
 
 /* ── Micro-animations for dashboard ── */
 @keyframes page-enter {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .page-enter {
   animation: page-enter 0.3s ease-out;
 }
 
-/* Card hover glow */
+/* Card hover glow — light theme */
 .card-glow {
   transition: all 0.2s ease;
 }
 .card-glow:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(139,92,246,0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(14, 165, 233, 0.1);
 }
 
 /* Button base animations */
@@ -109,41 +236,68 @@ body {
 
 /* Subtle fade for tab content */
 @keyframes tab-fade {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .tab-content {
   animation: tab-fade 0.2s ease-out;
 }
 
-/* Row hover highlight */
+/* Row hover highlight — light theme */
 .row-hover {
   transition: background-color 0.15s ease;
 }
 .row-hover:hover {
-  background-color: rgba(39, 39, 42, 0.5);
+  background-color: rgba(241, 245, 249, 0.8);
 }
 
-/* ── Skeleton shimmer loading ── */
+/* ── Skeleton shimmer loading — light theme ── */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
 }
+
 .skeleton {
-  background: linear-gradient(90deg, rgba(39,39,42,0.6) 25%, rgba(63,63,70,0.4) 50%, rgba(39,39,42,0.6) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  border-radius: 0.375rem;
+  background: #e2e8f0;
+  background-image: linear-gradient(
+    90deg,
+    #e2e8f0 0px,
+    #f1f5f9 40px,
+    #e2e8f0 80px
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+  border-radius: 0.5rem;
 }
 
 /* ── Toast notifications ── */
 @keyframes toast-slide-in {
-  from { transform: translateX(16px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 @keyframes toast-slide-out {
-  from { transform: translateX(0); opacity: 1; }
-  to { transform: translateX(16px); opacity: 0; }
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(16px);
+    opacity: 0;
+  }
 }
 .toast-enter {
   animation: toast-slide-in 0.25s ease-out;
@@ -154,57 +308,47 @@ body {
 
 /* ── Progress bar fill animation ── */
 @keyframes progress-fill {
-  from { width: 0; }
-}
-.progress-fill {
-  animation: progress-fill 0.6s ease-out;
-}
-
-/* ── Pending approvals banner accent ── */
-.pending-banner {
-  border-left: 3px solid rgb(217, 119, 6);
-  background: linear-gradient(135deg, rgba(217,119,6,0.06) 0%, transparent 50%);
+  from {
+    width: 0;
+  }
 }
 
-/* ── UI Polish: Skeletons & Progress ── */
-@keyframes shimmer {
-  0% { background-position: -1000px 0; }
-  100% { background-position: 1000px 0; }
-}
-
-.skeleton {
-  background: #27272a;
-  background-image: linear-gradient(90deg, #27272a 0px, #3f3f46 40px, #27272a 80px);
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
-  border-radius: 0.5rem;
-}
-
-/* Progress Bar Track & Fill */
+/* Progress Bar Track & Fill — light theme */
 .progress-track {
   width: 100%;
   height: 6px;
-  background-color: #27272a; /* zinc-800 */
+  background-color: #e2e8f0;
   border-radius: 9999px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background-color: #8b5cf6; /* brand purple */
+  background-color: #0ea5e9;
   border-radius: 9999px;
   transition: width 0.5s ease-out;
+  animation: progress-fill 0.6s ease-out;
 }
 
 .progress-fill.danger {
-  background-color: #ef4444; /* red-500 */
+  background-color: #ef4444;
 }
 
 .progress-fill.warning {
-  background-color: #f59e0b; /* amber-500 */
+  background-color: #f59e0b;
 }
 
-/* Empty State Polish */
+/* ── Pending approvals banner accent — light theme ── */
+.pending-banner {
+  border-left: 3px solid rgb(217, 119, 6);
+  background: linear-gradient(
+    135deg,
+    rgba(217, 119, 6, 0.06) 0%,
+    transparent 50%
+  );
+}
+
+/* Empty State Polish — light theme */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -212,7 +356,21 @@ body {
   justify-content: center;
   padding: 3rem 1.5rem;
   text-align: center;
-  background-color: rgba(39, 39, 42, 0.2);
-  border: 1px dashed #3f3f46;
+  background-color: rgba(248, 250, 252, 0.8);
+  border: 1px dashed #cbd5e1;
   border-radius: 0.75rem;
+}
+
+/* ── Animation delay helpers ── */
+.delay-100 {
+  animation-delay: 100ms;
+}
+.delay-200 {
+  animation-delay: 200ms;
+}
+.delay-300 {
+  animation-delay: 300ms;
+}
+.delay-400 {
+  animation-delay: 400ms;
 }

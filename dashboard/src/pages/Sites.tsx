@@ -5,7 +5,7 @@ import { getSites, getGlobalRequests, getUsage, approveRequest, denyRequest, typ
 import SiteCard from "../components/SiteCard";
 
 const GitHubIcon = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-zinc-400">
+  <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-slate-400">
     <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
   </svg>
 );
@@ -82,8 +82,8 @@ export default function Sites() {
         </div>
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden h-64 border-zinc-800/50">
-              <div className="h-40 skeleton rounded-none border-b border-zinc-800/50"></div>
+            <div key={i} className="bg-white border border-slate-200 rounded-xl overflow-hidden h-64">
+              <div className="h-40 skeleton rounded-none border-b border-slate-100"></div>
               <div className="p-4 space-y-3">
                 <div className="h-5 w-3/4 skeleton"></div>
                 <div className="h-4 w-1/2 skeleton"></div>
@@ -98,7 +98,7 @@ export default function Sites() {
   if (error) {
     return (
       <div className="text-center py-20 empty-state max-w-md mx-auto mt-10">
-        <p className="text-red-400">{error}</p>
+        <p className="text-red-500">{error}</p>
       </div>
     );
   }
@@ -106,35 +106,35 @@ export default function Sites() {
   return (
     <div className="page-enter">
       {usage && (
-        <div className="mb-6 rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
+        <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center gap-2 mb-4">
-            <BarChart3 size={16} className="text-brand-light" />
-            <h2 className="text-sm font-medium text-zinc-200">Current Usage</h2>
+            <BarChart3 size={16} className="text-brand" />
+            <h2 className="text-sm font-medium text-slate-700">Current Usage</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
             <div>
-              <div className="flex items-center justify-between text-zinc-400 mb-1">
+              <div className="flex items-center justify-between text-slate-500 mb-1">
                 <span>Sites</span>
                 <span>{usage.usage.sites} / {usage.limits.sites}</span>
               </div>
               <div className="progress-track"><div className={`progress-fill ${percent(usage.usage.sites, usage.limits.sites) > 90 ? "danger" : percent(usage.usage.sites, usage.limits.sites) > 75 ? "warning" : ""}`} style={{ width: `${percent(usage.usage.sites, usage.limits.sites)}%` }} /></div>
             </div>
             <div>
-              <div className="flex items-center justify-between text-zinc-400 mb-1">
+              <div className="flex items-center justify-between text-slate-500 mb-1">
                 <span>Storage</span>
                 <span>{formatBytes(usage.usage.storage_bytes)} / {usage.limits.storageMb} MB</span>
               </div>
               <div className="progress-track"><div className={`progress-fill ${percent(usage.usage.storage_bytes, usage.limits.storageMb * 1024 * 1024) > 90 ? "danger" : percent(usage.usage.storage_bytes, usage.limits.storageMb * 1024 * 1024) > 75 ? "warning" : ""}`} style={{ width: `${percent(usage.usage.storage_bytes, usage.limits.storageMb * 1024 * 1024)}%` }} /></div>
             </div>
             <div>
-              <div className="flex items-center justify-between text-zinc-400 mb-1">
+              <div className="flex items-center justify-between text-slate-500 mb-1">
                 <span>Deploys this month</span>
                 <span>{usage.usage.deploys_this_month} / {usage.limits.deploysPerMonth}</span>
               </div>
               <div className="progress-track"><div className={`progress-fill ${percent(usage.usage.deploys_this_month, usage.limits.deploysPerMonth) > 90 ? "danger" : percent(usage.usage.deploys_this_month, usage.limits.deploysPerMonth) > 75 ? "warning" : ""}`} style={{ width: `${percent(usage.usage.deploys_this_month, usage.limits.deploysPerMonth)}%` }} /></div>
             </div>
             <div>
-              <div className="flex items-center justify-between text-zinc-400 mb-1">
+              <div className="flex items-center justify-between text-slate-500 mb-1">
                 <span>One-time links</span>
                 <span>{usage.usage.one_time_links_active} / {usage.limits.oneTimeLinks}</span>
               </div>
@@ -145,11 +145,11 @@ export default function Sites() {
       )}
 
       {requests.length > 0 && (
-        <div className="mb-10 p-4 bg-amber-500/10 border border-amber-500/20 rounded-xl relative overflow-hidden">
+        <div className="mb-10 p-4 bg-amber-50 border border-amber-200 rounded-xl relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
-          <h2 className="text-lg font-semibold text-zinc-100 mb-4 flex items-center gap-2">
+          <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
             Pending Approvals
-            <span className="inline-flex items-center justify-center w-5 h-5 text-xs bg-amber-600 text-white rounded-full">
+            <span className="inline-flex items-center justify-center w-5 h-5 text-xs bg-amber-500 text-white rounded-full">
               {requests.length}
             </span>
           </h2>
@@ -157,7 +157,7 @@ export default function Sites() {
             {requests.map((req) => (
               <div
                 key={req.id}
-                className="bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3"
+                className="bg-white border border-slate-200 rounded-lg px-4 py-3"
               >
                 <div className="overflow-hidden">
                   <div className="flex items-center gap-3">
@@ -168,19 +168,19 @@ export default function Sites() {
                         className="w-9 h-9 rounded-full object-cover shrink-0"
                       />
                     ) : (
-                      <div className="w-9 h-9 bg-brand/20 rounded-full flex items-center justify-center text-brand text-sm font-medium shrink-0">
+                      <div className="w-9 h-9 bg-brand-50 rounded-full flex items-center justify-center text-brand text-sm font-medium shrink-0">
                         {(req.name || req.email)[0].toUpperCase()}
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm text-zinc-200 truncate">
+                        <span className="font-medium text-sm text-slate-900 truncate">
                           {req.name || "Unknown"}
                         </span>
                         <ProviderIcon provider={req.provider ?? undefined} />
                       </div>
-                      <span className="text-xs text-zinc-500 block truncate">{req.email}</span>
-                      <p className="text-xs text-zinc-500 mt-1">
+                      <span className="text-xs text-slate-500 block truncate">{req.email}</span>
+                      <p className="text-xs text-slate-500 mt-1">
                         Requested access to <Link to={`/sites/${req.site_id}`} className="text-brand hover:underline font-medium">{req.site_name}</Link>
                         {req.message && <span className="italic ml-2">"{req.message}"</span>}
                       </p>
@@ -196,7 +196,7 @@ export default function Sites() {
                     </button>
                     <button
                       onClick={() => handleDeny(req.site_id, req.id)}
-                      className="flex items-center gap-1 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-400 text-xs font-medium rounded-md btn-press"
+                      className="flex items-center gap-1 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-medium rounded-md btn-press"
                     >
                       <X size={12} />
                       Deny
@@ -210,54 +210,54 @@ export default function Sites() {
       )}
 
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-lg font-semibold text-zinc-100">Your Sites</h1>
+        <h1 className="text-lg font-semibold text-slate-900">Your Sites</h1>
       </div>
 
       {sites.length === 0 ? (
         <div className="py-12 max-w-5xl mx-auto">
           <div className="text-center mb-10">
-            <h2 className="text-2xl font-semibold text-zinc-100 mb-2">No sites yet</h2>
-            <p className="text-zinc-400">Here are a few ways to get started.</p>
+            <h2 className="text-2xl font-semibold text-slate-900 mb-2">No sites yet</h2>
+            <p className="text-slate-500">Here are a few ways to get started.</p>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-6">
-              <div className="w-10 h-10 bg-indigo-500/10 rounded-lg flex items-center justify-center mb-4 border border-indigo-500/20">
-                <Sparkles size={20} className="text-indigo-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center mb-4 border border-indigo-100">
+                <Sparkles size={20} className="text-indigo-500" />
               </div>
-              <h3 className="text-base font-medium text-zinc-200 mb-2">1. Build with AI</h3>
-              <p className="text-sm text-zinc-400 mb-4 h-16">
+              <h3 className="text-base font-medium text-slate-900 mb-2">1. Build with AI</h3>
+              <p className="text-sm text-slate-500 mb-4 h-16">
                 Tell Cursor, Claude, or Bolt to build a web app in a folder, then protect it instantly.
               </p>
-              <div className="bg-zinc-950 rounded-md p-3 font-mono text-xs text-zinc-400 border border-zinc-800 overflow-x-auto whitespace-nowrap">
-                <span className="text-brand-light">npx</span> oauthpage deploy ./dist
+              <div className="bg-slate-50 rounded-md p-3 font-mono text-xs text-slate-500 border border-slate-100 overflow-x-auto whitespace-nowrap">
+                <span className="text-brand">npx</span> oauthpage deploy ./dist
               </div>
             </div>
 
-            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-6">
-              <div className="w-10 h-10 bg-emerald-500/10 rounded-lg flex items-center justify-center mb-4 border border-emerald-500/20">
-                <FileText size={20} className="text-emerald-400" />
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm">
+              <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center mb-4 border border-emerald-100">
+                <FileText size={20} className="text-emerald-500" />
               </div>
-              <h3 className="text-base font-medium text-zinc-200 mb-2">2. Publish Markdown</h3>
-              <p className="text-sm text-zinc-400 mb-4 h-16">
+              <h3 className="text-base font-medium text-slate-900 mb-2">2. Publish Markdown</h3>
+              <p className="text-sm text-slate-500 mb-4 h-16">
                 Turn any Markdown file or folder into a beautifully rendered, secure documentation site.
               </p>
-              <div className="bg-zinc-950 rounded-md p-3 font-mono text-xs text-zinc-400 border border-zinc-800 overflow-x-auto whitespace-nowrap">
-                <span className="text-brand-light">npx</span> oauthpage deploy README.md
+              <div className="bg-slate-50 rounded-md p-3 font-mono text-xs text-slate-500 border border-slate-100 overflow-x-auto whitespace-nowrap">
+                <span className="text-brand">npx</span> oauthpage deploy README.md
               </div>
             </div>
 
-            <div className="bg-zinc-900/50 border border-zinc-800/80 rounded-xl p-6 flex flex-col">
-              <div className="w-10 h-10 bg-brand/10 rounded-lg flex items-center justify-center mb-4 border border-brand/20">
+            <div className="bg-white border border-slate-200 rounded-xl p-6 shadow-sm flex flex-col">
+              <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center mb-4 border border-brand-100">
                 <Globe size={20} className="text-brand" />
               </div>
-              <h3 className="text-base font-medium text-zinc-200 mb-2">3. Manual Setup</h3>
-              <p className="text-sm text-zinc-400 mb-6 flex-grow h-10">
+              <h3 className="text-base font-medium text-slate-900 mb-2">3. Manual Setup</h3>
+              <p className="text-sm text-slate-500 mb-6 flex-grow h-10">
                 Create a site manually and configure your origin URL from the dashboard.
               </p>
               <Link
                 to="/sites/new"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-zinc-100 hover:bg-white text-zinc-900 text-sm font-medium rounded-lg transition-colors w-full"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-medium rounded-lg transition-colors w-full"
               >
                 <Plus size={16} />
                 Create Site Manually
