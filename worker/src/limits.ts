@@ -16,7 +16,7 @@ export const PLAN_LIMITS: Record<string, PlanLimits> = {
     storageMb: 50,
     deploysPerMonth: 500,
     viewsPerSite: 1000,
-    emailsPerMonth: 5,
+    emailsPerMonth: 1000,
     oneTimeLinks: 3,
     screenshotOnEveryDeploy: false,
   },

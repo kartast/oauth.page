@@ -77,7 +77,7 @@ describe("Plan Limits Config", () => {
     expect(PLAN_LIMITS.free.storageMb).toBe(50);
     expect(PLAN_LIMITS.free.deploysPerMonth).toBe(500);
     expect(PLAN_LIMITS.free.viewsPerSite).toBe(1000);
-    expect(PLAN_LIMITS.free.emailsPerMonth).toBe(5);
+    expect(PLAN_LIMITS.free.emailsPerMonth).toBe(1000);
     expect(PLAN_LIMITS.free.oneTimeLinks).toBe(3);
     expect(PLAN_LIMITS.free.screenshotOnEveryDeploy).toBe(false);
   });
@@ -923,7 +923,7 @@ describe("Limit Enforcement", () => {
                   plan: "free",
                   deploys_this_month: 0,
                   deploys_reset_at: Math.floor(Date.now() / 1000),
-                  emails_this_month: 5, // at limit
+                  emails_this_month: 1000, // at limit
                 })
               ),
             })),
