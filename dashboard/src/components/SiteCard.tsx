@@ -1,19 +1,9 @@
 import { Link } from "react-router-dom";
 import { Globe, Users, Clock, Activity, Loader2 } from "lucide-react";
 import { useState } from "react";
+import type { Site } from "../lib/api";
 
-interface Site {
-  id: number;
-  name: string;
-  slug: string;
-  user_count?: number;
-  pending_count?: number;
-  total_requests?: number;
-  total_bytes_out?: number;
-  thumbnail_at?: string | null;
-}
-
-function getThumbnailUrl(siteId: number) {
+function getThumbnailUrl(siteId: string) {
   return `/api/sites/${siteId}/thumbnail`;
 }
 
@@ -34,13 +24,16 @@ export default function SiteCard({ site }: { site: Site }) {
       className="group block rounded-xl border border-white/8 bg-zinc-900/50 hover:bg-zinc-900/80 hover:border-white/14 transition-all overflow-hidden"
     >
       {/* Thumbnail area */}
-      <div className="aspect-video bg-zinc-950 relative overflo      <div cla     {hasThumb ? (
+      <div className="aspect-video bg-zinc-950 relative overflow-hidden">
+        {hasThumb ? (
           <img
-            src={`${getThumbnailUrl(site.id)}?t=${site.thumbnail_at ?? ""}`}
-            al            al           }
+            src={`${getThumbnailUrl(site.id)}?t=${site.thumbnail_at?.toString() ?? ""}`}
+            alt={`${site.name} preview`}
             className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-[1.03]"
             onError={() => setImgError(true)}
-                                                                                                               ">
+          />
+        ) : isPending ? (
+          <div className="w-full h-full flex items-center justify-center">
             <Loader2 size={20} className="text-zinc-700 animate-spin" />
           </div>
         ) : (
@@ -48,7 +41,7 @@ export default function SiteCard({ site }: { site: Site }) {
             <Globe size={24} className="text-zinc-700" />
           </div>
         )}
-        {/    ver overlay */}
+        {/* Hover overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
       </div>
 
@@ -59,7 +52,9 @@ export default function SiteCard({ site }: { site: Site }) {
             <h3 className="font-semibold text-white text-sm group-hover:text-violet-300 transition-colors truncate">
               {site.name}
             </h3>
-            <p className="text-xs text-zinc-500 mt-0.5 font-mono truncate">{site.slug}.oauth            <p className="text-xs text-zinclassName="w-7 h-7 bg-white/5 rounded-lg flex items-center justify-center flex-shrink-0 ml-2 group-hover:bg-violet-500/15 transition-colors">
+            <p className="text-xs text-zinc-500 mt-0.5 font-mono truncate">{site.slug}.oauth.page</p>
+          </div>
+          <div className="w-7 h-7 bg-white/5 rounded-lg flex items-center justify-center flex-shrink-0 ml-2 group-hover:bg-violet-500/15 transition-colors">
             <Globe size={13} className="text-zinc-500 group-hover:text-violet-400 transition-colors" />
           </div>
         </div>

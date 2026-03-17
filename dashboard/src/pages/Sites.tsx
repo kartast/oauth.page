@@ -143,10 +143,12 @@ export default function Sites() {
                 </div>
                 <div className="flex items-center gap-1.5 mt-2.5 ml-11">
                   <button onClick={() => handleApprove(req.site_id, req.id)} className="flex items-center gap-1 px-3 py-1.5 bg-violet-600 hover:bg-violet-500 text-white text-xs font-semibold rounded-lg btn-press transition-colors">
-                    <Check size={11} />Approve
+                    <Check size={11} />
+                    Approve
                   </button>
                   <button onClick={() => handleDeny(req.site_id, req.id)} className="flex items-center gap-1 px-3 py-1.5 bg-white/6 hover:bg-white/10 text-zinc-400 hover:text-zinc-200 text-xs font-semibold rounded-lg btn-press transition-colors">
-                    <X size={11} />Deny
+                    <X size={11} />
+                    Deny
                   </button>
                 </div>
               </div>
@@ -158,29 +160,51 @@ export default function Sites() {
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-sm font-semibold text-zinc-300">
           {sites.length > 0 ? `${sites.length} site${sites.length !== 1 ? "s" : ""}` : "Your Sites"}
-                                                                     v className="py-8 max-w-5xl mx-auto">
+        </h1>
+      </div>
+
+      {sites.length === 0 ? (
+        <div className="py-8 max-w-5xl mx-auto">
           <div className="text-center mb-8">
             <h2 className="text-xl font-semibold text-white mb-2">No sites yet</h2>
             <p className="text-zinc-500 text-sm">Here are a few ways to get started.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <OnboardCard icon={<Sparkles size={18} className="text-violet-400" />} iconBg="bg-violet-500/10 border-violet-500/20" title="1. Build with AI" desc="Tell Cursor, Claude, or Bolt to build a web app in a folder, then protect it instantly." code="npx oauthpage deploy ./dist" />
-            <OnboardCard icon={<FileText size={18} className="text-emerald-400" />} iconBg="bg-emerald-500/10 border-emerald-500/20" title="2. Publish Markdown" desc="Turn any Markdown file or folder into a beautifully rendered, secure documentation site." code="npx oauthpage deploy README.md" />
+            <OnboardCard
+              icon={<Sparkles size={18} className="text-violet-400" />}
+              iconBg="bg-violet-500/10 border-violet-500/20"
+              title="1. Build with AI"
+              desc="Tell Cursor, Claude, or Bolt to build a web app in a folder, then protect it instantly."
+              code="oauthpage deploy ./dist"
+            />
+            <OnboardCard
+              icon={<FileText size={18} className="text-emerald-400" />}
+              iconBg="bg-emerald-500/10 border-emerald-500/20"
+              title="2. Publish Markdown"
+              desc="Turn any Markdown file or folder into a beautifully rendered, secure documentation site."
+              code="oauthpage deploy README.md"
+            />
             <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-6 flex flex-col">
               <div className="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center mb-4">
                 <Globe size={18} className="text-indigo-400" />
               </div>
               <h3 className="text-sm font-semibold text-white mb-2">3. Manual Setup</h3>
               <p className="text-sm text-zinc-500 mb-5 flex-grow leading-relaxed">Create a site manually and configure your origin URL from the dashboard.</p>
-              <Link to="/sites/new" className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-semibold rounded-lg transition-colors w-full">
-                <Plus size={15} />Create Site Manually
+              <Link
+                to="/sites/new"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white/8 hover:bg-white/12 border border-white/10 text-white text-sm font-semibold rounded-lg transition-colors w-full"
+              >
+                <Plus size={15} />
+                Create Site Manually
               </Link>
             </div>
           </div>
         </div>
       ) : (
         <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
-          {sites.map((site) => <SiteCard key={site.id} site={site} />)}
+          {sites.map((site) => (
+            <SiteCard key={site.id} site={site} />
+          ))}
         </div>
       )}
     </div>
@@ -202,14 +226,22 @@ function UsageStat({ label, value, pct }: { label: string; value: string; pct: n
   );
 }
 
-function OnboardCard({ icon, iconBg, title, desc, code }: { icon: React.ReactNode; iconBg: string; title: string; desc: string; code: string }) {
+function OnboardCard({ icon, iconBg, title, desc, code }: {
+  icon: React.ReactNode;
+  iconBg: string;
+  title: string;
+  desc: string;
+  code: string;
+}) {
   return (
     <div className="rounded-xl border border-white/8 bg-zinc-900/50 p-6">
-      <div className={`w-9 h-9 rounded-lg border flex items-center justify-center mb-4 ${iconBg}`}>{icon}</div>
+      <div className={`w-9 h-9 rounded-lg border flex items-center justify-center mb-4 ${iconBg}`}>
+        {icon}
+      </div>
       <h3 className="text-sm font-semibold text-white mb-2">{title}</h3>
       <p className="text-sm text-zinc-500 mb-4 leading-relaxed">{desc}</p>
       <div className="bg-zinc-950 rounded-lg p-3 font-mono text-xs text-zinc-400 border border-white/6 overflow-x-auto whitespace-nowrap">
-        <span className="text-violet-400">npx</span> {code.replace("npx ", "")}
+        <span className="text-zinc-600">$</span> <span className="text-violet-300">npx</span> {code}
       </div>
     </div>
   );

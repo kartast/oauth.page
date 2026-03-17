@@ -51,7 +51,7 @@ export default function CreateSite() {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-                                          l"
+              placeholder="My Internal Tool"
               required
               className="w-full px-3.5 py-2.5 rounded-lg border border-white/10 bg-white/5 text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-colors"
             />
@@ -65,12 +65,13 @@ export default function CreateSite() {
                 type="text"
                 value={autoSlug ? generatedSlug : slug}
                 onChange={(e) => { setAutoSlug(false); setSlug(e.target.value); }}
-                                                                   placeholder="my-internal-tool"
+                onFocus={() => setAutoSlug(false)}
+                placeholder="my-internal-tool"
                 className="flex-1 px-3 py-2.5 bg-transparent text-white placeholder-zinc-600 text-sm focus:outline-none"
               />
             </div>
             {autoSlug && name && (
-              <p classNa            text-zinc-600 mt-1.5">Auto-generated from site name</p>
+              <p className="text-xs text-zinc-600 mt-1.5">Auto-generated from site name</p>
             )}
           </div>
 

@@ -33,12 +33,17 @@ function useReveal() {
 export default function Home() {
   const [stats, setStats] = useState<{ sites: number; deploys: number } | null>(null);
   useEffect(() => {
-    fetch("/api/stats").then((r) => r.ok ? r.json() : null).then((d) => d && setStats(d)).catch(()    fetch("/api/);
+    fetch("/api/stats").then((r) => r.ok ? r.json() : null).then((d) => d && setStats(d)).catch(() => {});
+  }, []);
 
   const heroRef = useReveal();
   const featuresRef = useReveal();
   const aiRef = useReveal();
-  const termRef = useReveal  const termRef = useReveal  const termRef = useReveal  const termRef = useRevreen bg-[#0a0a0f] text-white relative overflow-hidden font-sans selection:bg-violet-500/30">
+  const termRef = useReveal();
+  const pricingRef = useReveal();
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0f] text-white relative overflow-hidden font-sans selection:bg-violet-500/30">
 
       {/* Navigation */}
       <nav className="fixed w-full z-50 dark-nav transition-all duration-300">
@@ -190,7 +195,9 @@ export default function Home() {
               icon={<Zap size={20} className="text-violet-400" />}
               iconBg="bg-violet-500/10 border-violet-500/20"
               label="Lightning Fast Edge"
-              text="Deployed on Cloudflare Workers. Auth happens at the               text="Deployed on Cloudflare Workers. Auth happens at the                <FeatureCard
+              text="Deployed on Cloudflare Workers. Auth happens at the edge, globally distributed, adding virtually zero latency."
+            />
+            <FeatureCard
               icon={<Lock size={20} className="text-indigo-400" />}
               iconBg="bg-indigo-500/10 border-indigo-500/20"
               label="Bring Your Provider"
@@ -222,22 +229,24 @@ export default function Home() {
                 </div>
               </div>
               <p className="text-zinc-400 text-base leading-relaxed max-w-3xl mb-10">
-                AI agents generate reports, dashboards, and full  but sharing them securely is still a pain. OAuthPage gives your agents a <span className="text-white font-medium">publish endpoint</span> with access control built in.websites 
+                AI agents generate reports, dashboards, and full websites — but sharing them securely is still a pain. OAuthPage gives your agents a <span className="text-white font-medium">publish endpoint</span> with access control built in.
               </p>
               <div className="grid sm:grid-cols-3 gap-6 mb-8">
-                <AiFeature icon={<Code2 size={15} className="text-violet-400" />} title="Any coding agent" desc="Claude Co                <AiFeature icon={<Code2 size={15} className="text-violet-400" />} title="Any coding agent" desc="Claude size={15} className="text-emerald-400" />} title="CLI-first" desc="One command to deploy. JSON output for piping. Built for scripts and automation." />
+                <AiFeature icon={<Code2 size={15} className="text-violet-400" />} title="Any coding agent" desc="Claude Code, Codex, Cursor, Devin — any agent that builds HTML can deploy here." />
+                <AiFeature icon={<Terminal size={15} className="text-emerald-400" />} title="CLI-first" desc="One command to deploy. JSON output for piping. Built for scripts and automation." />
                 <AiFeature icon={<Shield size={15} className="text-amber-400" />} title="Private by default" desc="No more public Vercel links for sensitive AI outputs. Every page is gated." />
               </div>
               <div className="rounded-xl border border-white/8 bg-white/4 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-white/6 transition-colors">
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <div>                  <span className="text-xl">
+                  <span className="text-xl">🐾</span>
+                  <div>
                     <p className="text-sm font-semibold text-white">Works with OpenClaw</p>
                     <p className="text-xs text-zinc-500">AI assistant framework</p>
                   </div>
                 </div>
                 <div className="sm:border-l sm:border-white/10 sm:pl-4 flex-1">
                   <p className="text-sm text-zinc-400">
-                    OpenClaw agents use <code className="text-violet-300 bg-violet-500/15 px-1.5 py-0.5 rounded text-xs font-mono">oauthpage deploy</code> to publish artifacts and  then share secure links in chat. No manual steps.dashboards 
+                    OpenClaw agents use <code className="text-violet-300 bg-violet-500/15 px-1.5 py-0.5 rounded text-xs font-mono">oauthpage deploy</code> to publish artifacts and dashboards — then share secure links in chat. No manual steps.
                   </p>
                 </div>
               </div>
@@ -256,8 +265,8 @@ export default function Home() {
               <p className="text-zinc-400 text-base leading-relaxed">No config files. No auth setup. No infrastructure to manage.</p>
             </div>
             <ul className="space-y-5">
-              <WorkflowItem num="01" title="Upload anything" desc="HTML, React apps, reports,  if a browser can open it, OAuthPage can host it." />dashboards 
-              <WorkflowItem num="02" title="Share the link" desc="Send your URL to a client or teammate. They                that's it." />pprove 
+              <WorkflowItem num="01" title="Upload anything" desc="HTML, React apps, reports, dashboards — if a browser can open it, OAuthPage can host it." />
+              <WorkflowItem num="02" title="Share the link" desc="Send your URL to a client or teammate. They sign in, you approve — that's it." />
               <WorkflowItem num="03" title="Stay in control" desc="Revoke access anytime. Send one-time links that expire after a single use." />
             </ul>
           </div>
@@ -279,24 +288,27 @@ export default function Home() {
                 <p className="text-zinc-500 text-xs mb-4"># Three commands to secure any site</p>
                 <div className="space-y-1">
                   <p><span className="text-zinc-500">$</span> <span className="text-violet-300">oauthpage</span> <span className="text-white">login</span></p>
-                  <p className="text-emerald-400 pl- Authenticated successfully</p>2">
+                  <p className="text-emerald-400 pl-2">✔ Authenticated successfully</p>
                 </div>
                 <div className="space-y-1 mt-4">
                   <p><span className="text-zinc-500">$</span> <span className="text-violet-300">oauthpage</span> <span className="text-white">add</span> <span className="text-amber-300">"My Site"</span> <span className="text-zinc-400">--slug my-site</span></p>
-                  <p className="text-emerald-400 pl- Site created</p>2">
+                  <p className="text-emerald-400 pl-2">✔ Site created</p>
                 </div>
                 <div className="space-y-1 mt-4">
                   <p><span className="text-zinc-500">$</span> <span className="text-violet-300">oauthpage</span> <span className="text-white">deploy</span> <span className="text-amber-300">./dist</span> <span className="text-zinc-400">--site my-site</span></p>
-                  <p className="text-zinc-500 pl- Uploading assets...</p>2">
-                  <p className="text-emerald-400 pl- Deployed to <span className="text-violet-300">my-site.oauth.page</span></p>2">
+                  <p className="text-zinc-500 pl-2">⠋ Uploading assets...</p>
+                  <p className="text-emerald-400 pl-2">✔ Deployed to <span className="text-violet-300">my-site.oauth.page</span></p>
                 </div>
                 <div className="space-y-1 mt-4">
                   <p><span className="text-zinc-500">$</span> <span className="text-violet-300">oauthpage</span> <span className="text-white">link create</span> <span className="text-zinc-400">my-site --ttl 1h</span></p>
-                </div>                  <p className="text-indigo-400 pl-2">
+                  <p className="text-indigo-400 pl-2">🔗 my-site.oauth.page/_otl/...</p>
+                </div>
               </div>
             </div>
           </div>
-        </di        </di        
+        </div>
+      </section>
+
       {/* Pricing */}
       <section className="py-20 md:py-28 relative" id="pricing">
         <div className="max-w-lg mx-auto px-4 sm:px-6 lg:px-8">
@@ -320,7 +332,7 @@ export default function Home() {
             </div>
             <Link
               to="/login"
-              className="group inline-flex items-center justify-ce              className="group inline-flex items-center justify-ce              clase text-sm font-semibold transition-all shadow-lg shadow-violet-900/40"
+              className="group inline-flex items-center justify-center gap-2 w-full px-8 py-3.5 rounded-lg bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold transition-all shadow-lg shadow-violet-900/40"
             >
               Get started free
               <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
@@ -331,7 +343,8 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t       <footer className="border<div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
+      <footer className="border-t border-white/8 py-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 rounded-lg bg-violet-600 flex items-center justify-center">
               <Shield size={13} className="text-white" />
@@ -345,7 +358,7 @@ export default function Home() {
             <Link to="/docs#terms" className="hover:text-zinc-200 transition-colors">Terms</Link>
             <a href="mailto:hello@oauth.page" className="hover:text-zinc-200 transition-colors">Contact</a>
           </div>
-          <span className="text-xs text-zinc- {new Date().getFullYear()} OAuthPage</span>600">
+          <span className="text-xs text-zinc-600">© {new Date().getFullYear()} OAuthPage</span>
         </div>
       </footer>
     </div>
@@ -359,7 +372,7 @@ function FeatureCard({ icon, iconBg, label, text }: {
   text: string;
 }) {
   return (
-    <div className="reveal group rounded-2xl border border-white/8 bg-zinc-900/50 hover:bg    <div clashover:border-white/12 p-7 transition-all cursor-default">
+    <div className="reveal group rounded-2xl border border-white/8 bg-zinc-900/50 hover:bg-zinc-900/80 hover:border-white/12 p-7 transition-all cursor-default">
       <div className={`w-10 h-10 rounded-xl border flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300 ${iconBg}`}>
         {icon}
       </div>
@@ -384,7 +397,8 @@ function AiFeature({ icon, title, desc }: { icon: React.ReactNode; title: string
 function WorkflowItem({ num, title, desc }: { num: string; title: string; desc: string }) {
   return (
     <div className="flex gap-4 group">
-      <div c      <div c      <div c      <div c      <div c      <div c      <div c      <div c      <div c      <div c      <div c      <div c      <div c      <div c  nt-bold text-violet-400 font-mono">{num}</span>
+      <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
+        <span className="text-xs font-bold text-violet-400 font-mono">{num}</span>
       </div>
       <div>
         <h4 className="text-sm font-semibold text-white mb-1 group-hover:text-violet-300 transition-colors">{title}</h4>
