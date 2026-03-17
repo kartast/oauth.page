@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { createSite } from "../lib/api";
 
@@ -23,12 +23,8 @@ export default function CreateSite() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-
     try {
-      const result = await createSite({
-        name,
-        slug: effectiveSlug || undefined,
-      });
+      const result = await createSite({ name, slug: effectiveSlug || undefined });
       navigate(`/sites/${result.site.id}`);
     } catch (err: any) {
       setError(err.message);
@@ -38,76 +34,61 @@ export default function CreateSite() {
   };
 
   return (
-    <div className="max-w-lg mx-auto">
-      <button
-        onClick={() => navigate("/sites")}
-        className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 transition-colors mb-6"
-      >
-        <ArrowLeft size={14} />
+    <div className="max-w-lg mx-auto page-enter">
+      <Link to="/sites" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 hover:text-zinc-200 mb-6 transition-colors">
+        <ArrowLeft size={15} />
         Back to sites
-      </button>
+      </Link>
 
-      <h1 className="text-lg font-semibold text-slate-900 mb-6">Create a new site</h1>
+      <div className="rounded-xl border border-white/10 bg-zinc-900/60 p-6 sm:p-8">
+        <h1 className="text-lg font-semibold text-white mb-1">Create a new site</h1>
+        <p className="text-sm text-zinc-500 mb-6">Deploy a site and protect it with OAuth in minutes.</p>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3 mb-4">
-          {error}
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-slate-600 mb-1.5">Site Name</label>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="My Private Site"
-            required
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 transition-colors"
-          />
-        </div>
-
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="text-sm font-medium text-slate-600">Subdomain</label>
-            <button
-              type="button"
-              onClick={() => {
-                setAutoSlug(!autoSlug);
-                if (!autoSlug) setSlug("");
-              }}
-              className="text-xs text-brand hover:text-brand-hover transition-colors"
-            >
-              {autoSlug ? "Customize" : "Auto-generate"}
-            </button>
-          </div>
-          <div className="flex items-center gap-0">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">Site name</label>
             <input
               type="text"
-              value={autoSlug ? generatedSlug : slug}
-              onChange={(e) => setSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
-              disabled={autoSlug}
-              className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-l-lg text-slate-900 text-sm placeholder:text-slate-400 focus:outline-none focus:border-brand focus:ring-1 focus:ring-brand/20 transition-colors disabled:opacity-50 disabled:bg-slate-50"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+                                          l"
+              required
+              className="w-full px-3.5 py-2.5 rounded-lg border border-white/10 bg-white/5 text-white placeholder-zinc-600 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500/50 transition-colors"
             />
-            <span className="px-3 py-2 bg-slate-100 border border-slate-200 border-l-0 rounded-r-lg text-sm text-slate-500">
-              .oauth.page
-            </span>
           </div>
-        </div>
 
-        <p className="text-xs text-slate-500 bg-slate-50 rounded-lg px-3 py-2 border border-slate-100">
-          Free plan: max 10 active deployments. Each deployment supports up to 25 MB of uploaded files.
-        </p>
+          <div>
+            <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">URL slug</label>
+            <div className="flex items-center rounded-lg border border-white/10 bg-white/5 overflow-hidden focus-within:ring-2 focus-within:ring-violet-500/50 focus-within:border-violet-500/50 transition-colors">
+              <span className="px-3 py-2.5 text-sm text-zinc-600 bg-white/3 border-r border-white/8 whitespace-nowrap">oauth.page/</span>
+              <input
+                type="text"
+                value={autoSlug ? generatedSlug : slug}
+                onChange={(e) => { setAutoSlug(false); setSlug(e.target.value); }}
+                                                                   placeholder="my-internal-tool"
+                className="flex-1 px-3 py-2.5 bg-transparent text-white placeholder-zinc-600 text-sm focus:outline-none"
+              />
+            </div>
+            {autoSlug && name && (
+              <p classNa            text-zinc-600 mt-1.5">Auto-generated from site name</p>
+            )}
+          </div>
 
-        <button
-          type="submit"
-          disabled={submitting || !name}
-          className="w-full py-2.5 bg-brand hover:bg-brand-hover disabled:opacity-50 disabled:hover:bg-brand text-white text-sm font-medium rounded-lg transition-colors mt-2"
-        >
-          {submitting ? "Creating..." : "Create Site"}
-        </button>
-      </form>
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm rounded-lg px-4 py-3">
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={submitting || !name}
+            className="w-full px-4 py-2.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-lg transition-colors btn-press"
+          >
+            {submitting ? "Creating..." : "Create Site"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

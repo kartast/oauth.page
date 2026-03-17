@@ -2,375 +2,108 @@
 @tailwind components;
 @tailwind utilities;
 
+ */ Base /* 
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: #0a0a0f;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Hero background gradient ── */
-.hero-bg {
-  background: linear-gradient(180deg, #38bdf8 0%, #e0f2fe 60%, #ffffff 100%);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Cloud-like soft blobs */
-.hero-bg::before,
-.hero-bg::after {
-  content: "";
-  position: absolute;
-  filter: blur(80px);
-  opacity: 0.6;
-  z-index: 0;
-}
-.hero-bg::before {
-  top: 20%;
-  left: -10%;
-  width: 50vw;
-  height: 50vw;
-  background: #ffffff;
-  border-radius: 50%;
-}
-.hero-bg::after {
-  top: 30%;
-  right: -10%;
-  width: 60vw;
-  height: 60vw;
-  background: #bae6fd;
-  border-radius: 50%;
-}
-
-/* ── Glassmorphism ── */
-.glass-nav {
-  background: rgba(255, 255, 255, 0.75);
+  */Dark nav /* 
+.dark-nav {
+  background: rgba(10, 10, 15, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.glass-card {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.8);
-}
-
-/* ── Dark section (How it Works) ── */
-.dark-section {
-  background: #020617;
-  color: #f8fafc;
-}
-
-.dark-glass-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-}
-
-/* ── Scroll-reveal animations ── */
+  */Reveal animations /* 
 @keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-@keyframes fade-down {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
 }
 @keyframes fade-left {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 @keyframes fade-right {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(24px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
-.reveal {
-  opacity: 0;
-  will-change: transform, opacity;
-}
-.reveal.visible {
-  animation: fade-up 0.5s ease-out forwards;
-}
-.reveal-down.visible {
-  animation: fade-down 0.5s ease-out forwards;
-}
-.reveal-in.visible {
-  animation: fade-in 0.6s ease-out forwards;
-}
-.reveal-left.visible {
-  animation: fade-left 0.5s ease-out forwards;
-}
-.reveal-right.visible {
-  animation: fade-right 0.5s ease-out forwards;
-}
+.reveal { opacity: 0; will-change: transform, opacity; }
+.reveal.visible         { animation: .reveal.visible       t forwards; }
+.reveal-in.visible      { animation: fade-in   0.6s ease-out forwards; }
+.reveal-left.visible    { animation: fade-left 0.5s ease-out forwards; }
+.reveal-right.visible   { animation: fad.reveal-0.5s ease-out forwards; }
 
-/* Stagger children */
-.reveal-stagger > .reveal:nth-child(1) {
-  animation-delay: 0.05s;
-}
-.reveal-stagger > .reveal:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.reveal-stagger > .reveal:nth-child(3) {
-  animation-delay: 0.15s;
-}
-.reveal-stagger > .reveal:nth-child(4) {
-  animation-delay: 0.2s;
-}
-.reveal-stagger > .reveal:nth-child(5) {
-  animation-delay: 0.25s;
-}
-.reveal-stagger > .reveal:nth-child(6) {
-  animation-delay: 0.3s;
-}
-.reveal-stagger > .reveal:nth-child(7) {
-  animation-delay: 0.35s;
-}
+/* Stagger chil/* Stagger chil/* Stagger .reveal:nth-child(1) { animation-delay: 0.05s; }
+.reveal-stagger > .reveal:nth-child(2) { animation-delay: 0.10s; }
+.reveal-stagger > .reveal:nth-child(3) { animation-delay: 0.15s; }
+.reveal-stagger > .reveal:nth-child(4) { animation-delay: 0.20s; }
+.reveal-stagg.reveal-stagg.th-child(5) { animation-delay: 0.25s; }
+.reveal-stagger > .reveal:nth-child(6) { animation-delay: 0..reveal-stagger > .rer > .reveal:nth-child(7) { animation-delay: 0.35s; }
 
 /* Respect reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .reveal,
-  .reveal.visible,
-  .reveal-down.visible,
-  .reveal-in.visible,
-  .reveal-left.visible,
-  .reveal-right.visible {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
+@media (prefers-reduced@media (prefers-reduc.reveal, .reveal.visible, .reveal-in.visible,
+  .reveal-left.visible, .reveal-right.visible {
+    animation    animation    animation    animation    animation  sform: none !important;
   }
-  .animate-ping,
-  [class*="anim-"] {
-    animation: none !important;
-  }
+  .animate-ping { animation: none !important; }
 }
 
-/* Mobile: reduce blur radii for performance */
-@media (max-width: 768px) {
-  .hero-bg::before {
-    filter: blur(60px) !important;
-  }
-  .hero-bg::after {
-    filter: blur(50px) !important;
-  }
-}
-
-/* ── Micro-animations for dashboard ── */
+  */Page enter /* 
 @keyframes page-enter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+.page-enter { animation: page-enter 0.25s ease-out; }
 
-.page-enter {
-  animation: page-enter 0.3s ease-out;
-}
+  */Button press /* 
+.btn-press { transition: all 0.15s ease; }
+.btn-press:hover  { transform: scale(1.02); }
+.btn-press:active { transform: scale(0.98); }
 
-/* Card hover glow — light theme */
-.card-glow {
-  transition: all 0.2s ease;
+  */Skeleton  dark shimmer /* 
+@keyframes shim@keyframes shim@keyframes shim@keyframes shim@keyframes s0% { background-position: 600px 0; }
 }
-.card-glow:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
-    0 0 0 1px rgba(14, 165, 233, 0.1);
-}
-
-/* Button base animations */
-.btn-press {
-  transition: all 0.15s ease;
-}
-.btn-press:hover {
-  transform: scale(1.02);
-}
-.btn-press:active {
-  transform: scale(0.98);
-}
-
-/* Subtle fade for tab content */
-@keyframes tab-fade {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-.tab-content {
-  animation: tab-fade 0.2s ease-out;
-}
-
-/* Row hover highlight — light theme */
-.row-hover {
-  transition: background-color 0.15s ease;
-}
-.row-hover:hover {
-  background-color: rgba(241, 245, 249, 0.8);
-}
-
-/* ── Skeleton shimmer loading — light theme ── */
-@keyframes shimmer {
-  0% {
-    background-position: -1000px 0;
-  }
-  100% {
-    background-position: 1000px 0;
-  }
-}
-
-.skeleton {
-  background: #e2e8f0;
-  background-image: linear-gradient(
-    90deg,
-    #e2e8f0 0px,
-    #f1f5f9 40px,
-    #e2e8f0 80px
-  );
-  background-size: 1000px 100%;
-  animation: shimmer 2s infinite linear;
+.skeleton-dark {
+  background: #1c1c24;
+  background-image: linear-gradient(90deg, #1c1c24 0px, #27272f 40px, #1c1c24 80px);
+  background-size: 600px 100%;
+  animation: shimmer-dark 1.6s infinite linear;
   border-radius: 0.5rem;
 }
 
-/* ── Toast notifications ── */
-@keyframes toast-slide-in {
-  from {
-    transform: translateX(16px);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-@keyframes toast-slide-out {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(16px);
-    opacity: 0;
-  }
-}
-.toast-enter {
-  animation: toast-slide-in 0.25s ease-out;
-}
-.toast-exit {
-  animation: toast-slide-out 0.2s ease-in forwards;
-}
-
-/* ── Progress bar fill animation ── */
-@keyframes progress-fill {
-  from {
-    width: 0;
-  }
-}
-
-/* Progress Bar Track & Fill — light theme */
+  */Progress bars /* 
 .progress-track {
   width: 100%;
-  height: 6px;
-  background-color: #e2e8f0;
+  height: 5px;
+  background-color: rgba(255,255,255,0.08);
   border-radius: 9999px;
   overflow: hidden;
 }
-
 .progress-fill {
-  height: 100%;
-  background-color: #0ea5e9;
-  border-radius: 9999px;
+  height: 100  height: 100  height: 100  height: 100 -radius: 9999px;
   transition: width 0.5s ease-out;
-  animation: progress-fill 0.6s ease-out;
 }
+.progress-fill.danger  { background-color: #ef4444; }
+.progress-fill.warning { background-color: #f59e0b; }
 
-.progress-fill.danger {
-  background-color: #ef4444;
-}
+ */ Toast /* 
+@keyframes toast-in  { from { tran@keyframes toast-in  { fromacity:@keyframes toast-in  { from { tra0); opacit@keyframes toast-in  { from { tran@om { transform: translateX(0); opacity: 1; } to { transform: translateX(16px); opacity: 0; } }
+.toast-enter { animation: toast-in  0.25s ease-out; }
+.toast-exit  { animation: toast-out 0.20s ease-in forwards; }
 
-.progress-fill.warning {
-  background-color: #f59e0b;
-}
-
-/* ── Pending approvals banner accent — light theme ── */
-.pending-banner {
-  border-left: 3px solid rgb(217, 119, 6);
-  background: linear-gradient(
-    135deg,
-    rgba(217, 119, 6, 0.06) 0%,
-    transparent 50%
-  );
-}
-
-/* Empty State Polish — light theme */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 3rem 1.5rem;
-  text-align: center;
-  background-color: rgba(248, 250, 252, 0.8);
-  border: 1px dashed #cbd5e1;
-  border-radius: 0.75rem;
-}
-
-/* ── Animation delay helpers ── */
-.delay-100 {
-  animation-delay: 100ms;
-}
-.delay-200 {
-  animation-delay: 200ms;
-}
-.delay-300 {
-  animation-delay: 300ms;
-}
-.delay-400 {
-  animation-delay: 400ms;
-}
+ *//* /* /* /* /* /*elpers 
+.delay-100 { animation-delay: 100ms; }
+.delay-200 { animation-delay: 200ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-400 { animation-delay: 400ms; }
