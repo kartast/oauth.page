@@ -160,25 +160,18 @@ export function WorkflowAnimation() {
             <g fontFamily="monospace" fontSize="13" fill="#e4e4e7">
               {/* Command 1 */}
               <text x="20" y="60" fill="#a1a1aa">❯</text>
-              <text x="38" y="60" fill="#f472b6">npm</text>
-              <text x="68" y="60">run build</text>
-              <text x="20" y="82" fill="#a1a1aa" fontSize="11">✓ Compiled 128 assets</text>
-              <text x="20" y="100" fill="#a1a1aa" fontSize="11">✓ Build successful (1.2s)</text>
-
-              {/* Command 2 */}
-              <text x="20" y="135" fill="#a1a1aa">❯</text>
-              <text x="38" y="135" fill="#38bdf8">opage</text>
-              <text x="82" y="135">deploy ./dist --site app</text>
+              <text x="38" y="60" fill="#38bdf8">opage</text>
+              <text x="82" y="60">deploy ./dist --site app</text>
               
               <g style={{ animation: 'type-text 6s infinite' }}>
-                <text x="20" y="160" fill="#8b5cf6">⠋</text>
-                <text x="38" y="160" fill="#a1a1aa" fontSize="11">Uploading bundle (4.2 MB)...</text>
+                <text x="20" y="85" fill="#8b5cf6">⠋</text>
+                <text x="38" y="85" fill="#a1a1aa" fontSize="11">Uploading bundle (4.2 MB)...</text>
               </g>
 
               <g style={{ animation: 'type-text 6s infinite', animationDelay: '2s' }}>
-                <text x="20" y="185" fill="#10b981">✔</text>
-                <text x="38" y="185" fill="#10b981" fontSize="11" fontWeight="bold">Deployed to app.oauth.page</text>
-                <text x="220" y="185" fill="#e4e4e7" className="cursor">█</text>
+                <text x="20" y="110" fill="#10b981">✔</text>
+                <text x="38" y="110" fill="#10b981" fontSize="11" fontWeight="bold">Deployed to app.oauth.page</text>
+                <text x="220" y="110" fill="#e4e4e7" className="cursor">█</text>
               </g>
             </g>
           </g>

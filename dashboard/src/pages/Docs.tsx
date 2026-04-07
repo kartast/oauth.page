@@ -26,6 +26,7 @@ const sections = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "cli", label: "CLI Reference", icon: Terminal },
   { id: "deploying", label: "Deploying Sites", icon: Upload },
+  { id: "markdown-sites", label: "Markdown Sites", icon: FileText },
   { id: "access-control", label: "Access Control", icon: Users },
   { id: "one-time-links", label: "One-Time Links", icon: Link2 },
   { id: "api", label: "API Reference", icon: Code2 },
@@ -401,6 +402,33 @@ $ opage logout     # Clear stored credentials`}</CodeBlock>
             Hashed assets (filenames containing content hashes, e.g. <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">index-Bl0MRy9g.js</code>)
             are served with immutable cache headers for optimal performance. Non-hashed files use short TTLs.
           </P>
+
+          {/* ────────── Markdown Sites ────────── */}
+          <H2 id="markdown-sites">
+            <FileText size={22} className="text-blue-400" />
+            Markdown Sites
+          </H2>
+          <P>
+            OAuthPage automatically detects "Markdown-only" sites. If you deploy a directory containing 
+            <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">.md</code> files 
+            but no <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">index.html</code>, 
+            we'll automatically render them as a professional documentation site using <strong>Docsify</strong>.
+          </P>
+          
+          <H3>Why use Markdown sites?</H3>
+          <ul className="space-y-2 mb-4">
+            <Li><strong>Save output tokens</strong> — Perfect for AI agents. Instead of generating a full React/Tailwind app, have your agent just output a single markdown file.</Li>
+            <Li><strong>Instant documentation</strong> — No build step, no config. Just upload markdown.</Li>
+            <Li><strong>Automatic sidebar</strong> — We'll even generate a sidebar for you if you don't provide a <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">_sidebar.md</code>.</Li>
+          </ul>
+          
+          <H3>Example deployment</H3>
+          <CodeBlock title="Terminal">{`$ ls
+README.md  setup.md  api.md
+
+$ opage deploy . --site my-docs
+✔ Detected Markdown-only site
+✔ Deployed to my-docs.oauth.page`}</CodeBlock>
 
           {/* ────────── Access Control ────────── */}
           <H2 id="access-control">
