@@ -21,7 +21,7 @@ export default function SiteCard({ site }: { site: Site }) {
   return (
     <Link
       to={`/sites/${site.id}`}
-      className="group block rounded-xl border border-white/8 bg-zinc-900/50 hover:bg-zinc-900/80 hover:border-white/14 transition-all overflow-hidden"
+      className="group block rounded-xl surface-panel hover:bg-zinc-900/90 hover:border-white/14 transition-all overflow-hidden"
     >
       {/* Thumbnail area */}
       <div className="aspect-video bg-zinc-950 relative overflow-hidden">
@@ -59,9 +59,9 @@ export default function SiteCard({ site }: { site: Site }) {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-zinc-600 mt-3 pt-3 border-t border-white/6">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-zinc-500 mt-3 pt-3 border-t border-white/6">
           <div className="flex items-center gap-1.5 whitespace-nowrap">
-            <Users size={11} className="shrink-0 text-zinc-600" />
+            <Users size={11} className="shrink-0 text-zinc-500" />
             <span>{site.user_count ?? 0} users</span>
           </div>
           {(site.pending_count ?? 0) > 0 && (
@@ -71,10 +71,10 @@ export default function SiteCard({ site }: { site: Site }) {
             </div>
           )}
           <div className="flex items-center gap-1.5 whitespace-nowrap">
-            <Activity size={11} className="shrink-0 text-zinc-600" />
+            <Activity size={11} className="shrink-0 text-zinc-500" />
             <span>{(site.total_requests ?? 0).toLocaleString()} req</span>
           </div>
-          <div className="text-zinc-700 whitespace-nowrap truncate">
+          <div className="text-zinc-500 whitespace-nowrap truncate">
             {formatBytes(site.total_bytes_out ?? 0)}
           </div>
         </div>

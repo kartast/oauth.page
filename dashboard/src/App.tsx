@@ -1,7 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect, createContext, useContext } from "react";
 import * as Sentry from "@sentry/react";
-import { getMe } from "./lib/api";
+import { getMe, SilentError } from "./lib/api";
 import { ToastProvider } from "./components/Toast";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
@@ -51,8 +51,10 @@ export default function App() {
         logger.info("Auth: no active session");
       }
     } catch (err) {
-      logger.error(logger.fmt`Auth refresh failed: ${String(err)}`);
-      Sentry.captureException(err);
+      if (!(err instanceof SilentError)) {
+        logger.error(logger.fmt`Auth refresh failed: ${String(err)}`);
+        Sentry.captureException(err);
+      }
       setUser(null);
     } finally {
       setLoading(false);

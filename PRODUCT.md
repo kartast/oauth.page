@@ -86,7 +86,7 @@ Pro tier gets auto-screenshot on every deploy.
 7. **One-time link creation** → check active link count
 
 ### Response on limit hit
-- API returns `{ error: "Limit reached", limit: "sites", current: 10, max: 10, message: "You've reached the free plan limit. Paid plans coming soon!" }`
+- API returns `{ error: "Limit reached", limit: "sites", current: 100, max: 100, message: "You've reached the free plan limit. Paid plans coming soon!" }`
 - Dashboard shows upgrade prompt with usage bar
 - Page views over limit: serve a "bandwidth exceeded" page (not a hard block — shows site name + upgrade CTA)
 
@@ -273,7 +273,7 @@ Hit real staging worker with real DB/KV/R2:
 - [ ] View limit: hit 1000 views → 429 page
 - [ ] Storage limit: exceed 50MB total → 403
 - [ ] Deploy limit: exceed 500 → 403
-- [ ] Site creation limit: 11th site → 403
+- [ ] Site creation limit: 101st site → 403
 
 ### Browser Tests (Playwright) — Backlog 📋
 Real browser against staging, tests the full user journey:

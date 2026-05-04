@@ -5,6 +5,7 @@ import { verifyOwnerToken, getVisitorIdentity, setSessionCookie, setOwnerCookie,
 import { getMimeType, isHashed } from "./api/files";
 import { sha256Hex } from "./api/links";
 import { PLAN_LIMITS, shouldResetMonthly } from "./limits";
+import { lookupSite } from "./site-lookup";
 
 const proxy = new Hono<{ Bindings: Env }>();
 
@@ -23,13 +24,11 @@ proxy.all("*", async (c) => {
     return c.text("Not found", 404);
   }
 
-  // Look up site config from KV (fast edge lookup)
-  const siteJson = await c.env.KV.get(`site:${slug}`);
-  if (!siteJson) {
+  // Look up site config (KV cache → D1 fallback)
+  const site = await lookupSite(slug, c.env);
+  if (!site) {
     return c.text("Site not found", 404);
   }
-
-  const site: SiteConfig = JSON.parse(siteJson);
 
   // Screenshot bypass — one-time token via header, no auth or usage tracking
   const screenshotToken = c.req.header("x-gk-screenshot");

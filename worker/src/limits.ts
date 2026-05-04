@@ -12,7 +12,7 @@ export interface PlanLimits {
 
 export const PLAN_LIMITS: Record<string, PlanLimits> = {
   free: {
-    sites: 10,
+    sites: 100,
     storageMb: 50,
     deploysPerMonth: 500,
     viewsPerSite: 1000,

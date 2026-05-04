@@ -3,6 +3,7 @@ import { Env, OwnerSession } from "../types";
 import { createVisitorSession, revokeVisitorSessionsByEmail, getVisitorIdentity } from "../auth/session";
 import { sendEmail, newAccessRequestEmail, accessApprovedEmail, accessDeniedEmail } from "../email";
 import { getLimits, shouldResetMonthly, limitError } from "../limits";
+import { lookupSite } from "../site-lookup";
 
 const accessApi = new Hono<{ Bindings: Env; Variables: { owner: OwnerSession } }>();
 
@@ -48,12 +49,11 @@ publicAccessApi.post("/request", async (c) => {
     return c.json({ error: "Slug is required" }, 400);
   }
 
-  // Look up site
-  const siteJson = await c.env.KV.get(`site:${slug}`);
-  if (!siteJson) {
+  // Look up site (KV cache → D1 fallback)
+  const site = await lookupSite(slug, c.env);
+  if (!site) {
     return c.json({ error: "Site not found" }, 404);
   }
-  const site = JSON.parse(siteJson);
 
   // Check for existing pending request
   const existing = await c.env.DB.prepare(

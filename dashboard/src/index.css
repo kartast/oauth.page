@@ -2,10 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-app: #09090b;
+  --bg-elevated: rgba(24, 24, 27, 0.82);
+  --bg-subtle: rgba(39, 39, 42, 0.5);
+  --bg-ghost: rgba(255, 255, 255, 0.04);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.12);
+  --text-primary: #fafafa;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
+  --text-dim: #71717a;
+  --accent: #8b5cf6;
+  --accent-hover: #7c3aed;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #09090b;
+  background-color: var(--bg-app);
   color: #f4f4f5;
   -webkit-font-smoothing: antialiased;
 }
@@ -128,6 +143,53 @@ body {
   background-image: linear-gradient(90deg, #18181b 0px, #27272a 40px, #18181b 80px);
   background-size: 600px 100%;
   animation: shimmer 1.5s infinite linear;
+}
+
+.skeleton {
+  background: #18181b;
+  background-image: linear-gradient(90deg, #18181b 0px, #27272a 40px, #18181b 80px);
+  background-size: 600px 100%;
+  animation: shimmer 1.5s infinite linear;
+  border-radius: 0.75rem;
+}
+
+.surface-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-soft);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.22);
+}
+
+.surface-subtle {
+  background: var(--bg-subtle);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.surface-ghost {
+  background: var(--bg-ghost);
+}
+
+.theme-text-primary {
+  color: var(--text-primary);
+}
+
+.theme-text-secondary {
+  color: var(--text-secondary);
+}
+
+.theme-text-muted {
+  color: var(--text-muted);
+}
+
+.theme-text-dim {
+  color: var(--text-dim);
+}
+
+.theme-ring {
+  border-color: var(--border-soft);
+}
+
+.theme-ring-strong {
+  border-color: var(--border-strong);
 }
 
 /* ── Progress bars ── */

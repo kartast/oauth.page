@@ -2,13 +2,13 @@
 set -euo pipefail
 
 # ──────────────────────────────────────────────
-# OAuthPage Deploy Script
+# OAuthPage Deploy (Staging)
 # ──────────────────────────────────────────────
 
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-PURPLE='\033[0;35m'
+YELLOW='\033[0;33m'
 NC='\033[0m'
 BOLD='\033[1m'
 
@@ -17,16 +17,15 @@ PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Load .env if present
 if [ -f "$PROJECT_DIR/.env" ]; then
-  # Automatically export variables
   set -a
   source "$PROJECT_DIR/.env"
   set +a
 fi
 
 echo ""
-echo -e "${PURPLE}${BOLD}  ╔══════════════════════════╗${NC}"
-echo -e "${PURPLE}${BOLD}  ║    OAuthPage Deploy       ║${NC}"
-echo -e "${PURPLE}${BOLD}  ╚══════════════════════════╝${NC}"
+echo -e "${YELLOW}${BOLD}  ╔══════════════════════════════╗${NC}"
+echo -e "${YELLOW}${BOLD}  ║    OAuthPage Deploy (STG)     ║${NC}"
+echo -e "${YELLOW}${BOLD}  ╚══════════════════════════════╝${NC}"
 echo ""
 
 # ──────────────────────────────────────────────
@@ -38,17 +37,7 @@ npm test
 echo -e "${GREEN}✓${NC} Tests passed"
 
 # ──────────────────────────────────────────────
-# 2. Deploy Worker
-# ──────────────────────────────────────────────
-echo ""
-echo -e "${CYAN}▸${NC} Deploying worker..."
-cd "$PROJECT_DIR/worker"
-npx wrangler deploy
-WORKER_URL="https://app.oauth.page"
-echo -e "${GREEN}✓${NC} Worker deployed"
-
-# ──────────────────────────────────────────────
-# 2. Build + Deploy Dashboard
+# 2. Build Dashboard
 # ──────────────────────────────────────────────
 echo ""
 echo -e "${CYAN}▸${NC} Building dashboard..."
@@ -56,20 +45,32 @@ cd "$PROJECT_DIR/dashboard"
 npm run build
 echo -e "${GREEN}✓${NC} Dashboard built"
 
-echo -e "${CYAN}▸${NC} Deploying dashboard to Pages..."
-npx wrangler pages deploy dist --project-name=oauth-page-dashboard --branch=main --commit-dirty=true
-DASHBOARD_URL="https://oauth-page-dashboard.pages.dev"
-echo -e "${GREEN}✓${NC} Dashboard deployed"
+# ──────────────────────────────────────────────
+# 3. Deploy Worker to staging
+# ──────────────────────────────────────────────
+echo ""
+echo -e "${CYAN}▸${NC} Deploying worker to staging..."
+cd "$PROJECT_DIR/worker"
+npx wrangler deploy --env staging
+WORKER_URL="https://oauth-page-worker-staging.karta.workers.dev"
+echo -e "${GREEN}✓${NC} Worker deployed to staging"
+
+# ──────────────────────────────────────────────
+# 4. Deploy Dashboard to staging Pages
+# ──────────────────────────────────────────────
+echo ""
+echo -e "${CYAN}▸${NC} Deploying dashboard to staging Pages..."
+cd "$PROJECT_DIR/dashboard"
+npx wrangler pages deploy dist --project-name=oauth-page-dashboard --commit-dirty=true
+DASHBOARD_URL="https://oauth-page-dashboard-staging.pages.dev"
+echo -e "${GREEN}✓${NC} Dashboard deployed to staging"
 
 # ──────────────────────────────────────────────
 # Done
 # ──────────────────────────────────────────────
 echo ""
-echo -e "${GREEN}${BOLD}━━━ Deploy Complete! ━━━${NC}"
+echo -e "${GREEN}${BOLD}━━━ Staging Deploy Complete! ━━━${NC}"
 echo ""
 echo -e "  ${BOLD}Worker:${NC}    ${WORKER_URL}"
 echo -e "  ${BOLD}Dashboard:${NC} ${DASHBOARD_URL}"
-echo ""
-echo -e "  Don't forget to set production secrets if you haven't:"
-echo -e "  ${CYAN}cd worker && npx wrangler secret put GITHUB_CLIENT_SECRET${NC}"
 echo ""

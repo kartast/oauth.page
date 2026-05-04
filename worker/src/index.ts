@@ -37,29 +37,59 @@ app.use("*", async (c, next) => {
   return proxy.fetch(c.req.raw, c.env, c.executionCtx);
 });
 
-function isAllowedOrigin(origin?: string): string {
-  if (!origin) return "https://app.oauth.page";
+function getAllowedOrigins(env: Env): Set<string> {
+  const origins = new Set<string>([
+    "https://app.oauth.page",
+    "https://oauth.page",
+    "http://localhost:5173",
+  ]);
+
+  const addOrigin = (value?: string) => {
+    if (!value) return;
+    try {
+      origins.add(new URL(value).origin);
+    } catch {
+      // Ignore invalid configured URLs rather than widening access.
+    }
+  };
+
+  addOrigin(env.APP_URL);
+  addOrigin(env.DASHBOARD_URL);
+  return origins;
+}
+
+function isAllowedOrigin(origin: string | undefined, env: Env): string | null {
+  if (!origin) return null;
   try {
-    const url = new URL(origin);
-    const host = url.hostname;
-    const isOauthPage = host === "oauth.page" || host === "app.oauth.page" || host.endsWith(".oauth.page");
-    const isStagingHost = host.endsWith(".karta.workers.dev");
-    const isLocalDev = origin === "http://localhost:5173";
-    return (isOauthPage || isStagingHost || isLocalDev) ? origin : "https://app.oauth.page";
+    const normalized = new URL(origin).origin;
+    return getAllowedOrigins(env).has(normalized) ? normalized : null;
   } catch {
-    return "https://app.oauth.page";
+    return null;
   }
 }
 
 // CORS for API routes (dashboard cross-origin)
 app.use(
   "/api/*",
-  cors({
-    origin: (origin) => isAllowedOrigin(origin),
-    credentials: true,
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowHeaders: ["Content-Type", "Authorization"],
-  })
+  async (c, next) => {
+    const origin = c.req.header("origin");
+    const allowedOrigin = isAllowedOrigin(origin, c.env);
+
+    const middleware = cors({
+      origin: allowedOrigin || "https://app.oauth.page",
+      credentials: true,
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowHeaders: ["Content-Type", "Authorization"],
+    });
+
+    await middleware(c, next);
+
+    if (!allowedOrigin) {
+      c.res.headers.delete("Access-Control-Allow-Origin");
+      c.res.headers.delete("Access-Control-Allow-Credentials");
+      c.res.headers.delete("Vary");
+    }
+  }
 );
 
 // --- Public routes (no auth) ---

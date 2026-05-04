@@ -3,16 +3,22 @@ set -euo pipefail
 
 BASE_APP="https://app.oauth.page"
 BASE_ROOT="https://oauth.page"
+PROJECT_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CLI_DIR="$PROJECT_ROOT/packages/cli"
 
 printf "\n[1/5] Worker test suite...\n"
-cd "$(dirname "$0")/../worker"
+cd "$PROJECT_ROOT/worker"
 npm test >/dev/null
 printf "  ✅ worker tests passed\n"
 
 printf "\n[2/5] CLI test suite...\n"
-cd ../packages/cli
-npm test >/dev/null
-printf "  ✅ cli tests passed\n"
+if [[ -f "$CLI_DIR/package.json" ]]; then
+  cd "$CLI_DIR"
+  npm test >/dev/null
+  printf "  ✅ cli tests passed\n"
+else
+  printf "  ↷ skipped (packages/cli not present in this checkout)\n"
+fi
 
 printf "\n[3/5] Hosted app health...\n"
 code=$(curl -s -o /dev/null -w "%{http_code}" "$BASE_APP/health")

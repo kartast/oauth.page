@@ -3,6 +3,14 @@ import * as Sentry from "@sentry/react";
 const API_BASE = "";
 const { logger } = Sentry;
 
+/** Error that should not be reported to Sentry */
+export class SilentError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SilentError";
+  }
+}
+
 interface ApiOptions {
   method?: string;
   body?: unknown;
@@ -34,7 +42,11 @@ export async function api<T = unknown>(path: string, options: ApiOptions = {}): 
 
       if (!response.ok) {
         // 401 = session expired → redirect to login (skip auth check itself)
-        if (response.status === 401 && !path.includes('/auth/me')) {
+        if (response.status === 401) {
+          if (path.includes('/auth/me')) {
+            // Not logged in — this is expected, not an error
+            throw new SilentError("Not authenticated");
+          }
           window.location.href = '/';
           return new Promise(() => {}) as never;
         }
@@ -172,6 +184,10 @@ export async function uploadFile(siteId: string, path: string, file: File): Prom
     body: file,
   });
   if (!response.ok) {
+    if (response.status === 401) {
+      window.location.href = '/';
+      return new Promise(() => {}) as never;
+    }
     const error = await response.json().catch(() => ({ error: "Upload failed" }));
     throw new Error((error as any).error || `HTTP ${response.status}`);
   }

@@ -22,6 +22,7 @@ function createMockEnv() {
       delete: vi.fn(() => Promise.resolve()),
     },
     APP_URL: "https://app.oauth.page",
+    DASHBOARD_URL: "https://oauth-page-dashboard.pages.dev",
     GITHUB_CLIENT_ID: "test-github-client-id",
     GITHUB_CLIENT_SECRET: "test-github-secret",
     GOOGLE_CLIENT_ID: "test-google-client-id",
@@ -134,6 +135,24 @@ describe("API Endpoints", () => {
     const body = await res.json() as any;
     expect(body.sites).toBe(5);
     expect(body.deploys).toBe(100);
+  });
+
+  it("allows credentialed CORS for trusted dashboard origins only", async () => {
+    const req = new Request("https://app.oauth.page/api/flags", {
+      headers: { Origin: "https://app.oauth.page" },
+    });
+    const res = await app.fetch(req, env as any, ctx as any);
+    expect(res.headers.get("access-control-allow-origin")).toBe("https://app.oauth.page");
+    expect(res.headers.get("access-control-allow-credentials")).toBe("true");
+  });
+
+  it("does not expose credentialed CORS headers to tenant subdomains", async () => {
+    const req = new Request("https://app.oauth.page/api/flags", {
+      headers: { Origin: "https://evil.oauth.page" },
+    });
+    const res = await app.fetch(req, env as any, ctx as any);
+    expect(res.headers.get("access-control-allow-origin")).toBeNull();
+    expect(res.headers.get("access-control-allow-credentials")).toBeNull();
   });
 
 });

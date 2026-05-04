@@ -73,7 +73,7 @@ function createMockExecutionCtx() {
 
 describe("Plan Limits Config", () => {
   it("has correct free plan limits", () => {
-    expect(PLAN_LIMITS.free.sites).toBe(10);
+    expect(PLAN_LIMITS.free.sites).toBe(100);
     expect(PLAN_LIMITS.free.storageMb).toBe(50);
     expect(PLAN_LIMITS.free.deploysPerMonth).toBe(500);
     expect(PLAN_LIMITS.free.viewsPerSite).toBe(1000);
@@ -145,7 +145,7 @@ describe("Limit Enforcement", () => {
         if (sql.includes("COUNT(*)") && sql.includes("sites")) {
           return {
             bind: vi.fn(() => ({
-              first: vi.fn(() => Promise.resolve({ c: 10 })),
+              first: vi.fn(() => Promise.resolve({ c: 100 })),
             })),
           };
         }
@@ -171,8 +171,8 @@ describe("Limit Enforcement", () => {
       const body = (await res.json()) as any;
       expect(body.error).toBe("Limit reached");
       expect(body.limit).toBe("sites");
-      expect(body.current).toBe(10);
-      expect(body.max).toBe(10);
+      expect(body.current).toBe(100);
+      expect(body.max).toBe(100);
     });
 
     it("allows site creation for pro plan with higher limit", async () => {
