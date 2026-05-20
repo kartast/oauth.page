@@ -11,13 +11,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "drizzle-orm": "^0.31.0",
-    "hono": "^4.4.0"
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.18"
   },
   "devDependencies": {
     "@cloudflare/puppeteer": "^1.0.6",
     "@cloudflare/workers-types": "^4.20240620.0",
-    "drizzle-kit": "^0.22.0",
+    "drizzle-kit": "^0.31.10",
     "typescript": "^5.5.0",
     "vitest": "^4.0.18",
     "wrangler": "^4.69.0"

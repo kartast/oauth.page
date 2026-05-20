@@ -32,7 +32,7 @@ linksApi.post("/:id/links", async (c) => {
   if (!linksEnabled(c.env)) return c.json({ error: "One-time links beta is disabled" }, 404);
   const owner = c.get("owner");
   const siteId = c.req.param("id");
-  const body = await c.req.json<{ path?: string; ttl_seconds?: number }>().catch(() => ({}));
+  const body: { path?: string; ttl_seconds?: number } = await c.req.json<{ path?: string; ttl_seconds?: number }>().catch(() => ({}));
 
   const site = await c.env.DB.prepare("SELECT id, slug, owner_id FROM sites WHERE id = ? AND owner_id = ?")
     .bind(siteId, owner.user_id)

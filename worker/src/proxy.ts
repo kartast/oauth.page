@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Context, Hono } from "hono";
 import { Env, SiteConfig, SessionData, VisitorIdentity } from "./types";
 import { renderGatePage } from "./gate";
 import { verifyOwnerToken, getVisitorIdentity, setSessionCookie, setOwnerCookie, setVisitorCookie, createVisitorSession } from "./auth/session";
@@ -441,7 +441,7 @@ async function serveAutoSidebar(storage: R2Bucket, site: SiteConfig, env: Env): 
 }
 
 async function handleOneTimeLink(
-  c: any,
+  c: Context<{ Bindings: Env }>,
   site: SiteConfig,
   slug: string,
   token: string,
@@ -450,6 +450,15 @@ async function handleOneTimeLink(
   const now = Math.floor(Date.now() / 1000);
   const tokenHash = await sha256Hex(token);
 
+  type OneTimeLinkRow = {
+    id: string;
+    path: string;
+    expires_at: number;
+    status: string;
+    max_uses: number;
+    uses_count: number;
+  };
+
   const link = await c.env.DB.prepare(
     `SELECT id, path, expires_at, status, max_uses, uses_count
      FROM one_time_links
@@ -457,7 +466,7 @@ async function handleOneTimeLink(
      LIMIT 1`
   )
     .bind(site.id, tokenHash)
-    .first<any>();
+    .first<OneTimeLinkRow>();
 
   if (!link) {
     return c.html(renderOneTimeInfo("Invalid link", "This one-time link is invalid or has been removed."), 404);
