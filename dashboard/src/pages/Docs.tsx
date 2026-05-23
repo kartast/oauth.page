@@ -253,15 +253,12 @@ export default function Docs() {
           <CodeBlock title="Terminal">{`$ npx oauthpage login
 ✔ Authenticated via GitHub
 
-$ npx oauthpage add "My Report" --slug q4-report
-✔ Site created: q4-report.oauth.page
-
-$ npx oauthpage deploy ./dist --site q4-report
+$ npx oauthpage deploy ./dist --name "My Report" --slug q4-report
 ⠋ Uploading 12 files (1.8 MB)...
 ✔ Deployed to q4-report.oauth.page
 
 $ npx oauthpage link create q4-report --ttl 24h
-🔗 https://oauth.page/x/abc123xyz`}</CodeBlock>
+🔗 https://q4-report.oauth.page/_otl/abc123xyz`}</CodeBlock>
 
           {/* ────────── Dashboard ────────── */}
           <H2 id="dashboard">
@@ -300,18 +297,21 @@ $ npx oauthpage link create q4-report --ttl 24h
           </H2>
           <P>
             The OAuthPage CLI lets you manage sites, deploy files, and control access from your terminal.
-            Available as <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">oauthpage</code> or
-            the shorter alias <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">opage</code>.
+            Use <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">npx oauthpage</code> for one-off commands, or install globally to get the shorter
+            <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm ml-1">opage</code> alias.
           </P>
 
           <H3>Installation</H3>
-          <CodeBlock title="Terminal">{`$ npm install -g oauthpage
-# or use npx:
-$ npx oauthpage <command>`}</CodeBlock>
+          <CodeBlock title="Terminal">{`# One-off use
+$ npx oauthpage <command>
+
+# Global install, includes the opage alias
+$ npm install -g oauthpage`}</CodeBlock>
 
           <H3>Authentication</H3>
-          <CodeBlock>{`$ opage login      # Opens browser for GitHub OAuth
-$ opage logout     # Clear stored credentials`}</CodeBlock>
+          <CodeBlock>{`$ npx oauthpage login      # Opens browser for GitHub OAuth
+$ npx oauthpage whoami     # Show current account
+$ npx oauthpage logout     # Clear stored credentials`}</CodeBlock>
           <P>
             Credentials are stored at <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">~/.oauthpage/config.json</code>.
             Override with <code className="text-zinc-200 bg-zinc-800 px-1.5 py-0.5 rounded text-sm">OAUTHPAGE_CONFIG_DIR</code> env var.
@@ -328,20 +328,21 @@ $ opage logout     # Clear stored credentials`}</CodeBlock>
               </thead>
               <tbody className="divide-y divide-zinc-800/50">
                 {[
-                  ["opage login", "Authenticate via GitHub (device flow)"],
-                  ["opage logout", "Clear stored credentials"],
-                  ["opage sites", "List all your sites"],
-                  ["opage status [slug]", "Show site details (or list sites if no slug)"],
-                  ["opage add <name> --slug <slug>", "Create a new site"],
-                  ["opage deploy <dir> --site <slug>", "Deploy a directory to a site"],
-                  ["opage remove <slug>", "Delete a site and all its files"],
-                  ["opage access <slug>", "List access requests for a site"],
-                  ["opage approve <slug> <request-id>", "Approve an access request"],
-                  ["opage deny <slug> <request-id>", "Deny an access request"],
-                  ["opage revoke <slug> <email>", "Revoke a user's access"],
-                  ["opage link create <slug>", "Create a one-time access link"],
-                  ["opage link list <slug>", "List active one-time links"],
-                  ["opage link revoke <slug> <link-id>", "Revoke a one-time link"],
+                  ["npx oauthpage login", "Authenticate via GitHub (device flow)"],
+                  ["npx oauthpage whoami", "Show current account"],
+                  ["npx oauthpage logout", "Clear stored credentials"],
+                  ["npx oauthpage sites", "List all your sites"],
+                  ["npx oauthpage status [slug]", "Show site details (or list sites if no slug)"],
+                  ["npx oauthpage add <name> --slug <slug>", "Create a new site"],
+                  ["npx oauthpage deploy <dir> --site <slug>", "Deploy a directory to a site"],
+                  ["npx oauthpage remove <slug> --yes", "Delete a site and all its files"],
+                  ["npx oauthpage access <slug>", "List access requests for a site"],
+                  ["npx oauthpage approve <slug> <email>", "Approve an access request"],
+                  ["npx oauthpage deny <slug> <email>", "Deny an access request"],
+                  ["npx oauthpage revoke <slug> <email>", "Revoke a user's access"],
+                  ["npx oauthpage link create <slug>", "Create a beta one-time access link"],
+                  ["npx oauthpage link list <slug>", "List active one-time links"],
+                  ["npx oauthpage link revoke <slug> <link-id>", "Revoke a one-time link"],
                 ].map(([cmd, desc]) => (
                   <tr key={cmd} className="hover:bg-zinc-900/30">
                     <td className="px-4 py-2 font-mono text-zinc-300 whitespace-nowrap">{cmd}</td>
@@ -364,7 +365,7 @@ $ opage logout     # Clear stored credentials`}</CodeBlock>
           </H2>
 
           <H3>From the CLI</H3>
-          <CodeBlock title="Terminal">{`$ opage deploy ./my-build --site my-site
+          <CodeBlock title="Terminal">{`$ npx oauthpage deploy ./my-build --site my-site
 ⠋ Uploading 24 files (3.2 MB)...
 ✔ Deployed to my-site.oauth.page`}</CodeBlock>
           <P>
@@ -426,7 +427,7 @@ $ opage logout     # Clear stored credentials`}</CodeBlock>
           <CodeBlock title="Terminal">{`$ ls
 README.md  setup.md  api.md
 
-$ opage deploy . --site my-docs
+$ npx oauthpage deploy . --site my-docs
 ✔ Detected Markdown-only site
 ✔ Deployed to my-docs.oauth.page`}</CodeBlock>
 
@@ -475,7 +476,7 @@ $ opage deploy . --site my-docs
             Revoke any user's access from the dashboard or CLI. Their session cookie becomes invalid
             immediately, and they'll see the gate page again.
           </P>
-          <CodeBlock>{`$ opage revoke my-site user@example.com
+          <CodeBlock>{`$ npx oauthpage revoke my-site user@example.com
 ✔ Access revoked for user@example.com`}</CodeBlock>
 
           {/* ────────── One-Time Links ────────── */}
@@ -485,21 +486,21 @@ $ opage deploy . --site my-docs
             <Badge>Beta</Badge>
           </H2>
           <P>
-            One-time links let you share access without requiring the recipient to have a GitHub account.
-            Each link can only be used once — after that, it's consumed and cannot be reused.
+            One-time links are beta bearer-style access links. Anyone with the link can open the configured path
+            without OAuth until the link is consumed, expires, or is revoked.
           </P>
 
           <H3>Creating links</H3>
           <CodeBlock>{`# From CLI
-$ opage link create my-site --ttl 24h
-🔗 https://oauth.page/x/abc123xyz
+$ npx oauthpage link create my-site --ttl 24h
+🔗 https://my-site.oauth.page/_otl/abc123xyz
 
 # From dashboard
 # Site detail → Links tab → Create Link`}</CodeBlock>
 
           <H3>How one-time links work</H3>
           <ul className="space-y-2 mb-4">
-            <Li>When someone opens the link, they see a <strong>confirmation page</strong> (prevents bot/link-scanner consumption)</Li>
+            <Li>When someone opens the link, they see a <strong>confirmation page</strong> for the target path</Li>
             <Li>After confirming, they receive a session cookie — same as an approved user</Li>
             <Li>The link is permanently consumed — subsequent visits show "Link already used"</Li>
             <Li>You can revoke unused links at any time</Li>
@@ -573,7 +574,7 @@ $ opage link create my-site --ttl 24h
                 <ApiRow method="GET" path="/api/sites/:id/files" desc="List files in a site" />
                 <ApiRow method="PUT" path="/api/sites/:id/files/*" desc="Upload a single file" />
                 <ApiRow method="DELETE" path="/api/sites/:id/files/*" desc="Delete a file" />
-                <ApiRow method="POST" path="/api/sites/:id/deploy" desc="Bulk deploy (multipart)" />
+                <ApiRow method="POST" path="/api/sites/:id/deploy" desc="Bulk deploy (JSON with base64 files)" />
               </tbody>
             </table>
           </div>

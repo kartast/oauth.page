@@ -126,11 +126,11 @@ ALTER TABLE sites ADD COLUMN views_reset_at INTEGER;
 - [x] Security audit v3 (XSS fixes in OTL, views exceeded, sidebar)
 
 ### In Progress 🔧
-- [ ] CLI npm publish (`npx oauthpage`)
+- [x] CLI npm publish (`npx oauthpage`)
 
 ### Backlog 📋
 - [ ] Google OAuth credentials (secrets not set)
-- [ ] CLI npm publish (`npx oauthpage`)
+- [x] CLI npm publish (`npx oauthpage`)
 - [ ] Deploy history timeline
 - [ ] Drag-drop upload zone
 - [ ] Reliable bandwidth tracking (CF Analytics Engine)

@@ -110,7 +110,7 @@ export default function Home() {
                     <div className="w-3 h-3 rounded-full bg-zinc-800" />
                     <div className="w-3 h-3 rounded-full bg-zinc-800" />
                   </div>
-                  <div className="mx-auto bg-zinc-800/80 text-zinc-500 text-[10px] px-3 py-1 rounded-md font-mono">dashboard.oauth.page</div>
+                  <div className="mx-auto bg-zinc-800/80 text-zinc-500 text-[10px] px-3 py-1 rounded-md font-mono">app.oauth.page</div>
                 </div>
                 {/* App Content */}
                 <div className="bg-zinc-950/40 rounded-xl p-6 md:p-8 text-left mt-2 backdrop-blur-md border border-zinc-800/30">
@@ -205,7 +205,7 @@ export default function Home() {
               </div>
               <div className="rounded-xl border border-zinc-800 bg-zinc-900/60 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:bg-zinc-800/60 transition-colors">
                 <div className="flex items-center gap-3 flex-shrink-0"><span className="text-2xl">🐾</span><div><p className="text-sm font-semibold text-zinc-200">Works with OpenClaw</p><p className="text-xs text-zinc-500">AI assistant framework</p></div></div>
-                <div className="sm:border-l sm:border-zinc-700 sm:pl-4 flex-1"><p className="text-sm text-zinc-400">OpenClaw agents use <code className="text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">opage deploy</code> to publish artifacts, reports, and dashboards directly — then share secure links in chat. No manual steps.</p></div>
+                <div className="sm:border-l sm:border-zinc-700 sm:pl-4 flex-1"><p className="text-sm text-zinc-400">OpenClaw agents use <code className="text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded text-xs">npx oauthpage deploy</code> to publish artifacts, reports, and dashboards directly — then share secure links in chat. No manual steps.</p></div>
               </div>
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function Home() {
 
         <section id="workflow-steps" className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-center mb-24 lg:mb-32">
           <div ref={featRef} className="reveal reveal-left space-y-8 pr-0 lg:pr-12">
-            <div><h2 className="text-3xl font-semibold mb-4 text-zinc-100">Three commands. Done.</h2><p className="text-zinc-400 text-lg leading-relaxed">No config files. No auth setup. No infrastructure to manage.</p></div>
+            <div><h2 className="text-3xl font-semibold mb-4 text-zinc-100">Two commands. Done.</h2><p className="text-zinc-400 text-lg leading-relaxed">No config files. No auth setup. No infrastructure to manage. Built for private previews, docs, demos, AI artifacts, and internal sharing while OAuthPage is in beta.</p></div>
             <ul className="space-y-6">
               <FeatureItem title="Upload anything" desc="HTML, React apps, reports, dashboards — if a browser can open it, OAuthPage can host it." />
               <FeatureItem title="Share the link" desc="Send your URL to a client or teammate. They sign in, you approve — that's it." />
@@ -229,7 +229,7 @@ export default function Home() {
               </div>
               <div className="p-6 overflow-auto">
                 <p className="text-xs text-zinc-500 mb-3">Each line is a separate command:</p>
-                <pre className="text-sm text-zinc-300 font-mono leading-relaxed whitespace-pre">{`$ opage login\n✔ Authenticated successfully\n\n$ opage add "My Site" --slug my-site\n✔ Site created\n\n$ opage deploy ./dist --site my-site\n⠋ Uploading assets...\n✔ Deployed to my-site.oauth.page\n\n$ opage link create my-site --ttl 1h\n🔗 my-site.oauth.page/_otl/...`}</pre>
+                <pre className="text-sm text-zinc-300 font-mono leading-relaxed whitespace-pre">{`$ npx oauthpage login\n✔ Authenticated successfully\n\n$ npx oauthpage deploy ./dist --name "My Site" --slug my-site\n⠋ Uploading assets...\n✔ Deployed to my-site.oauth.page\n\n$ npx oauthpage link create my-site --ttl 1h\n🔗 https://my-site.oauth.page/_otl/...`}</pre>
               </div>
             </div>
           </div>

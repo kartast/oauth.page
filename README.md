@@ -1,8 +1,36 @@
-# 🔐 OAuthPage
+# OAuthPage
 
-> Google Docs sharing model, but for any website.
+> Private deploys for AI-built pages, docs, demos, and internal tools.
 
-OAuthPage is an edge proxy SaaS that puts an access gate in front of any website. Site owners protect their sites and manage who has access via a dashboard — visitors sign in with GitHub or Google OAuth, request access, and owners approve/deny from the dashboard.
+OAuthPage hosts static sites on Cloudflare and puts an OAuth access gate in front of them. Site owners deploy with the CLI or dashboard, share a `*.oauth.page` URL, and approve or revoke visitors from the dashboard or CLI.
+
+## Quick Start
+
+```bash
+npx oauthpage login
+npx oauthpage deploy ./dist --name "My App" --slug my-app
+```
+
+Your protected site is live at:
+
+```text
+https://my-app.oauth.page
+```
+
+Visitors sign in with GitHub or Google and request access. You approve them from `https://app.oauth.page` or with:
+
+```bash
+npx oauthpage approve my-app user@example.com
+```
+
+One-time links are available in beta:
+
+```bash
+npx oauthpage link create my-app --ttl 1h
+# https://my-app.oauth.page/_otl/...
+```
+
+Treat one-time links as bearer-style access links: anyone with the link can open the configured path without OAuth until it is consumed, expires, or is revoked.
 
 ## Architecture
 
@@ -48,16 +76,34 @@ OAuthPage is an edge proxy SaaS that puts an access gate in front of any website
 | `gk_visitor` | Visitor identity during request flow | 1 day |
 | `gk_owner` | Dashboard access (owner) | 30 days |
 
-## Prerequisites
+## CLI Commands
+
+| Command | Description |
+|---|---|
+| `npx oauthpage login` | Authenticate with OAuthPage |
+| `npx oauthpage whoami` | Show the current authenticated account |
+| `npx oauthpage deploy ./dist --name "My App" --slug my-app` | Create and deploy a protected site |
+| `npx oauthpage sites` | List your sites |
+| `npx oauthpage status my-app` | Show site details and usage |
+| `npx oauthpage access my-app` | List approved users and pending requests |
+| `npx oauthpage approve my-app user@example.com` | Approve a pending request |
+| `npx oauthpage deny my-app user@example.com` | Deny a pending request |
+| `npx oauthpage revoke my-app user@example.com` | Revoke access |
+| `npx oauthpage remove my-app --yes` | Delete a site and its files |
+| `npx oauthpage link create my-app` | Create a beta one-time link |
+
+Install globally with `npm install -g oauthpage` if you want the shorter `opage` alias.
+
+## Local Development Prerequisites
 
 - **Node.js** 18+
 - **Cloudflare** account (Workers, D1, KV, Pages)
 - **GitHub OAuth** app ([create one](https://github.com/settings/developers))
 - **Google OAuth** app ([create one](https://console.cloud.google.com/apis/credentials))
 
-## Quick Start
+## Local Development
 
-### 1. Clone & Install
+### 1. Clone and Install
 
 ```bash
 git clone https://github.com/your-org/oauthpage.git

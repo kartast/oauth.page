@@ -205,6 +205,7 @@ sitesApi.delete("/:id", async (c) => {
   }
 
   // Delete from D1 (cascade manually)
+  await c.env.DB.prepare("DELETE FROM one_time_links WHERE site_id = ?").bind(siteId).run();
   await c.env.DB.prepare("DELETE FROM sessions WHERE site_id = ?").bind(siteId).run();
   await c.env.DB.prepare("DELETE FROM access_requests WHERE site_id = ?").bind(siteId).run();
   await c.env.DB.prepare("DELETE FROM sites WHERE id = ?").bind(siteId).run();

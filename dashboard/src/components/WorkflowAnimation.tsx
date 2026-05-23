@@ -160,8 +160,8 @@ export function WorkflowAnimation() {
             <g fontFamily="monospace" fontSize="13" fill="#e4e4e7">
               {/* Command 1 */}
               <text x="20" y="60" fill="#a1a1aa">❯</text>
-              <text x="38" y="60" fill="#38bdf8">opage</text>
-              <text x="82" y="60">deploy ./dist --site app</text>
+              <text x="38" y="60" fill="#38bdf8">npx oauthpage</text>
+              <text x="130" y="60">deploy ./dist --site app</text>
               
               <g style={{ animation: 'type-text 6s infinite' }}>
                 <text x="20" y="85" fill="#8b5cf6">⠋</text>
