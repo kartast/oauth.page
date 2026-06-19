@@ -138,7 +138,7 @@ GET  /__oauthpage/log.js   → static shim (Cache-Control: public, immutable)
 POST /__oauthpage/log      → verifyLogToken → rateLimit → LogStore.write → 204
 ```
 
-## Read path (CLI — external repo `github.com/unplug-io/oauthpage-cli`)
+## Read path (CLI — external repo `github.com/kartast/oauthpage-cli`)
 
 ```
 oauthpage logs <site> [--tail] [--visitor <email>] [--level error] [--since 1h]
