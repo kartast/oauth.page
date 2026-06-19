@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Bot, Check, Cloud, Code2, Lock, Shield, Terminal, Zap, Globe, FileText, Copy, Sparkles } from "lucide-react";
+import { ArrowRight, Bot, Check, Cloud, Code2, Lock, Shield, Terminal, Zap, Globe, FileText, Copy, Sparkles, Github, Star } from "lucide-react";
+
+const GITHUB_REPO_URL = "https://github.com/kartast/gatekeep";
 import { WorkflowAnimation } from "../components/WorkflowAnimation";
 
 function useReveal() {
@@ -61,6 +63,19 @@ export default function Home() {
           <span className="text-lg font-bold tracking-tight text-white group-hover:text-brand-light transition-colors hidden sm:block">OAuthPage</span>
         </Link>
         <div className="flex items-center gap-3 sm:gap-8 shrink-0">
+          <a
+            href={GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-full border border-zinc-700/80 bg-zinc-900/60 text-xs font-semibold text-zinc-300 hover:text-white hover:border-zinc-500 transition-colors whitespace-nowrap"
+            title="OAuthPage is open source — view on GitHub"
+          >
+            <Github size={14} />
+            <span className="hidden sm:inline">Open source</span>
+            <span className="hidden md:inline-flex items-center gap-1 pl-1.5 ml-0.5 border-l border-zinc-700 text-zinc-400">
+              <Star size={12} className="text-amber-400" /> Star
+            </span>
+          </a>
           <Link to="/docs" className="hidden md:block text-sm font-medium text-zinc-400 hover:text-white transition-colors">Docs</Link>
           <Link to="/login" className="hidden xs:block text-sm font-medium text-zinc-400 hover:text-white transition-colors whitespace-nowrap">Sign in</Link>
           <Link to="/login" className="px-4 py-2 rounded-xl bg-white text-zinc-950 text-xs sm:text-sm font-bold hover:bg-zinc-100 hover:scale-[1.02] active:scale-[0.98] transition-all shadow-[0_0_20px_rgba(255,255,255,0.15)] whitespace-nowrap">
@@ -259,6 +274,7 @@ export default function Home() {
         <footer className="pt-8 border-t border-zinc-700/50 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm text-zinc-500">
           <div className="flex items-center gap-2 text-zinc-400 hover:text-zinc-300 transition-colors"><Shield size={16} /><span className="font-medium">OAuthPage</span></div>
           <div className="flex flex-wrap items-center justify-center gap-6">
+            <a href={GITHUB_REPO_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 hover:text-zinc-300 transition-colors"><Github size={14} /> GitHub</a>
             <Link to="/docs" className="hover:text-zinc-300 transition-colors">Documentation</Link>
             <Link to="/docs#status" className="hover:text-zinc-300 transition-colors">System Status</Link>
             <Link to="/docs#privacy" className="hover:text-zinc-300 transition-colors">Privacy</Link>

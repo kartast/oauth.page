@@ -46,7 +46,7 @@ cd worker && npm test && source ../.env.credentials && \
 
 # Full (dashboard + worker)
 cd dashboard && npm run build
-# Upload dist/* to KV (namespace: b651495a73a04699a0d14cef9af8df2d) with --remote
+# Upload dist/* to the dashboard KV namespace (see DASHBOARD id in your wrangler.toml) with --remote
 cd ../worker && npm test && wrangler deploy
 ```
 

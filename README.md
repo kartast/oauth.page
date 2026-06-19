@@ -141,6 +141,125 @@ Opens both:
 ./scripts/deploy.sh
 ```
 
+## Deploy to Cloudflare
+
+OAuthPage runs entirely on the Cloudflare developer platform — no origin servers,
+no containers. A full deploy provisions five primitives (D1, KV, R2, Queues,
+Browser Rendering) and ships two artifacts (the Worker and the dashboard SPA).
+
+> `worker/wrangler.toml` is **gitignored** because it is unique to each
+> Cloudflare account. Start from the template:
+>
+> ```bash
+> cd worker && cp wrangler.toml.example wrangler.toml
+> ```
+>
+> Then fill in your own `database_id` / KV `id` / bucket name as the steps below
+> print them. Resource IDs are not secrets, but they bind the Worker to a
+> specific account.
+
+### 0. Prerequisites
+
+- A Cloudflare account on the **Workers Paid** plan ($5/mo) — required for
+  Browser Rendering and Queues.
+- A zone (domain) on Cloudflare if you want vanity `*.yourdomain` routing.
+  You can skip this and use the free `*.workers.dev` subdomain for testing.
+- `wrangler` CLI: `npm install -g wrangler && wrangler login`
+- GitHub and (optionally) Google OAuth apps.
+
+### 1. Provision resources
+
+```bash
+cd worker
+
+# D1 (source of truth — sites, users, access requests, links)
+wrangler d1 create oauth-page-db
+#   → copy the printed database_id into [[d1_databases]] in wrangler.toml
+
+# KV (hot cache — sessions, site lookup, view counters, sidebars)
+wrangler kv namespace create KV
+#   → copy the printed id into [[kv_namespaces]]
+
+# KV namespace that holds the built dashboard assets (served by the Worker)
+wrangler kv namespace create DASHBOARD
+
+# R2 (all site content — egress-free)
+wrangler r2 bucket create oauthpage-sites
+
+# Queues (decouple deploys from screenshot rendering)
+wrangler queues create screenshot-jobs
+wrangler queues create screenshot-dlq
+```
+
+`compatibility_flags = ["nodejs_compat"]`, the `[browser]` binding, and the
+queue consumer settings are already in `wrangler.toml` — no extra setup needed.
+
+### 2. Apply database migrations
+
+```bash
+# Remote (production) D1
+wrangler d1 migrations apply oauth-page-db --remote
+```
+
+### 3. Set secrets
+
+Secrets are **never** stored in `wrangler.toml` — set them with `wrangler secret put`:
+
+```bash
+wrangler secret put GITHUB_CLIENT_ID
+wrangler secret put GITHUB_CLIENT_SECRET
+wrangler secret put GOOGLE_CLIENT_ID        # optional
+wrangler secret put GOOGLE_CLIENT_SECRET    # optional
+wrangler secret put JWT_SECRET              # openssl rand -hex 32
+wrangler secret put RESEND_API_KEY          # optional (email notifications)
+```
+
+Point your GitHub/Google OAuth app callback URLs at your deployed Worker, e.g.
+`https://<your-worker>.workers.dev/api/auth/github/callback`.
+
+### 4. Build & upload the dashboard
+
+The dashboard is a static SPA uploaded to KV and served by the Worker.
+
+```bash
+cd ../dashboard && npm run build
+# Upload dist/* to the DASHBOARD KV namespace created in step 1, e.g.:
+#   wrangler kv bulk put --namespace-id <DASHBOARD_ID> dist-manifest.json --remote
+```
+
+(See `scripts/deploy.sh` for the exact upload command this repo uses.)
+
+### 5. Deploy the Worker
+
+```bash
+cd ../worker
+npm test           # run the full suite first — required before any deploy
+wrangler deploy
+```
+
+### 6. (Optional) Routes & custom domain
+
+To serve `*.yourdomain` instead of `*.workers.dev`, set the `[[routes]]` block
+in `wrangler.toml` to your zone:
+
+```toml
+[[routes]]
+pattern = "*.yourdomain.com/*"
+zone_name = "yourdomain.com"
+```
+
+Add a wildcard DNS record (`*` → proxied) for the subdomain routing to work.
+
+### Staging first
+
+`wrangler.toml` ships a `[env.staging]` environment with its own resources.
+Always deploy and verify on staging before production:
+
+```bash
+wrangler deploy --env staging   # → https://<worker>-staging.workers.dev
+wrangler deploy                 # production, after verifying staging
+```
+
 ## Environment Variables
 
 | Variable | Description | Where |

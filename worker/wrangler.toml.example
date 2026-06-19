@@ -1,44 +1,55 @@
+# Copy this file to `wrangler.toml` and fill in your own resource IDs.
+#   cp wrangler.toml.example wrangler.toml
+# `wrangler.toml` is gitignored because it is unique to your Cloudflare account.
+# Create resources with the commands in README.md → "Deploy to Cloudflare",
+# then paste the printed IDs below.
+
 name = "oauth-page-worker"
 main = "src/index.ts"
 compatibility_date = "2024-06-20"
 compatibility_flags = ["nodejs_compat"]
 
 [vars]
-APP_URL = "https://app.oauth.page"
-DASHBOARD_URL = "https://oauth-page-dashboard.pages.dev"
+APP_URL = "https://app.example.com"
+DASHBOARD_URL = "https://your-dashboard.pages.dev"
 BETA_ONE_TIME_LINKS = "true" # easy launch toggle: set to "false"
-# Set these as secrets via `wrangler secret put`:
-# GITHUB_CLIENT_ID
-# GITHUB_CLIENT_SECRET
-# GOOGLE_CLIENT_ID
-# GOOGLE_CLIENT_SECRET
-# JWT_SECRET
-# RESEND_API_KEY
+# Optional: visitor logging store. Leave unset to disable.
+# SUPABASE_URL = "https://<your-project>.supabase.co"
+
+# Set these as secrets via `wrangler secret put <NAME>` — never commit them:
+#   GITHUB_CLIENT_ID
+#   GITHUB_CLIENT_SECRET
+#   GOOGLE_CLIENT_ID
+#   GOOGLE_CLIENT_SECRET
+#   JWT_SECRET
+#   RESEND_API_KEY
+#   SUPABASE_SERVICE_KEY
 
 [[d1_databases]]
 binding = "DB"
 database_name = "oauth-page-db"
-database_id = "d3fe89b5-4259-45ea-b344-77d6c26cbe8a"
+database_id = "<YOUR_D1_DATABASE_ID>"   # wrangler d1 create oauth-page-db
 migrations_dir = "drizzle"
 
 [[kv_namespaces]]
 binding = "KV"
-id = "b651495a73a04699a0d14cef9af8df2d"
+id = "<YOUR_KV_NAMESPACE_ID>"           # wrangler kv namespace create KV
 
 [[r2_buckets]]
 binding = "STORAGE"
-bucket_name = "oauthpage-sites"
+bucket_name = "oauthpage-sites"          # wrangler r2 bucket create oauthpage-sites
 
 [browser]
 binding = "BROWSER"
 
+# Vanity routing — point at your own zone, or delete to use *.workers.dev
 [[routes]]
-pattern = "*.oauth.page/*"
-zone_name = "oauth.page"
+pattern = "*.example.com/*"
+zone_name = "example.com"
 
 [[routes]]
-pattern = "oauth.page/*"
-zone_name = "oauth.page"
+pattern = "example.com/*"
+zone_name = "example.com"
 
 # Screenshot queue — decouples deploys from browser rendering
 [[queues.producers]]
@@ -60,19 +71,20 @@ name = "oauth-page-worker-staging"
 routes = []
 
 [env.staging.vars]
-APP_URL = "https://oauth-page-worker-staging.karta.workers.dev"
-DASHBOARD_URL = "https://oauth-page-dashboard-staging.pages.dev"
+APP_URL = "https://oauth-page-worker-staging.<your-subdomain>.workers.dev"
+DASHBOARD_URL = "https://your-dashboard-staging.pages.dev"
 BETA_ONE_TIME_LINKS = "true"
+# SUPABASE_URL = "https://<your-project>.supabase.co"
 
 [[env.staging.d1_databases]]
 binding = "DB"
 database_name = "oauth-page-db-staging"
-database_id = "3ed336e2-a6ba-4431-964e-61ba6548c37e"
+database_id = "<YOUR_STAGING_D1_DATABASE_ID>"
 migrations_dir = "drizzle"
 
 [[env.staging.kv_namespaces]]
 binding = "KV"
-id = "fd499e7ac2a242f0949fcbd0e176d0b2"
+id = "<YOUR_STAGING_KV_NAMESPACE_ID>"
 
 [[env.staging.r2_buckets]]
 binding = "STORAGE"
@@ -92,5 +104,3 @@ max_retries = 3
 dead_letter_queue = "screenshot-dlq-stg"
 max_batch_timeout = 0
 max_concurrency = 5
-
-
