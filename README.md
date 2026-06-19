@@ -106,8 +106,8 @@ Install globally with `npm install -g oauthpage` if you want the shorter `opage`
 ### 1. Clone and Install
 
 ```bash
-git clone https://github.com/your-org/oauthpage.git
-cd oauthpage
+git clone https://github.com/kartast/oauth.page.git
+cd oauth.page
 npm install
 ```
 

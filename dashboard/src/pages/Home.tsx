@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Bot, Check, Cloud, Code2, Lock, Shield, Terminal, Zap, Globe, FileText, Copy, Sparkles, Github, Star } from "lucide-react";
 
-const GITHUB_REPO_URL = "https://github.com/kartast/gatekeep";
+const GITHUB_REPO_URL = "https://github.com/kartast/oauth.page";
 import { WorkflowAnimation } from "../components/WorkflowAnimation";
 
 function useReveal() {
