@@ -392,4 +392,4 @@ cd worker && npm run db:migrate
 
 ## License
 
-MIT
+[Apache License 2.0](LICENSE) — see [`NOTICE`](NOTICE).
